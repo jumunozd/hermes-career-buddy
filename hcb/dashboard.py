@@ -46,13 +46,21 @@ def load_rows():
 
 def load_jobs():
     prof = (util.config().get("telegram") or {}).get("profile", "career-buddy")
-    home = Path(os.environ.get("HERMES_HOME") or Path.home() / ".hermes")
-    p = home / "profiles" / prof / "cron" / "jobs.json"
-    try:
-        d = json.loads(p.read_text())
-        return d if isinstance(d, list) else d.get("jobs", [])
-    except Exception:
-        return None
+    # Inside a Hermes session HOME and HERMES_HOME may point at the profile itself, so try each layout.
+    cands = []
+    if os.environ.get("HERMES_HOME"):
+        h = Path(os.environ["HERMES_HOME"])
+        cands += [h / "profiles" / prof / "cron" / "jobs.json", h / "cron" / "jobs.json"]
+    for base in (os.environ.get("HERMES_REAL_HOME"), str(Path.home())):
+        if base:
+            cands.append(Path(base) / ".hermes" / "profiles" / prof / "cron" / "jobs.json")
+    for p in cands:
+        try:
+            d = json.loads(p.read_text())
+            return d if isinstance(d, list) else d.get("jobs", [])
+        except Exception:
+            continue
+    return None
 
 
 def _dt(s):
