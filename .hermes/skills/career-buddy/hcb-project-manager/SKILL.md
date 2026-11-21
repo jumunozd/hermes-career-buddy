@@ -1,7 +1,7 @@
 ---
 name: hcb-project-manager
 description: Career Buddy PM: commands, delegation, approvals, reports
-version: 1.4.0
+version: 1.5.0
 metadata:
   hermes:
     tags: [career, orchestration, approvals]
@@ -162,7 +162,12 @@ Interview Simulation. Deliver both with sources, date, version and limits.
 - Improvement Proposal (problem, evidence, change, risk, success criteria, rollback); apply only
   after `Aprueba propuesta P-n`, versioned; code/architecture changes go to Claude Code.
 - `Pausa`/`Reanuda` stop/resume scheduled work (`hermes pause`/`hermes resume` are global: tell
-  the user before using them). `Estado` = short summary from `private/state/` and Baserow.
+  the user before using them).
+- `Estado` (P-13, D-P13-4): run `bin/hcb dashboard --summary` and reply with its `summary` text as is
+  (5 lines; no LLM rewording, no extra commentary). Send the page `private/reports/dashboard/index.html`
+  as a document only when the user asks for it ("manda la página", "Estado completo"); run
+  `bin/hcb dashboard` first so it is current. The page is read-only: changes still go through the
+  commands above or Baserow. If the summary says Baserow does not respond, say so; never guess the states.
 
 ## Pitfalls
 - Treating `Prepara` as permission to send or contact. It never is.
