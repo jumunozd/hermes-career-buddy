@@ -106,6 +106,15 @@ class SweepTest(unittest.TestCase):
             self.assertEqual(out2["per_source"][0]["known_unchanged"], 2)
             self.assertEqual(len(out2["shortlist"]), 1)
 
+    def test_heading_cards(self):  # P-12: whole ads under headings, no link per job (Shaw)
+        from hcb import sweep
+        page = ("## Current Employment Opportunities\n#### Project Coordinator\nLocation: Launceston\n"
+                "Applications close 30 November 2026\n[Seek](https://au.seek.com/job/1)\n#### Plant Operator\nHobart\n")
+        cs = sweep.parse_heading_cards(page, 4, "https://example.com/careers/", "Example Civil")
+        self.assertEqual([c["title"] for c in cs], ["Project Coordinator", "Plant Operator"])
+        self.assertEqual(cs[0]["url"], "https://example.com/careers/#project-coordinator")
+        self.assertEqual(cs[0]["zone"]["status"], "in_zone")
+
     def test_unparsed_source_goes_to_agent(self):
         from hcb import sweep
         reg = [{"id": "EMP-BELLBAY", "name": "Bell Bay", "mode": "page_read", "enabled": True, "cadence": "every_run",

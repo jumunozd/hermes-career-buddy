@@ -156,10 +156,16 @@ class Security(unittest.TestCase):
         self.assertFalse(any(feats.values()))   # gmail_report stays off
         sources = util.load_yaml(ROOT / "config/sources.yaml")["sources"]
         enabled = [s for s in sources if s["enabled"]]
+        # P-12 D-P12-4 (AP-634145ead1b69bc58ae5ba17): search_discovery sources may be on, never read directly
+        disc = [s for s in enabled if s["mode"] == "search_discovery"]
+        if disc:
+            self.assertIsNotNone(state.find_approval(action="approve_proposal", obj="D-P12-4"))
+        enabled = [s for s in enabled if s["mode"] != "search_discovery"]
         for s in enabled:
             self.assertEqual(s["mode"], "page_read", s["id"])          # never search scraping
             self.assertTrue(s.get("url", "").startswith("https://"), s["id"])
             self.assertNotRegex(s["url"], r"seek\.com|linkedin\.com|indeed\.com|utas\.edu\.au|incat\.com\.au")
+            self.assertNotRegex(" ".join(s.get("detail_hosts") or []), r"seek\.com|linkedin\.com|indeed\.com")
         self.assertTrue(len(enabled) <= len(approved["objects"]) if approved else not enabled)
 
 

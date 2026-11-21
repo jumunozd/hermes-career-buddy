@@ -13,7 +13,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-from . import seen, sources, targets
+from . import discovery, seen, sources, targets
 from .util import now_iso, project_path
 
 GENERIC_LINK_TEXT = re.compile(r"(?i)^(read more|find out more.*|apply.*|view.*|more info.*|details|learn more)$")
@@ -132,6 +132,36 @@ def parse_cards(text: str, job_link: str, company: str) -> list[dict]:
     return cards
 
 
+def parse_heading_cards(text: str, level: int, base_url: str, company: str,
+                        skip: str | None = None) -> list[dict]:
+    """Sites that publish whole ads on one page under headings, without one link per job (P-12: Shaw).
+    One card per heading of exactly `level` '#'; url = listing URL + '#<slug>' (stable identity)."""
+    lines = text.splitlines()
+    rx = re.compile(r"^#{%d}\s+(.+?)\s*$" % level)
+    heads = [(i, rx.match(l).group(1)) for i, l in enumerate(lines) if rx.match(l)]
+    cards = []
+    for n, (i, title) in enumerate(heads):
+        title = re.sub(r"[*_]", "", re.sub(_LINK, r"\1", title)).strip()
+        if not title or (skip and re.search(skip, title)):
+            continue
+        end = heads[n + 1][0] if n + 1 < len(heads) else len(lines)
+        body = [l for l in lines[i:end] if l.strip()]
+        rest = [re.sub(_LINK, "", l) for l in body]
+        loc, zone = _location(rest)
+        slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+        card_text = "\n".join(body)
+        cards.append({"url": f"{base_url.split('#')[0]}#{slug}", "title": title, "location": loc, "zone": zone,
+                      "closing": closing_date(card_text), "company": _company(rest, company), "card_text": card_text})
+    return cards
+
+
+def _detail_allowed(url: str, cfg: dict) -> bool:
+    if cfg.get("cards_by") == "heading" or cfg.get("detail") == "listing_only":
+        return False                               # whole ad in the listing, or detail host disallows robots
+    kind = discovery.classify_url(url)
+    return not (kind and kind[0] in ("seek", "linkedin", "indeed"))   # employer job pages stay readable
+
+
 def _total_pages(text: str) -> int | None:
     m = re.search(r"Displaying\s+\**\d+-(\d+)\**\s+of\s+\**(\d+)", text or "")
     if m:
@@ -140,8 +170,9 @@ def _total_pages(text: str) -> int | None:
     return None
 
 
-def sweep(now: datetime, read=None) -> dict:
-    """Run the deterministic part of a search. `read(source_id, url)` defaults to `sources.read`."""
+def sweep(now: datetime, read=None, search=None) -> dict:
+    """Run the deterministic part of a search. `read(source_id, url)` defaults to `sources.read`;
+    `search(query, limit)` is the discovery search (P-12), run only when config discovery.enabled is true."""
     read = read or (lambda sid, url=None: sources.read(sid, url))
     reg = {s["id"]: s for s in sources.registry()}
     due = sources.due(now)
@@ -160,16 +191,22 @@ def sweep(now: datetime, read=None) -> dict:
                 stats["errors"].append(rec.get("error") or "read failed")
                 break
             text = Path(rec["file"]).read_text(encoding="utf-8")
-            if not pattern:
+            if not pattern and cfg.get("cards_by") != "heading":
                 needs_agent.append({"source": s["id"], "file": rec["file"], "reason": "no card parser for this site"})
                 break
-            cards = parse_cards(text, pattern, cfg.get("employer") or cfg["name"])
+            if cfg.get("cards_by") == "heading":
+                cards = parse_heading_cards(text, int(cfg.get("heading_level", 4)), cfg["url"],
+                                            cfg.get("employer") or cfg["name"], cfg.get("heading_skip"))
+            else:
+                cards = parse_cards(text, pattern, cfg.get("employer") or cfg["name"])
             for c in cards:
                 if c["zone"]["status"] == "unknown" and cfg.get("default_location"):
                     c["location"], c["zone"] = cfg["default_location"], targets.zone_status(cfg["default_location"])
             if not cards:
                 if re.search(r"(?i)no (current )?(vacanc|positions|jobs)|not currently (advertising|recruiting)", text):
                     stats["note"] = "employer says there are no vacancies"
+                elif cfg.get("empty_ok") and len(text) > 2000:   # national board filtered to Tasmanian links (P-12)
+                    stats["note"] = "no Tasmanian job on this page"
                 else:
                     needs_agent.append({"source": s["id"], "file": rec["file"], "reason": "0 cards parsed"})
                 break
@@ -194,7 +231,10 @@ def sweep(now: datetime, read=None) -> dict:
                                   "zone": tri["zone"]["status"], "group": tri["group"],
                                   "catalogue_title": tri["catalogue_title"], "seen_status": chk["status"],
                                   "seen_previous": (chk.get("previous") or {}).get("dedup_key"),
-                                  "why": tri["reason"]})
+                                  "why": tri["reason"],
+                                  # P-12: ads that link to SEEK/LinkedIn/Indeed are never opened; the card is the evidence
+                                  "read_detail_allowed": _detail_allowed(c["url"], cfg),
+                                  "card_text": c["card_text"][:3000] if not _detail_allowed(c["url"], cfg) else None})
             tmpl = cfg.get("pages")
             pages_total = pages_total or _total_pages(text)
             # next page only while this page still had unseen cards (newest first) and pages remain
@@ -202,7 +242,13 @@ def sweep(now: datetime, read=None) -> dict:
                 page += 1
                 urls.append(tmpl.format(n=page))
         per_source.append(stats)
+    disc = None
+    from .util import config
+    if (config().get("discovery") or {}).get("enabled") and due["run"]:
+        disc = discovery.run(now, search=search)
+        shortlist += disc.get("shortlist", [])
     out = {"at": now_iso(), "simulated_now": now.isoformat(), "per_source": per_source, "shortlist": shortlist,
+           "discovery": {k: disc[k] for k in ("per_source",) if disc} if disc else None,
            "needs_agent": needs_agent, "skipped_sources": due["skipped"],
            "next": "Job Hunter: read ONLY the shortlist detail pages (bin/hcb sources read --id --url), "
                    "then targets match / classify / seen add; read needs_agent sources the old way."}

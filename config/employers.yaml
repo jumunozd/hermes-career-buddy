@@ -1,0 +1,92 @@
+# Employer Registry (P-12 D-P12-3, AP-634145ead1b69bc58ae5ba17). Public: company names and careers pages only.
+# Kept by the Research Agent (Friday review proposes additions from tenders, major projects, awards); the user
+# approves every addition. The Job Hunter reads it as a copy (job-hunter.md §3, `employers`).
+# tier 1 = group A-C roles likely in an approved zone; 2 = some; 3 = occasional.
+# channel: page_read (sources.yaml reads the listing) | email_alert (docs/ALERTS_CHECKLIST.md) |
+#          search_discovery (safety net) | via_portal (no own listing: SEEK / Employment Hero alerts) | out_of_zone
+# source: the sources.yaml id when the employer is read or searched.
+version: "1.0.0"
+checked: "2026-11-21 first pass (private/state/source-check/p12-first-pass-2026-11-21.json)"
+
+employers:
+  # ---- already read directly (sources.yaml group A) ----
+  - {id: bellbay, name: "Bell Bay Aluminium (Rio Tinto)", sector: manufacturing, tier: 1, sites: [Bell Bay], channel: [page_read, email_alert], source: EMP-BELLBAY}
+  - {id: nyrstar, name: "Nyrstar Hobart", sector: manufacturing, tier: 1, sites: [Lutana], channel: [page_read], source: EMP-NYRSTAR}
+  - {id: huon, name: "Huon Aquaculture", sector: food_aquaculture, tier: 2, sites: [Hobart, Parramatta Creek], channel: [page_read], source: EMP-HUON}
+  - {id: tasrail, name: TasRail, sector: infrastructure, tier: 2, sites: [Launceston, Burnie], channel: [page_read], source: EMP-TASRAIL}
+  - {id: sage, name: "SAGE Automation", sector: automation, tier: 2, sites: [Hobart], channel: [page_read], source: EMP-SAGE}
+  - {id: hazell, name: "Hazell Bros", sector: civil_construction, tier: 2, sites: [Hobart, Launceston, Devonport], channel: [page_read], source: EMP-HAZELL}
+
+  # ---- priority-1 utilities and GBEs (listings not readable: alerts) ----
+  - {id: hydro, name: "Hydro Tasmania + Entura", sector: energy_utilities, tier: 1, sites: [Hobart, Launceston], channel: [email_alert, search_discovery], source: EMP-HYDRO}
+  - {id: tasnetworks, name: TasNetworks, sector: energy_utilities, tier: 1, sites: [Hobart, Launceston], channel: [email_alert, search_discovery], source: EMP-TASNETWORKS}
+  - {id: taswater, name: TasWater, sector: energy_utilities, tier: 1, sites: [Hobart, Launceston, Devonport], channel: [email_alert, search_discovery], source: EMP-TASWATER}
+  - {id: tasports, name: TasPorts, sector: logistics, tier: 1, sites: [Hobart, Bell Bay, Burnie, Devonport], channel: [email_alert, search_discovery], source: EMP-TASPORTS}
+  - {id: marinus, name: "Marinus Link", sector: energy_utilities, tier: 1, sites: [Burnie, Hobart], channel: [email_alert, search_discovery], source: SRC-08}
+  - {id: aurora, name: "Aurora Energy", sector: energy_utilities, tier: 2, sites: [Hobart], channel: [email_alert, search_discovery], source: EMP-AURORA, careers: "https://www.auroraenergy.com.au/about/careers", platform: livehire}
+  - {id: momentum, name: "Momentum Energy", sector: energy_utilities, tier: 3, sites: [Hobart], channel: [email_alert], careers: "https://www.momentumenergy.com.au/careers", platform: pageup}
+  - {id: tasgas, name: "Tas Gas (Solstice Energy)", sector: energy_utilities, tier: 3, sites: [Launceston], channel: [email_alert], careers: "https://www.solsticeenergy.com.au/come-work-with-us", platform: elmo}
+  - {id: tasirrigation, name: "Tasmanian Irrigation", sector: infrastructure, tier: 2, sites: [Launceston], channel: [page_read], source: EMP-TASIRRIGATION, careers: "https://tasmanianirrigation.com.au/careers"}
+  - {id: metro, name: "Metro Tasmania", sector: infrastructure, tier: 3, sites: [Hobart, Launceston, Burnie], channel: [email_alert], careers: "https://www.metrotas.com.au/careers/", platform: elmo}
+  - {id: sttas, name: "Sustainable Timber Tasmania", sector: forestry, tier: 3, sites: [Hobart], channel: [email_alert], careers: "https://sttas.com.au/about-us/careers/", platform: elmo}
+
+  # ---- engineering consultancies ----
+  - {id: ghd, name: GHD, sector: consultancy, tier: 1, sites: [Hobart, Launceston], channel: [email_alert, search_discovery], source: EMP-GHD, careers: "https://www.ghd.com/en-au/careers", platform: oracle}
+  - {id: pittsh, name: "Pitt & Sherry", sector: consultancy, tier: 1, sites: [Hobart, Launceston, Devonport], channel: [email_alert, search_discovery], source: EMP-PITTSH, careers: "https://www.pittsh.com.au/careers", platform: livehire}
+  - {id: wsp, name: WSP, sector: consultancy, tier: 2, sites: [Hobart], channel: [email_alert, search_discovery], source: EMP-WSP, careers: "https://www.wsp.com/en-au/careers", platform: livehire}
+  - {id: aurecon, name: Aurecon, sector: consultancy, tier: 2, sites: [Hobart], channel: [email_alert, search_discovery], source: EMP-AURECON, careers: "https://www.aurecongroup.com/careers", platform: workday}
+  - {id: smec, name: "SMEC (Surbana Jurong)", sector: consultancy, tier: 2, sites: [Hobart], channel: [email_alert], careers: "https://surbanajurong.wd3.myworkdayjobs.com/careersatsmec", platform: workday}
+  - {id: jacobs, name: Jacobs, sector: consultancy, tier: 2, sites: [Hobart], channel: [email_alert], careers: "https://careers.jacobs.com/en_US/careers"}
+  - {id: aecom, name: AECOM, sector: consultancy, tier: 2, sites: [Hobart], channel: [email_alert], careers: "https://aecom.com/careers/"}
+  - {id: stantec, name: Stantec, sector: consultancy, tier: 3, sites: [Hobart], channel: [email_alert], careers: "https://www.stantec.com/en/careers", note: "site answers 403 to an honest bot"}
+  - {id: jmg, name: "JMG (Johnstone McGee & Gandy)", sector: consultancy, tier: 2, sites: [Hobart, Launceston], channel: [via_portal, search_discovery], source: EMP-JMG, note: "no own listing; ads on SEEK"}
+
+  # ---- civil and building contractors ----
+  - {id: fairbrother, name: Fairbrother, sector: construction, tier: 2, sites: [Hobart, Launceston, Devonport], channel: [via_portal], note: "no listing on its site (e-mail CV); ads on SEEK", careers: "https://www.fairbrother.com.au/careers"}
+  - {id: shaw, name: "Shaw Contracting", sector: civil_construction, tier: 2, sites: [Hobart, Launceston, Devonport], channel: [page_read], source: EMP-SHAW, careers: "https://www.shawcontracting.com.au/careers/current-positions/"}
+  - {id: hansen, name: "Hansen Yuncken", sector: construction, tier: 3, sites: [Hobart], channel: [page_read], source: EMP-HANSEN, careers: "https://www.hansenyuncken.com.au/people-culture/careers/"}
+  - {id: bmd, name: BMD, sector: civil_construction, tier: 2, sites: [Hobart], channel: [email_alert, search_discovery], source: EMP-BMD, careers: "https://www.bmdgroup.global/careers", platform: pageup}
+  - {id: fultonhogan, name: "Fulton Hogan", sector: civil_construction, tier: 2, sites: [Hobart, Launceston], channel: [email_alert, search_discovery], source: EMP-FULTONHOGAN, platform: workday}
+  - {id: downer, name: "Downer (incl. VEC Tasmania)", sector: civil_construction, tier: 1, sites: [Hobart, Launceston, Devonport], channel: [email_alert, search_discovery], source: EMP-DOWNER, platform: oracle, note: "VEC Civil Engineering is part of Downer; also on Work180"}
+  - {id: besixwatpac, name: "BESIX Watpac", sector: construction, tier: 3, sites: [Hobart], channel: [email_alert], platform: smartrecruiters, note: "preferred tenderer, Macquarie Point stadium (Oct 2026)"}
+  - {id: mcconnelldowell, name: "McConnell Dowell", sector: civil_construction, tier: 3, sites: [Hobart], channel: [email_alert], note: "robots block AI crawlers"}
+  - {id: brady, name: "Brady Marine & Civil", sector: marine_construction, tier: 3, sites: [Hobart], channel: [via_portal], note: "no own listing; ads on Employment Hero"}
+  - {id: vos, name: "Vos Construction", sector: construction, tier: 3, sites: [Launceston, Hobart], channel: [via_portal], note: "robots disallow"}
+  - {id: crossroads, name: "Crossroads Civil", sector: civil_construction, tier: 3, sites: [Launceston], channel: [via_portal], note: "site unreachable on the first pass"}
+
+  # ---- manufacturing and processing ----
+  - {id: norske, name: "Norske Skog Boyer", sector: manufacturing, tier: 1, sites: [Boyer], channel: [via_portal, search_discovery], note: "group vacancies page shows no Boyer roles; ads on SEEK", careers: "https://www.norskeskog.com/about-norske-skog/vacancies/"}
+  - {id: mondelez, name: "Mondelez (Cadbury Claremont)", sector: food_manufacturing, tier: 1, sites: [Claremont], channel: [email_alert, search_discovery], source: EMP-MONDELEZ, careers: "https://www.mondelezinternational.com/careers/"}
+  - {id: tassal, name: "Tassal (Cooke)", sector: food_aquaculture, tier: 2, sites: [Hobart, Huonville, Triabunna], channel: [email_alert, search_discovery], source: EMP-TASSAL, platform: dayforce}
+  - {id: petuna, name: Petuna, sector: food_aquaculture, tier: 2, sites: [Devonport], channel: [via_portal], note: "no listing on its site", careers: "https://petuna.com.au/contact/employment"}
+  - {id: simplot, name: "Simplot (Devonport, Ulverstone)", sector: food_manufacturing, tier: 2, sites: [Devonport, Ulverstone], channel: [email_alert], note: "careers.simplot.com talent community", careers: "https://simplot.com.au/careers"}
+  - {id: saputo, name: "Saputo (Burnie, Smithton)", sector: food_manufacturing, tier: 2, sites: [Burnie], channel: [email_alert, search_discovery], source: EMP-SAPUTO, platform: workday}
+  - {id: fonterra, name: "Fonterra (Wynyard)", sector: food_manufacturing, tier: 3, sites: [Wynyard], channel: [email_alert], platform: avature}
+  - {id: cementaus, name: "Cement Australia (Railton)", sector: manufacturing, tier: 2, sites: [Railton, Devonport], channel: [page_read], source: EMP-CEMENTAUS, careers: "https://cementaustralia-external.applynow.net.au", note: "Railton is next to Latrobe: check the zone per ad"}
+  - {id: boral, name: Boral, sector: construction_materials, tier: 3, sites: [Hobart, Launceston], channel: [page_read], source: EMP-BORAL, careers: "https://www.boral.com.au/build-your-career-boral"}
+  - {id: cromarty, name: "Cromarty Automation", sector: automation, tier: 2, sites: [Hobart], channel: [via_portal], note: "ads on SEEK", careers: "https://cromartyautomation.com.au/careers"}
+  - {id: elphinstone, name: Elphinstone, sector: manufacturing, tier: 2, sites: [Burnie, Wynyard], channel: [page_read], source: EMP-ELPHINSTONE, careers: "https://elphinstone.com/positions-vacant/"}
+  - {id: kymera, name: "Kymera (Ecka Granules, Bell Bay)", sector: manufacturing, tier: 3, sites: [Bell Bay], channel: [email_alert], platform: dayforce}
+  - {id: incat, name: Incat, sector: manufacturing, tier: 1, sites: [Hobart], channel: [via_portal, search_discovery], source: EMP-INCAT, note: "robots block AI crawlers"}
+  - {id: haywards, name: "Haywards Steel", sector: manufacturing, tier: 3, sites: [Launceston], channel: [via_portal], note: "site unreachable on the first pass"}
+  - {id: temco, name: "TEMCO (South32, George Town)", sector: manufacturing, tier: 3, sites: [George Town], channel: [via_portal], note: "status to check (mothballed 2024)"}
+
+  # ---- ports, transport and logistics ----
+  - {id: qube, name: Qube, sector: logistics, tier: 2, sites: [Bell Bay, Burnie, Devonport, Hobart], channel: [page_read], source: EMP-QUBE, careers: "https://careers.pageuppeople.com/957/cw/en/listing/"}
+  - {id: searoad, name: SeaRoad, sector: logistics, tier: 2, sites: [Devonport], channel: [page_read], source: EMP-SEAROAD, careers: "https://www.searoad.com.au/about-us/careers"}
+  - {id: spirit, name: "Spirit of Tasmania (TT-Line)", sector: logistics, tier: 2, sites: [Devonport], channel: [email_alert, search_discovery], note: "listing loads by script", careers: "https://www.spiritoftasmania.com.au/company-information/spirit-of-tasmania-careers/"}
+  - {id: toll, name: "Toll Group", sector: logistics, tier: 3, sites: [Hobart, Launceston, Burnie], channel: [email_alert], note: "site answers 403 to an honest bot"}
+  - {id: hobartairport, name: "Hobart Airport", sector: infrastructure, tier: 3, sites: [Cambridge], channel: [page_read], source: EMP-HOBARTAIRPORT, careers: "https://hobartairport.com.au/corporate/working-at-hba/employment-opportunities/"}
+  - {id: lstairport, name: "Launceston Airport", sector: infrastructure, tier: 3, sites: [Launceston], channel: [email_alert], note: "LiveHire widget loads by script", platform: livehire}
+
+  # ---- energy infrastructure and renewables ----
+  - {id: apa, name: "APA (Basslink)", sector: energy_utilities, tier: 3, sites: [George Town], channel: [email_alert], platform: workday}
+  - {id: ark, name: "Ark Energy", sector: renewables, tier: 3, sites: [], channel: [search_discovery], careers: "https://arkenergy.com.au/about/ark-energy-careers/"}
+  - {id: acen, name: "ACEN Australia", sector: renewables, tier: 3, sites: [], channel: [search_discovery], careers: "https://acenrenewables.com.au/work-with-us/", note: "Robbins Island, North East wind: mostly out of zone"}
+
+  # ---- out of the approved zones (D-JH-02): kept, never searched ----
+  - {id: grange, name: "Grange Resources", sector: mining, tier: 3, sites: [West Coast, Port Latta, Burnie office], channel: [out_of_zone], note: "Burnie office roles count; robots disallow"}
+  - {id: mmg, name: "MMG Rosebery", sector: mining, tier: 3, sites: [Rosebery], channel: [out_of_zone]}
+  - {id: bluestone, name: "Bluestone (Renison)", sector: mining, tier: 3, sites: [Zeehan], channel: [out_of_zone]}
+  - {id: cmt, name: "Copper Mines of Tasmania", sector: mining, tier: 3, sites: [Queenstown], channel: [out_of_zone]}
+  - {id: woolnorth, name: "Woolnorth Renewables", sector: renewables, tier: 3, sites: [Circular Head], channel: [out_of_zone]}

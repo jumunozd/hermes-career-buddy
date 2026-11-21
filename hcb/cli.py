@@ -323,6 +323,14 @@ def cmd_writer_pack(a):
         sys.exit(1)
 
 
+def cmd_discover(a):
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    from . import discovery
+    now = datetime.fromisoformat(a.now) if a.now else datetime.now(ZoneInfo(config()["timezone"]))
+    _out(discovery.run(now, max_queries=a.max))
+
+
 def cmd_sweep(a):
     from datetime import datetime
     from zoneinfo import ZoneInfo
@@ -439,6 +447,8 @@ def main(argv=None):
     x.add_argument("--indicators"); x.set_defaults(f=cmd_targets)
     x = s.add_parser("sweep", help="deterministic listing sweep: read listings, Seen + triage, short list (no LLM)")
     x.add_argument("--now"); x.set_defaults(f=cmd_sweep)
+    x = s.add_parser("discover", help="search discovery for search_discovery sources (P-12; no LLM, results are data)")
+    x.add_argument("--now"); x.add_argument("--max", type=int); x.set_defaults(f=cmd_discover)
     x = s.add_parser("triage", help="listing-card triage: zone + title, read the detail page or not (RT-14)")
     x.add_argument("--title", required=True); x.add_argument("--location", default="")
     x.set_defaults(f=cmd_triage)
