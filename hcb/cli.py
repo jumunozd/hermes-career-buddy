@@ -218,14 +218,22 @@ def cmd_report(a):
 
 
 def cmd_report_send(a):
-    from . import report
-    _out(report.send(a.report_id))
+    from . import dashboard, report
+    res = report.send(a.report_id)
+    dashboard.refresh_quietly()
+    _out(res)
 
 
 def cmd_backup(a):
     from pathlib import Path as _P
     from . import backup
-    _out(backup.verify(_P(a.verify)) if a.verify else backup.run(include_baserow=not a.no_baserow))
+    if a.verify:
+        _out(backup.verify(_P(a.verify)))
+        return
+    res = backup.run(include_baserow=not a.no_baserow)
+    from . import dashboard
+    dashboard.refresh_quietly()
+    _out(res)
 
 
 def cmd_prepare_request(a):
@@ -306,8 +314,10 @@ def cmd_daily(a):
 
 
 def cmd_daily_send(a):
-    from . import daily
-    _out(daily.send(a.digest))
+    from . import daily, dashboard
+    res = daily.send(a.digest)
+    dashboard.refresh_quietly()
+    _out(res)
 
 
 def cmd_daily_delivered(a):
@@ -321,6 +331,15 @@ def cmd_writer_pack(a):
     _out(res)
     if a.check and not res["fresh"]:
         sys.exit(1)
+
+
+def cmd_dashboard(a):
+    from . import dashboard
+    res = dashboard.write()
+    if a.open:
+        import subprocess
+        subprocess.run(["open" if sys.platform == "darwin" else "xdg-open", res["file"]], check=False)
+    _out({"summary": res["summary"]} if a.summary else res)
 
 
 def cmd_discover(a):
@@ -337,6 +356,8 @@ def cmd_sweep(a):
     from . import sweep
     now = datetime.fromisoformat(a.now) if a.now else datetime.now(ZoneInfo(config()["timezone"]))
     out = sweep.sweep(now)
+    from . import dashboard
+    dashboard.refresh_quietly()
     _out({k: out[k] for k in ("per_source", "shortlist", "needs_agent", "skipped_sources", "next")})
 
 
@@ -447,6 +468,8 @@ def main(argv=None):
     x.add_argument("--indicators"); x.set_defaults(f=cmd_targets)
     x = s.add_parser("sweep", help="deterministic listing sweep: read listings, Seen + triage, short list (no LLM)")
     x.add_argument("--now"); x.set_defaults(f=cmd_sweep)
+    x = s.add_parser("dashboard", help="status page + read-only pipeline board (P-13), private/reports/dashboard/")
+    x.add_argument("--open", action="store_true"); x.add_argument("--summary", action="store_true"); x.set_defaults(f=cmd_dashboard)
     x = s.add_parser("discover", help="search discovery for search_discovery sources (P-12; no LLM, results are data)")
     x.add_argument("--now"); x.add_argument("--max", type=int); x.set_defaults(f=cmd_discover)
     x = s.add_parser("triage", help="listing-card triage: zone + title, read the detail page or not (RT-14)")
