@@ -1,0 +1,43 @@
+# Allowlist of job-alert senders (P-3, P-12 D-P12-1). Public: domains only.
+# The mailbox address and its alias live in private/config/ (never in git).
+# The reader opens the folder read-only (IMAP EXAMINE) and parses ONLY messages whose From domain ends with one of
+# these domains. Everything else in the folder is counted by domain (headers only) and reported, never parsed.
+# status: draft = domain expected, confirm with the first real e-mail (RT-16); confirmed = seen in a real alert.
+version: "0.1.0"
+mailbox:
+  provider: icloud
+  folder: "Career Buddy Alertas"
+  mode: read_only            # IMAP EXAMINE; no delete / move / flag code exists (tested)
+  address_file: private/config/alerts-mailbox.yaml
+feature_flag: features.email_alerts   # stays false until P-3/P-12 are approved and RT-16 passes
+
+never_open_links_matching:  # links that act on the account when opened
+  - '(?i)unsubscribe|opt-?out|manage[-_ ]?alert|preferences|settings|login|sign-?in|apply'
+
+senders:
+  # portals: job pages never read (terms / robots); the e-mail text is the evidence
+  - {id: seek,       domains: [seek.com.au],               status: draft, job_link: 'seek\.com\.au/job/(\d+)', read_job_page: false}
+  - {id: linkedin,   domains: [linkedin.com],              status: draft, job_link: 'linkedin\.com/(?:comm/)?jobs/view/(\d+)', read_job_page: false}
+  - {id: indeed,     domains: [indeed.com, indeed.com.au], status: draft, job_link: '[?&]jk=([0-9a-f]{16})', read_job_page: false}
+  # agencies and graduate boards
+  - {id: work180,    domains: [work180.com, work180.com.au], status: draft}
+  - {id: hays,       domains: [hays.com.au],               status: draft}
+  - {id: randstad,   domains: [randstad.com.au],           status: draft}
+  - {id: prosple,    domains: [prosple.com],               status: draft}
+  - {id: gradconnection, domains: [gradconnection.com],    status: draft}
+  - {id: councilcareers, domains: [councilcareers.com.au], status: draft}
+  # employer job platforms: the canonical ad may be read when the source allows it
+  - {id: workday,    domains: [myworkday.com, myworkdayjobs.com], status: draft, job_link: 'myworkdayjobs\.com/[^\s"]+/job/'}
+  - {id: pageup,     domains: [pageuppeople.com],          status: draft, job_link: 'pageuppeople\.com/[^\s"]+/job/'}
+  - {id: livehire,   domains: [livehire.com],              status: draft}
+  - {id: oracle,     domains: [oraclecloud.com],           status: draft, note: "Oracle alerts may come from the employer's own domain (GHD, Downer): add after the first e-mail"}
+  - {id: smartrecruiters, domains: [smartrecruiters.com],  status: draft}
+  - {id: dayforce,   domains: [dayforcehcm.com, dayforce.com], status: draft}
+  - {id: elmo,       domains: [elmotalent.com.au],         status: draft}
+  - {id: applynow,   domains: [applynow.net.au],           status: draft}
+  - {id: avature,    domains: [avature.net],               status: draft}
+  - {id: employmenthero, domains: [employmenthero.com],    status: draft}
+  # employers with their own portals (add the exact sender after the first e-mail)
+  - {id: employers,  domains: [tasnetworks.com.au, tasports.com.au, taswater.com.au, hydro.com.au, entura.com.au,
+                               marinuslink.com.au, riotinto.com, ghd.com, downergroup.com, jacobs.com, aecom.com,
+                               mondelezinternational.com, tollgroup.com], status: draft}
