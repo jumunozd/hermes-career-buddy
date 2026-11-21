@@ -1,0 +1,20 @@
+#!/bin/bash
+# P-5 leak guard: block a commit that would publish personal data. Enable once with:
+#   git config core.hooksPath .githooks
+cd "$(git rev-parse --show-toplevel)" || exit 1
+if ! bin/hcb privacy-scan >/tmp/hcb-privacy-scan.$$ 2>&1; then
+  cat /tmp/hcb-privacy-scan.$$; rm -f /tmp/hcb-privacy-scan.$$
+  echo "pre-commit: privacy-scan found personal data. Commit blocked (see bin/hcb privacy-scan --verbose)." >&2
+  exit 1
+fi
+rm -f /tmp/hcb-privacy-scan.$$
+if git diff --cached --name-only | grep -qE '^(private|state|applications|reports)/'; then
+  echo "pre-commit: a private path is staged. Commit blocked." >&2; exit 1
+fi
+# Tests must pass too (2026-11-17: a commit went in with a failing test).
+PY=$(ls ~/.hermes/installs/*/environments/*/venv/bin/python3 2>/dev/null | head -1); PY=${PY:-python3}
+if ! "$PY" -m unittest discover -s tests >/tmp/hcb-tests.$$ 2>&1; then
+  tail -20 /tmp/hcb-tests.$$; rm -f /tmp/hcb-tests.$$
+  echo "pre-commit: tests failed. Commit blocked." >&2; exit 1
+fi
+rm -f /tmp/hcb-tests.$$

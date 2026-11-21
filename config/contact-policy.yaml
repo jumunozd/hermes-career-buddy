@@ -1,0 +1,56 @@
+# P-2 (AP-ea17780d4846d8c90c64ab11, 2026-11-15): who may be proposed as a contact, and when.
+# Deterministic: read by hcb/contacts.py. Changing it needs an approved Improvement Proposal.
+version: "1.0"
+max_contacts: 2
+max_offers_per_run: 3
+fresh_hours: 24
+
+# Priority order (P-2 §3). Research fills at most `max_contacts`, ad-named people first.
+priority: [ad_named, hiring_manager, talent_acquisition, careers_inbox]
+
+# Clauses that forbid or discourage direct approaches. Any hit -> no people research; portal only.
+no_approach_patterns:
+  - '\bno (?:direct )?approach(?:es)?\b'
+  - '\bcanvass(?:ing)?\b'
+  - '\b(?:recruitment )?agencies need not apply\b'
+  - '\bno agencies\b'
+  - '\bdo not (?:contact|call|email|approach)\b'
+  - '\bplease do not (?:contact|call|email|approach)\b'
+  - '\bno (?:phone )?calls\b'
+  - '\bunsolicited (?:applications|approaches|resumes|cvs)\b'
+
+# Agency ads: only the consultant named in the ad. Never go around the agency to its client.
+agency_names: [hays, randstad, searson buck, hudson, michael page, page personnel, robert walters,
+               chandler macleod, programmed, adecco, davidson, peoplebank, talent international,
+               ignite, sustainable recruitment, sirius people, manpower, workforce xl, correct personnel,
+               rubicor, people dynamics, beacon recruitment, nexus recruitment]
+agency_phrases: ['\bour client\b', '\bon behalf of (?:our|a) client\b', '\bclient of ours\b']
+
+# Government / GBE / council: only the named contact officer, or the careers inbox. Never panel members.
+government_names: [tasports, tasnetworks, taswater, hydro tasmania, tasrail, metro tasmania,
+                   sustainable timber tasmania, aurora energy, tasracing, tasmanian irrigation,
+                   tasmanian government, state service, department of, city council, municipal council,
+                   council, university of tasmania, utas, tasmanian health service]
+government_phrases: ['\bstate service\b', '\bgovernment business enterprise\b', '\bgbe\b',
+                     '\bstate-owned\b', '\bstatutory authority\b']
+
+allowed_by_employer_type:
+  private: [ad_named, hiring_manager, talent_acquisition, careers_inbox]
+  agency: [ad_named]
+  government: [ad_named, careers_inbox]
+
+# Free-mail / personal domains: never a valid business contact (P-2 §4).
+personal_email_domains: [gmail.com, googlemail.com, hotmail.com, outlook.com, live.com, live.com.au,
+                         yahoo.com, yahoo.com.au, icloud.com, me.com, bigpond.com, bigpond.net.au,
+                         optusnet.com.au, protonmail.com, proton.me, aol.com, gmx.com, tpg.com.au,
+                         iinet.net.au]
+
+# Only these keys may be stored about a person (P-2 §4).
+contact_fields: [priority, name, title, employer, why_relevant, source_url, observed_at, confidence,
+                 channel, professional_email, email_status, email_source_url, linkedin_url,
+                 alternative_contact_url, phone_from_ad]
+
+outreach:
+  body_lines_min: 3
+  body_lines_max: 5
+  body_words_max: 110

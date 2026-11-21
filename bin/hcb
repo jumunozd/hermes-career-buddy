@@ -1,0 +1,14 @@
+#!/bin/bash
+# Hermes Career Buddy CLI wrapper. Picks a Python that has jsonschema + ruamel.yaml
+# (the Hermes venv, needed by the reused A-H validator); falls back to python3.
+set -euo pipefail
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
+PY="${HCB_PYTHON:-}"
+if [[ -z "$PY" ]]; then
+  for cand in "$HOME"/.hermes/installs/*/environments/*/venv/bin/python3; do
+    if [[ -x "$cand" ]] && "$cand" -c 'import jsonschema, ruamel.yaml' 2>/dev/null; then PY="$cand"; break; fi
+  done
+fi
+PY="${PY:-python3}"
+cd "$ROOT"
+exec "$PY" -B -m hcb.cli "$@"

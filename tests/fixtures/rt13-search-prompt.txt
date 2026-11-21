@@ -1,0 +1,13 @@
+PRUEBA REAL RT-13: CICLO DE BÚSQUEDA DEL JOB HUNTER (fuentes reales; NUNCA se envía, postula ni contacta). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Objetivo: validar la búsqueda real con las 10 fuentes del grupo A (AP-338e1986beb43f61360209de) y medir su costo. Simula la corrida del lunes 07:30.
+Reglas de esta prueba:
+- Baserow: SOLO lectura y vista previa (dry-run). No escribas en vivo.
+- Límite de costo: A-H como máximo para las 3 mejores candidatas (por bin/hcb targets match y fecha). Las demás candidatas relevantes van listadas como "sin A-H por límite de prueba", sin inventar fit.
+- contact_research: como máximo 1 oferta, solo si bin/hcb contact trigger la selecciona.
+Pasos:
+(1) bin/hcb task make --role job_hunter --action search --refs RT-13 --cycle RT-13 y delega al Job Hunter (un hijo). El Job Hunter sigue su skill: bin/hcb sources due --now 2026-11-16T07:30:00+11:00, lee SOLO esas fuentes una por una con pausas de gap_s, bin/hcb seen check antes de A-H, bin/hcb targets match, elegibilidad 8579, A-H PRELIMINARY (máx. 3), bin/hcb classify, bin/hcb contact policy, bin/hcb baserow dedup (dry-run) y bin/hcb seen add para cada decisión. Guarda cada anuncio relevante en state/ads/.
+(2) Valida con bin/hcb task validate.
+(3) Arma el snapshot con los registros nuevos y corre bin/hcb contact trigger --snapshot <archivo> --now 2026-11-16T07:30:00+11:00; si selecciona alguna, delega contact_research para 1 y valida con bin/hcb contact validate.
+(4) bin/hcb daily <snapshot> --now 2026-11-16T07:30:00+11:00 (si el comando no acepta --now, sin él).
+Entrega en español: por fuente (leída / fallida / cobertura reducida), número de anuncios vistos, candidatas relevantes con grupo y categoría, A-H de las 3, contactos si hubo, el mensaje del digest tal como lo recibiría el usuario, y lo que no se pudo hacer. Nada se envía ni se contacta.

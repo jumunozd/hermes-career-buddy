@@ -1,0 +1,20 @@
+name: ci
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      HCB_PRIVATE_DIR: ${{ github.workspace }}/examples/candidate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python dependencies
+        run: pip install pyyaml ruamel.yaml
+      - name: Unit, contract, security and privacy tests (synthetic persona)
+        run: python -B -m unittest discover -s tests -t .
+      - name: Privacy scan
+        run: bin/hcb privacy-scan

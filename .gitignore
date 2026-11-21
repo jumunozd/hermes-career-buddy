@@ -1,0 +1,17 @@
+# P-5: everything personal lives in private/ and is never committed.
+private/
+# Legacy runtime folders (now under private/); kept ignored in case an old tool recreates them.
+state/
+applications/
+reports/
+.secrets/
+*.token
+node_modules/
+__pycache__/
+.DS_Store
+.hermes/plans/
+# Runtime output of the public demo persona
+examples/candidate/state/
+examples/candidate/applications/
+examples/candidate/reports/
+examples/candidate/writer/

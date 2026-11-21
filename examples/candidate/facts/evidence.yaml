@@ -1,0 +1,60 @@
+evidence:
+- id: northwind_dispatch_automation
+  role: northwind
+  claim: Automated the daily dispatch report, cutting preparation from two hours to about ten minutes
+  metrics: [2 hours, 10 minutes]
+  capabilities: [automation, process-improvement, reporting, excel]
+  match_depth_default: transferable
+  status: verified
+  confirmed: 2026-11
+- id: northwind_route_project
+  role: northwind
+  claim: Led a route consolidation project end to end with three depots and an external carrier
+  metrics: [three depots]
+  capabilities: [project-management, stakeholder-management, logistics]
+  match_depth_default: direct
+  status: verified
+  confirmed: 2026-11
+- id: northwind_cost_review
+  role: northwind
+  claim: Reviewed carrier contracts and identified savings of about 8% on freight spend
+  metrics: [8%]
+  percent_base: freight spend
+  capabilities: [cost-review, analysis, procurement]
+  match_depth_default: transferable
+  status: verified
+  confirmed: 2026-11
+- id: northwind_interns
+  role: northwind
+  claim: Coordinated a team of four engineering interns
+  metrics: [four interns]
+  capabilities: [leadership, coordination]
+  match_depth_default: transferable
+  status: verified
+  confirmed: 2026-11
+- id: harbour_rostering
+  role: harbour_cafe
+  claim: Built a weekly roster template that reduced last-minute shift gaps
+  metrics: []
+  capabilities: [standardised-work, continuous-improvement, scheduling]
+  match_depth_default: transferable
+  status: verified
+  confirmed: 2026-11
+- id: harbour_whs
+  role: harbour_cafe
+  claim: Runs opening checks under food safety and WHS procedures
+  metrics: []
+  capabilities: [safety-compliance, whs]
+  match_depth_default: transferable
+  status: verified
+  confirmed: 2026-11
+- id: exchange_layout_project
+  role: exchange
+  claim: Completed a plant layout and material flow project in a team of four
+  metrics: [team of four]
+  capabilities: [plant-layout, material-flow, teamwork]
+  match_depth_default: academic
+  status: verified
+  confirmed: 2026-11
+needs_evaluation_summary: []
+open_questions: []

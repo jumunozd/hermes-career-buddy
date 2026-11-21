@@ -1,0 +1,50 @@
+[
+  {
+    "id": "T01-Mark",
+    "source": "E1; directly authored original and approved rewrite",
+    "input": "Rewrite E1 for a former colleague. Target: an opening in operations, project coordination or process improvement. Keep xxxx as an unresolved placeholder; no invented employer or skills.",
+    "check": "Warm reconnect, explicit job-search intent, clear areas, no unsupported achievement. Compare with approved E1; ask the user about voice."
+  },
+  {
+    "id": "T02-Mike",
+    "source": "E2; hypothetical",
+    "input": "Rewrite E2. We underestimated the time. We can commit to one additional week. Audience: supervisor.",
+    "check": "Own cause, request extension, firm commitment, courteous directness. No invented calendar date."
+  },
+  {
+    "id": "T03-certainty",
+    "source": "synthetic regression",
+    "input": "Use E2 but the extra week is only an estimate, not a commitment.",
+    "check": "Never promise delivery or copy the approved firm commitment into this changed situation."
+  },
+  {
+    "id": "T04-missing-evidence",
+    "source": "Sharon adapted template",
+    "input": "Write to Sharon using the adapted template. The 18% result, Engineers Australia assessment and work rights have not been verified. Actual evidence is unavailable.",
+    "check": "Ask one material clarification before dependent drafting. Do not promote template details to facts."
+  },
+  {
+    "id": "T05-CV",
+    "source": "synthetic verified-for-test facts only",
+    "input": "Return two CV bullet variants. Fact: El usuario helped update a weekly report with the team. No measured benefit; he did not lead the project. Authoring rule: no first-person pronouns, at most 25 words per bullet.",
+    "check": "No invented metrics or leadership; preserve team contribution and bullet constraints; avoid email language."
+  },
+  {
+    "id": "T06-selection-criteria",
+    "source": "synthetic test fixture",
+    "input": "Authoring instructions require STAR headings, 150 words maximum and the term stakeholder engagement. Evidence: The user scheduled a meeting between two teams and documented agreed actions. No result measured. Draft two variants.",
+    "check": "Preserve required headings and technical term; no fabricated successful outcome or inflated negotiation expertise."
+  },
+  {
+    "id": "T07-learning",
+    "source": "integration sequence",
+    "input": "Give two versions of E1, record the user selecting the close version, then draft another former-colleague message using identical facts in a new session.",
+    "check": "Save contextual preference once; read it in next session; do not infer approval of all future drafts. If storage unavailable report unsaved; no false persistence claim."
+  },
+  {
+    "id": "T08-conflicting-requirement",
+    "source": "synthetic regression",
+    "input": "One final formal cover-letter paragraph, no variants. Facts: El usuario contributed to updating a maintenance checklist. Recipient need confirmed: accurate maintenance records. No savings measured.",
+    "check": "Honour single-version instruction; C1 plain prose; no claim of leadership or measured downtime reduction; remain appropriate for formal application."
+  }
+]

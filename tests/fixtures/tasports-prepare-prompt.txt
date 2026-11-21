@@ -1,0 +1,12 @@
+PREPARACIÓN REAL (oferta real; NUNCA se envía ni se contacta). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Solicitud del usuario (chat 2026-11-15): generar los documentos para postular a "Project Controls Officer", TasPorts, Hobart o Launceston, SEEK 95841056. Cierre: 12:00 del 27 de noviembre de 2026.
+- Anuncio (snapshot suministrado por el usuario, no verificado en vivo): state/ads/seek-95841056.txt
+- opportunity_ref = SEEK-95841056, preparation_id = PREP-TASPORTS-001. No hay registro en Baserow: no leas ni escribas Baserow.
+- Aprobación ya registrada: AP-c10b06aaeb80d2b83ec1df36 ("prepare_only; sending_blocked"). No registres otra.
+- documents_required según el anuncio: CV + cover letter (Current CV, Cover Letter), postulación por el portal del anuncio. Sin límites declarados.
+- Delegación real con delegate_task, en orden: (1) Writer action draft (usa su Writer pack), (2) Recruiter action review ronda 1 (estricta). Antes de (2) construye el brief con bin/hcb review-brief --folder <vN> --ad state/ads/seek-95841056.txt --round 1 y pasa SOLO la ruta del brief.
+- Envelopes con bin/hcb task make; valida cada resultado con bin/hcb task validate; veredicto con bin/hcb review <archivo> --round 1.
+- Si la ronda 1 da "No pasa" y next_round_useful es false, NO lances más rondas: entrega las preguntas de evidencia. Si es true, deja preparado el envelope de la ronda 2 sin ejecutarlo.
+- Nada se envía ni se contacta. No modifiques el Job Application Engine.
+Entrega en español: ruta de la versión, documentos con líneas MEDIA:/ruta, veredicto y razones, next_step, Missing Fact Requests, y recordatorio de que el usuario postula por el portal antes del cierre.

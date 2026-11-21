@@ -1,0 +1,7 @@
+PRUEBA FUNCIONAL CONTROLADA, RONDA 3 (anuncio sintético). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Reanuda TEST-SYN-001 / PREP-TEST-001 desde state/tasks/. Completadas (no repetir): Writer draft T-WR-5f4ba3f0beca (v1), Recruiter R1 T-RE-228d8cf7e69d, Writer revise R2 T-WR-d0b04c58e1bb (v2), Recruiter R2 T-RE-cf7be5248e39. Aprobación vigente AP-35fe476f01dbdd6690be7f0c ("prepare_only; sending_blocked; test").
+Usa el envelope ya preparado T-WR-fdedfdbb4794 (y su payload) para:
+(1) delegate_task Writer revise ronda 3 -> v3, aplicando el feedback de T-RE-cf7be5248e39 sin hechos nuevos fuera de evidence_available; puede reconocer la brecha con honestidad y mostrar capacidad de aprendizaje basada en evidencia del Engine.
+(2) delegate_task Recruiter review ronda 3 (estratégica) sobre v3, verificado con bin/hcb review <archivo> --round 3.
+Valida cada resultado con bin/hcb task validate. Después de la ronda 3 el ciclo termina sea cual sea el veredicto (sin ronda 4). Entrega el paquete final al usuario como lo harías en producción: veredicto y razones por ronda, archivos con líneas MEDIA:/ruta, Missing Fact Requests, estado send_status. Nada se envía ni se contacta. No modifiques el Job Application Engine.

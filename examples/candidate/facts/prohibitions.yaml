@@ -1,0 +1,10 @@
+patterns:
+- pattern: (?i)within days
+  reason: Promotion framing not allowed in application documents
+- pattern: (?i)sole administrator
+  reason: De-inflation rule; the verified wording is narrower
+- pattern: (?i)cafe manager
+  reason: The title is Team Leader
+domain_knowledge_never_claimed: [hydrology, smelting]
+attribution_rules:
+- 'Dispatch report: ''automated'', never ''designed the company reporting system''.'

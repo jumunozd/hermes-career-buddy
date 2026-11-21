@@ -1,0 +1,75 @@
+# Hermes Career Buddy: system configuration (no secrets in this file).
+# Changing a business parameter requires an approved Improvement Proposal (Master §7.7).
+config_version: "1.0.0"
+
+timezone: Australia/Hobart          # Master §11.2.4. Exact cron hours still pending user (TV-09).
+
+paths:
+  # P-5 (2026-11-17): the project is self-contained. Personal data lives in `private/` (gitignored);
+  # engine/ holds the public CV method and build scripts. Relative paths below resolve inside private/.
+  private: private
+  ah_evaluator: ah-evaluator             # copied unchanged from the former hermes2/job-evaluator
+  # Secret, outside the project so an agent working in this folder never reads it. Read only by hcb/baserow.py.
+  baserow_token_file: "~/.hermes/career-buddy/secrets/baserow-token"
+  # Writable areas (relative to private/).
+  applications: applications
+  reports: reports
+  state: state
+
+thresholds:
+  main_ranking_fit_strictly_above: 50     # Master §3.3: fit > 50 %; 50.00 is excluded (UT-01, UT-02)
+  top_n: 5
+  exploratory_n: 3
+  alert_exceptional_fit_min: 80           # D-PM-05
+  followup_days_without_response: 10      # Master §3.14
+
+ranking:                                  # P-4 option B (AP-8b0ed42a08712e3b6d21afc1, 2026-11-16)
+  basis: alignment                        # digest + Top 5 ordered by alignment with target roles (group, match,
+                                          # Entry Signal, roles bridged). A-H fit is computed only at preparation
+                                          # ("Prepara la oferta X") and shown, but no longer gates the ranking.
+                                          # Rollback: basis: fit (Master §3.3, fit > 50 %).
+
+limits:
+  recruiter_rounds_max: 3                 # Master §3.10
+  r3_max_essential_gaps_accepted_by_potential: 1   # recruiter.md §3.5, proposal PD-RC-01 (pending)
+  user_change_reviews_max: 1              # D-RC-02
+  contract_corrections_max: 1             # D-PM-07
+  technical_retries_max: 3                # D-PM-07
+  report_pages_max: 3                     # Master §3.12
+
+daily_alert:                              # D-USR-01 (2026-11-13) + D-USR-02 (2026-11-15): Mon-Fri, 07:30/12:30/16:30
+  enabled: true                           # business rule on; delivery still needs Telegram (features below)
+  window_hours: 24                        # new = first seen by the Job Hunter in the last 24 h
+  include_categories: [principal, exploratoria, pendiente_revision]
+  one_message_per_run: true               # one digest per run, not one ping per offer; an offer is announced once
+  silent_when_empty: true                 # 3 runs a day: no "no hay ofertas" message on empty runs
+  call_suggestion: true                   # show the ad's phone/contact so the USER can call the same day
+  layout: top3                            # P-10 (2026-11-20): TOP 3 with Prepare Docs buttons + other offers best to worst
+  fallback_once:                          # the user, 2026-11-17: ONLY on the first unattended day, if a run finds nothing new
+    date: "2026-11-18"                    # and nothing was delivered earlier that day, send the best 3 already found
+    top_n: 3
+    candidates_file: state/snapshots/fallback-candidates-2026-11-18.json   # (private/) union of RT-13..RT-15 records
+    exclude_titles: ["Senior Electrical Design Engineer"]   # false catalogue match (electrical design, not industrial)
+
+features:                              # Everything external starts OFF (Master §13.1, §15 Fase 4).
+  baserow_live_writes: true               # user approved 2026-11-19 (AP-e35b03aa24aa888279e4d02e, P-6): create/update only, never delete
+  telegram_delivery: true                 # user approved 2026-11-17; bin/hcb daily-send (hermes send, no LLM), live test passed
+  gmail_report: false                     # TV-07 / TV-10 pending
+  scheduled_jobs: true                    # user approved: weekday aa639c87a2bb (2026-11-17), Friday 8f98c9127775 + Saturday ea20eb1adf2a (2026-11-19); profile career-buddy
+  web_discovery: true                     # 2026-11-16 (AP-338e1986beb43f61360209de): only the enabled page_read sources
+  contact_research: true                  # P-2 (RT-12c passed 2026-11-15): Research finds <= 2 public business contacts per fresh offer.
+                                          # ON only after RT-12 passes; uses Hermes `web` toolset, never sends.
+
+telegram:                                 # deterministic digest delivery (bin/hcb daily-send -> hermes send)
+  profile: career-buddy                   # the Hermes profile that owns the bot
+  target: telegram                        # its home channel (the user's chat, TELEGRAM_HOME_CHANNEL)
+  buttons: true                           # P-10: digest sent with inline Prepare Docs buttons (plugin career-buddy-buttons)
+
+backup:                                   # bin/hcb backup (2026-11-19): private/ + Baserow DB + Baserow files, encrypted
+  destination: ~/.hermes/career-buddy/backups/daily   # outside the project and git; key in ~/.hermes/career-buddy/secrets/backup.key
+  docker: ~/.docker/bin/docker            # Docker Desktop CLI (cron jobs have a short PATH)
+  extra_destinations: []                  # off-disk copies (external drive, iCloud Drive): the user decides
+
+languages:
+  user_channel: es                        # D-PM-08
+  documents: en-AU                        # natural Australian English, C1

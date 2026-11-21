@@ -1,0 +1,14 @@
+PRUEBA REAL RT-15: BÚSQUEDA CON EL BARRIDO DETERMINISTA (fuentes reales; NUNCA se envía, postula ni contacta). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Objetivo: medir una búsqueda normal con el Job Hunter 1.9.0, que empieza con bin/hcb sweep (enmienda A-03). Simula la corrida del martes 17/11 a las 07:30 (fuentes de cada corrida + Hydro, Bell Bay y Nyrstar, que se leen por primera vez).
+Reglas de esta prueba:
+- Baserow: SOLO lectura y vista previa (dry-run). No escribas en vivo.
+- NO corras A-H (P-4 B). Orden por alineación.
+- El Job Hunter NO lee listados: los lee bin/hcb sweep. Solo abre con bin/hcb sources read --id --url las ofertas de la lista corta (shortlist) y lee el archivo guardado de las fuentes needs_agent. Nada de sleep, navegador, web_extract ni execute_code.
+- contact_research: como máximo 1 oferta, solo si bin/hcb contact trigger la selecciona.
+Pasos:
+(1) bin/hcb task make --role job_hunter --action search --refs RT-15 --cycle RT-15 y delega al Job Hunter (un hijo). El Job Hunter sigue su skill: bin/hcb sweep --now 2026-11-17T07:30:00+11:00, luego solo la lista corta y needs_agent: bin/hcb targets match, elegibilidad 8579, bin/hcb classify, bin/hcb contact policy, bin/hcb baserow dedup (dry-run) y bin/hcb seen add (con --closing) para cada decisión. Guarda cada anuncio relevante en state/ads/ y la evidencia en state/RT-15/.
+(2) Valida con bin/hcb task validate.
+(3) Arma el snapshot con los registros nuevos y corre bin/hcb contact trigger --snapshot <archivo> --now 2026-11-17T07:30:00+11:00; si selecciona alguna, delega contact_research para 1 y valida con bin/hcb contact validate.
+(4) bin/hcb daily <snapshot> --now 2026-11-17T07:30:00+11:00.
+Entrega en español, breve: lo que devolvió el barrido por fuente (ofertas, ya vistas, descartadas por título, fuera de zona, lista corta), qué hizo con needs_agent, candidatas con grupo y categoría, contactos si hubo, el mensaje del digest tal como lo recibiría el usuario (o "silencio: nada nuevo"), y lo que no se pudo hacer. Nada se envía ni se contacta.

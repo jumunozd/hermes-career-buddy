@@ -1,0 +1,12 @@
+PRUEBA FUNCIONAL CONTROLADA P-2 (oferta real; NUNCA se envía ni se contacta a nadie). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Objetivo (repetición tras configurar Exa como backend web de búsqueda y extracción): validar la acción `contact_research` del Research Agent (P-2, AP-ea17780d4846d8c90c64ab11) y medir su costo.
+Oferta: SEEK-95836385, "Business Development Support Officer", Shaw Contracting, Launceston. Anuncio: state/ads/seek-95836385.txt.
+Nota de prueba: esta oferta ya no tiene menos de 24 h, así que `bin/hcb contact trigger` la saltaría por antigüedad; para esta prueba se omite SOLO ese filtro. No leas ni escribas Baserow. No registres aprobaciones.
+Pasos:
+(1) bin/hcb contact policy --ad state/ads/seek-95836385.txt --employer "Shaw Contracting"  -> guarda el resultado como policy.
+(2) bin/hcb task make --role research_agent --action contact_research --refs SEEK-95836385 --cycle RT-12b --payload con: ad_file, employer, policy, contacts_needed=2.
+(3) delegate_task al Research Agent (un solo hijo) con ese contexto. Debe usar solo herramientas web públicas, respetar las reglas del skill y guardar state/research/SEEK-95836385/contacts.json.
+(4) Guarda el Result Envelope en state/tasks/<task_id>.result.json y valida con bin/hcb task validate y con bin/hcb contact validate --result state/research/SEEK-95836385/contacts.json --ad state/ads/seek-95836385.txt --employer "Shaw Contracting".
+(5) Si la validación falla, NO corrijas los contactos tú: informa los problemas.
+Entrega en español: los contactos (máx. 2) con prioridad, cargo, fuente, confianza y canal; cobertura de búsqueda; resultado de ambas validaciones; y confirma que no se envió ni se contactó nada. No redactes ningún mensaje.

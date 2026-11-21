@@ -1,0 +1,66 @@
+roles:
+- id: northwind
+  title_on_documents: Project Coordinator
+  employer_on_forms: Northwind Logistics
+  country: Chile
+  block: origin
+  employer_display: Northwind Logistics, Valparaiso, Chile
+  start: 2019
+  end: 2022
+  display_dates: 2019 - 2022
+  banned_titles: [Project Director]
+  banned_framings: [within days]
+  referee: pat_referee
+  employment_type: full time
+  context: Regional freight company, 40 staff
+  context_display: null
+  confirmed: 2026-11
+- id: harbour_cafe
+  title_on_documents: Team Leader
+  employer_on_forms: Harbour Cafe
+  country: Australia
+  block: australia
+  employer_display: Harbour Cafe, Launceston, Tasmania, Australia
+  start: 2023
+  end: present
+  display_dates: 2023 - Present
+  banned_titles: [Cafe Manager]
+  referee: sam_referee
+  employment_type: part time
+  context: Busy waterfront cafe
+  context_display: null
+  confirmed: 2026-11
+- id: exchange
+  title_on_documents: Exchange Student
+  employer_on_forms: Example University
+  country: Portugal
+  block: international
+  employer_display: Example University, Lisbon, Portugal
+  start: 2018
+  end: 2018
+  display_dates: '2018'
+  banned_titles: []
+  referee: null
+  employment_type: study
+  context: One semester exchange
+  context_display: null
+  confirmed: 2026-11
+experience_order:
+  blocks: [origin, australia, international]
+  decided: 2026-11-17
+  decided_by: synthetic
+  rationale: Origin-country professional experience first, then Australia, then international.
+  within_block: Most relevant to the ad first; equal relevance in reverse chronological order.
+  headings: One PROFESSIONAL EXPERIENCE heading; the country goes on each role line.
+education_periods:
+- id: example_uni
+  qualification: Bachelor of Industrial Engineering
+  institution: Universidad Ejemplo, Santiago, Chile
+  start: 2014
+  end: 2018
+  display_dates: 2014 - 2018
+  accreditation: Synthetic accreditation note
+referees:
+  pat_referee: {name: Pat Referee, position: Operations Manager, organisation: Northwind Logistics, email: pat.referee@example.org, phone: 0400 000 001}
+  sam_referee: {name: Sam Referee, position: Owner, organisation: Harbour Cafe, email: sam.referee@example.org, phone: 0400 000 002}
+referee_rule: Referees are told before an employer may contact them.

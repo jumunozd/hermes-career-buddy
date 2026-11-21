@@ -1,0 +1,10 @@
+MEDICIÓN DE TOKENS DEL RECRUITER (oferta real; nada se envía ni se contacta). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Repite SOLO la revisión de ronda 1 del Recruiter sobre la versión ya publicada:
+- opportunity_ref SEEK-95836385, preparation PREP-SHAW-001, versión applications/seek-95836385/prep-shaw-001/v1 (no la modifiques).
+- Aprobación vigente AP-46a7be909307596c5a31fc49 ("prepare_only; sending_blocked"). No registres otra.
+- Envelope nuevo: bin/hcb task make --role recruiter --action review --refs SEEK-95836385 --cycle measure-brief-r1 --round 1 (es una medición: no reutilices T-RE-dc419994401b).
+- Construye el paquete de revisión: bin/hcb review-brief --folder applications/seek-95836385/prep-shaw-001/v1 --ad state/ads/seek-95836385.txt --round 1, y pasa al Recruiter SOLO la ruta del brief en el payload.
+- Un único delegate_task al Recruiter. Valida con bin/hcb task validate y el veredicto con bin/hcb review --round 1.
+- No lances ningún Writer ni más rondas.
+Entrega en español: veredicto, razones, next_round_useful, next_step, y si el Recruiter abrió algún archivo fuera del brief.

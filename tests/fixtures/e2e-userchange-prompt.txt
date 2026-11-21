@@ -1,0 +1,8 @@
+PRUEBA FUNCIONAL CONTROLADA, CAMBIO POR DATO NUEVO EN EL ENGINE (anuncio sintético). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Contexto: TEST-SYN-001 / PREP-TEST-001 completó 3 rondas (v1-v3, todo en state/tasks/). Aprobación vigente AP-35fe476f01dbdd6690be7f0c ("prepare_only; sending_blocked; test").
+El usuario cargó en el Job Application Engine (facts/evidence.yaml) la evidencia nueva `ecyt_excel_business_report` (aprobación AP-5e8010ad24223242164ac8de), que responde a MFR-TEST-001 (reportes Excel usados por otras personas).
+Según writer.md §6.5 / D-WR-01, encarga un revise en modo user_change:
+(1) bin/hcb task make + delegate_task Writer action revise (mode user_change) -> nueva versión v4 desde v3: cambiar SOLO lo que la evidencia nueva permite (CV y/o carta), citando ecyt_excel_business_report; ningún otro hecho nuevo.
+(2) delegate_task Recruiter action review (mode user_change, criterio estricto) sobre v4; verifica el veredicto con bin/hcb review <archivo> --round 2 (criterio estricto).
+Valida cada resultado con bin/hcb task validate. Una sola reevaluación (D-RC-02). Entrega en español: versión, cambios, estado de R-08 (met / transferable / partial), veredicto y razones, MFR pendientes, archivos con MEDIA:/ruta. Nada se envía ni se contacta.

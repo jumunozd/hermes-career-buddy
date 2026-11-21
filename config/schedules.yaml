@@ -1,0 +1,27 @@
+# Proposed Hermes cron jobs (Master §7, §11.2.3-4). NOT INSTALLED.
+# Hours: all confirmed by the user (TV-09 resolved 2026-11-15). Installing still requires: approved sources (TV-13 / JH-TV-02),
+# Telegram configured (TV-08) for deliver targets, and features.scheduled_jobs: true.
+# Install command template (run only after approval), one per job:
+#   hermes cron create "<schedule>" "<prompt>" --skill <skill> --workdir "<project root>"
+# Every job sets --workdir so Hermes loads AGENTS.md and the trusted project skills.
+status: installed   # profile career-buddy: weekday aa639c87a2bb (2026-11-17); Friday and Saturday installed 2026-11-19
+timezone: Australia/Hobart
+jobs:
+  - id: jh-weekday-search-and-digest     # D-USR-02 (AP-19d0bccce02dfb3ac2b94a8c): Mon-Fri, 3 runs at useful hours
+    schedule: "30 7,12,16 * * 1-5"       # CONFIRMED by the user 2026-11-15: 07:30, 12:30, 16:30 Australia/Hobart, Monday-Friday.
+                                          # Replaces 05:00/21:00 every day. Monday 07:30 also catches weekend postings.
+                                          # Review after 3-4 weeks against the recorded posted_at hours.
+    skills: [hcb-project-manager, hcb-job-hunter, hcb-research-agent]
+    deliver: local                        # the PM sends the digest itself (send_message) and records the outcome with
+                                          # bin/hcb daily-delivered; cron delivery would send it twice (2026-11-17)
+    prompt: "Ciclo de búsqueda (lunes a viernes): ejecuta 'search' del Job Hunter (bin/hcb sweep primero; solo fuentes enabled:true; lo ya visto se salta), luego bin/hcb contact trigger y contact_research del Research Agent para las ofertas seleccionadas (máx. 3), luego bin/hcb baserow register --snapshot <snapshot> --live (registra en Baserow solo lo no descartado), y SIEMPRE bin/hcb daily <snapshot> (aunque no haya registros nuevos: snapshot con opportunities vacío). Envía el resumen solo con bin/hcb daily-send --digest <saved_to> (código: envía y registra; si no hay ofertas nuevas no envía nada). No lo repitas en tu respuesta final. No contactes a nadie."
+  - id: friday-market-and-maintenance
+    schedule: "0 18 * * 5"               # CONFIRMED by the user 2026-11-15: Friday 18:00 Hobart, after the 16:30 search
+    skills: [hcb-project-manager, hcb-research-agent]
+    deliver: local
+    prompt: "Viernes (T-04): delega market_review al Research Agent (solo páginas públicas, sin contactar a nadie) y haz el mantenimiento del PM: verifica la vigencia de las ofertas registradas (vencidas -> Cerrada, nunca borrar), posibles duplicados y seguimientos de 10 días con bin/hcb. Guarda el resultado en private/state/friday/<AAAA-MM-DD>.json para el reporte del sábado. No envíes mensajes salvo una alerta excepcional (oferta preparada por cerrar o error bloqueante)."
+  - id: saturday-report
+    schedule: "0 8 * * 6"                # CONFIRMED by the user 2026-11-15: Saturday 08:00 Hobart
+    skills: [hcb-project-manager]
+    deliver: local                        # the PM sends the PDF with bin/hcb report-send; Gmail pending TV-07
+    prompt: "Sábado: Weekly Report (T-05). Exporta las oportunidades de la semana (bin/hcb baserow list + registros de private/state) a private/state/snapshots/week-<AAAA-MM-DD>.json, corre bin/hcb report <ese archivo> --report-id R-<AAAA>-W<semana> y revisa within_limit (máx. 3 páginas); luego envíalo solo con bin/hcb report-send --report-id <ese id> (código: manda el PDF por Telegram y lo registra). Gmail sigue apagado (TV-07). No contactes a nadie."

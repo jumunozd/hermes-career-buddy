@@ -1,0 +1,81 @@
+# Job Hunter source registry (job-hunter.md §5.2-5.3, D-JH-01/02).
+# A source is enabled only after JH-TV-02 documents a permitted access mechanism (ToS/robots,
+# docs/SOURCE_VERIFICATION.md) AND the user approves it (Master §3.4). 2026-11-16: group A on. A cycle with disabled sources
+# is "reduced coverage", not an error.
+#
+# KB version note: the specs cite KB v2.0 (2026-11-12, "R2"), which is not present in
+# either source folder. This registry follows job-hunter.md §5.3 (approved) and the
+# available KB v1.0 (private/knowledge/kb/job_hunter_intelligence_tasmania_2026-11-07.md).
+config_version: "1.2.0"   # 1.2.0: sweep fields job_link / pages / title_filter / employer / default_location (RT-14b)
+kb_version: "1.0 (2026-11-07); v2.0 referenced by specs but missing"
+
+access_modes: [page_read, search_discovery, official_feed, email_alert, disabled]
+
+sources:
+  # ---- Group A of docs/SOURCE_VERIFICATION.md: ENABLED (AP-338e1986beb43f61360209de, 2026-11-16) ----
+  # page_read only: robots allow the listing path and the listings are readable. Pace reads >= 20 s
+  # (or the site's crawl_delay), honest client identity, no login. Cadence: "every_run" = each of the
+  # 3 weekday runs; "first_run:<days>" = only the 07:30 run on those days.
+  - {id: SRC-01, name: "TSS Careers (Tasmanian State Service)", mode: page_read, cadence: every_run, enabled: true, url: "https://careers.jobs.tas.gov.au/cw/en/listing/", verified: "2026-11-16 A (URL fixed after RT-13)", note: "PageUp; citizenship/PR flag per ad (VB-10)", job_link: 'careers\.jobs\.tas\.gov\.au/jobs/(?!search)[a-z0-9-]+-\d', pages: "https://careers.jobs.tas.gov.au/jobs/search?page={n}", title_filter: strict, employer: "Tasmanian State Service"}
+  - {id: COUNCIL-GLENORCHY, name: "Glenorchy City Council", mode: page_read, cadence: every_run, enabled: true, url: "https://jobs.gcc.tas.gov.au/job-search/", crawl_delay_s: 20, verified: "2026-11-16 A", job_link: 'jobs\.gcc\.tas\.gov\.au/job-details/', title_filter: strict, employer: "Glenorchy City Council", default_location: Glenorchy}
+  - {id: COUNCIL-DEVONPORT, name: "Devonport City Council", mode: page_read, cadence: every_run, enabled: true, url: "https://www.devonport.tas.gov.au/council/get-involved/employment/employment-opportunities/", verified: "2026-11-16 A", job_link: 'devonport\.tas\.gov\.au/council/get-involved/employment/employment-opportunities/[a-z0-9-]+/?$', title_filter: strict, employer: "Devonport City Council", default_location: Devonport}
+  - {id: EMP-HYDRO, name: "Hydro Tasmania + Entura", mode: disabled, cadence: "first_run:tue,thu", enabled: false, url: "https://careers.pageuppeople.com/901/ht/en/listing/", verified: "2026-11-16 A -> withdrawn in RT-15", note: "RT-15: the listing is served from hydro-tasmania-careers.careerpages.rec-marketing.dc2.pageuppeople.com, whose robots.txt says Disallow: / for all agents. No direct reading; use email alerts (P-3) or Work180."}
+  - {id: EMP-BELLBAY, name: "Bell Bay Aluminium (Rio Tinto)", mode: page_read, cadence: "first_run:tue,thu", enabled: true, url: "https://bellbayaluminium.com.au/careers", verified: "2026-11-16 A", note: "Tier 1; roles link to Rio Tinto Workday"}
+  - {id: EMP-NYRSTAR, name: "Nyrstar Hobart", mode: page_read, cadence: "first_run:tue,thu", enabled: true, url: "https://jobs.nyrstar.com/go/Hobart/8739002/", verified: "2026-11-16 A", note: "Tier 1, risk flag kept", job_link: 'jobs\.nyrstar\.com/(?:Hobart/)?job/', employer: "Nyrstar Hobart"}
+  - {id: EMP-HUON, name: "Huon Aquaculture", mode: page_read, cadence: "first_run:mon", enabled: true, url: "https://www.huonaqua.com.au/careers/current-jobs/", verified: "2026-11-16 A", note: "Tier 2", job_link: 'huonaqua\.com\.au/careers/current-jobs/#job-\d+', employer: "Huon Aquaculture"}
+  - {id: EMP-TASRAIL, name: TasRail, mode: page_read, cadence: "first_run:mon", enabled: true, url: "https://tasrail.com.au/current-job-vacancies", verified: "2026-11-16 A", note: "Tier 2"}
+  - {id: EMP-SAGE, name: "SAGE Automation", mode: page_read, cadence: "first_run:mon", enabled: true, url: "https://careers.gotosage.com/jobs", verified: "2026-11-16 A", note: "Tier 2; mostly mainland roles: 8579 filter applies", job_link: 'careers\.gotosage\.com/jobs/\d+', employer: "SAGE Automation"}
+  - {id: EMP-HAZELL, name: "Hazell Bros", mode: page_read, cadence: "first_run:mon", enabled: true, url: "https://careers.hazellbros.com.au/jobs/search", verified: "2026-11-16 A", note: "Tier 2", job_link: 'hazellbros\.elmotalent\.com\.au/careers/default/job/view/\d+', employer: "Hazell Bros", detail_hosts: [hazellbros.elmotalent.com.au]}
+
+  # ---- Disabled: see docs/SOURCE_VERIFICATION.md for the group and the evidence ----
+  # B: listings in a hidden widget -> search_discovery or test the external portal later
+  - {id: COUNCIL-KINGBOROUGH, name: "Kingborough Council", mode: search_discovery, cadence: every_run, enabled: false, note: "B: applynow.net.au portal to test"}
+  - {id: COUNCIL-CENTRALCOAST, name: "Central Coast Council", mode: search_discovery, cadence: every_run, enabled: false, note: "B"}
+  - {id: COUNCIL-CLARENCE, name: "Clarence City Council", mode: search_discovery, cadence: every_run, enabled: false, note: "B: TechnologyOne portal"}
+  - {id: EMP-TASNETWORKS, name: TasNetworks, mode: search_discovery, cadence: "first_run:tue,thu", enabled: false, note: "B"}
+  - {id: EMP-TASPORTS, name: TasPorts, mode: search_discovery, cadence: "first_run:mon", enabled: false, note: "B"}
+  - {id: SRC-08, name: "Marinus Link (Employment Hero)", mode: search_discovery, cadence: "first_run:tue,thu", enabled: false, note: "B; exclude Victoria-based roles (8579-Fail)"}
+  # C: robots.txt answers 403 to an honest bot identity -> no direct reading
+  - {id: COUNCIL-HOBART, name: "City of Hobart", mode: search_discovery, cadence: every_run, enabled: false, note: "C; listings also on councilcareers.com.au"}
+  - {id: COUNCIL-LAUNCESTON, name: "City of Launceston", mode: search_discovery, cadence: every_run, enabled: false, note: "C"}
+  - {id: COUNCIL-BURNIE, name: "Burnie City Council", mode: search_discovery, cadence: every_run, enabled: false, note: "C"}
+  - {id: EMP-TASWATER, name: TasWater, mode: search_discovery, cadence: "first_run:tue,thu", enabled: false, note: "C"}
+  - {id: SRC-09, name: "Searson Buck", mode: search_discovery, cadence: "first_run:mon", enabled: false, note: "C; no direct contact"}
+  # D: automated reading not allowed -> search-engine discovery and email alerts only (P-3)
+  - {id: SRC-03, name: SEEK, mode: search_discovery, cadence: every_run, enabled: false, note: "D: robots Disallow */job/; group terms ban robots; email alerts via P-3"}
+  - {id: SRC-05, name: "LinkedIn Jobs", mode: search_discovery, cadence: "first_run:tue,thu", enabled: false, note: "D: no automation; never canonical"}
+  - {id: SRC-06, name: Indeed, mode: search_discovery, cadence: "first_run:tue,thu", enabled: false, note: "D; never canonical"}
+  - {id: EMP-UTAS, name: "University of Tasmania", mode: search_discovery, cadence: "first_run:mon", enabled: false, note: "D: robots Disallow / for all bots"}
+  - {id: EMP-INCAT, name: Incat, mode: search_discovery, cadence: "first_run:tue,thu", enabled: false, note: "D: robots block AI crawlers"}
+  # E: readable, terms not confirmed
+  - {id: SRC-10, name: Hays, mode: search_discovery, cadence: "first_run:mon", enabled: false, note: "E"}
+  - {id: SRC-11, name: Randstad, mode: search_discovery, cadence: "first_run:mon", enabled: false, note: "E"}
+  - {id: SRC-12, name: Prosple, mode: search_discovery, cadence: "first_run:mon", enabled: false, note: "E; monthly grad intakes"}
+  - {id: SRC-13, name: "GradConnection (SEEK Grad)", mode: search_discovery, cadence: "first_run:mon", enabled: false, note: "E; SEEK-group terms likely"}
+  # Off for other reasons
+  - {id: SRC-04, name: "Workforce Australia", mode: disabled, enabled: false, note: "API needs Digital ID: do not use"}
+  - {id: SRC-16, name: Aggregators, mode: search_discovery, enabled: false, note: "discovery only"}
+  - {id: SRC-15, name: "Dorset Employment Connect", mode: disabled, enabled: false, note: "out of zones (D-JH-02)"}
+  - {id: EMP-17, name: "MMG Rosebery", mode: disabled, enabled: false, note: "out of zones + mining (D-JH-02, D-JH-04)"}
+  - {id: EMP-20, name: "Liberty Bell Bay", mode: disabled, enabled: false, note: "closed, in liquidation"}
+
+zones:                         # job-hunter.md §3.6 (approved D-JH-02, D-JH-09)
+  in_scope:
+    sur: [Hobart, Glenorchy, Clarence, Kingborough, Brighton, Derwent Park, Lutana, Cambridge, Prince of Wales Bay]
+    sur_periferia: [New Norfolk, Boyer]
+    norte: [Launceston]
+    norte_periferia: [George Town, Bell Bay]
+    noroeste: [Burnie, Devonport, Heybridge, Penguin, Ulverstone, Parramatta Creek, Spreyton]
+    noroeste_periferia: [Wynyard, Latrobe]
+  out_of_scope_examples: [Rosebery, Queenstown, Strahan, Savage River, Scottsdale, St Helens, Dover, Huonville, Port Huon]  # Port Huon: Huon Valley, as decided in RT-13
+
+global_exclusions:             # job-hunter.md §3.5
+  - process worker
+  - event planner
+  - wedding
+  - software developer
+  - "mining engineer (unless reviewed)"
+  - "business analyst, purely software"
+  - "sales/account role with dominant commission"
+  - "field engineer, telco/IT"
+  - "residential construction project engineer requiring builder registration"

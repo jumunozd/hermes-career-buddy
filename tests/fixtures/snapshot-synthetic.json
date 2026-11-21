@@ -1,0 +1,12 @@
+{"executive_summary": "SYNTHETIC TEST SNAPSHOT. Tres ofertas superan el umbral; dos exploratorias con valor estratégico.",
+ "opportunities": [
+  {"baserow_id": 901, "employer": "Test Utility A", "title": "Asset Planner", "fit": 74, "ranking_category": "principal", "closing_date": "2026-11-28", "priority_reason": "Fit alto y cierre próximo"},
+  {"baserow_id": 902, "employer": "Test Council B", "title": "CI Officer", "fit": 61, "ranking_category": "principal", "closing_date": "2026-12-05", "priority_reason": "Ruta A directa"},
+  {"baserow_id": 903, "employer": "Test Port C", "title": "Ops Coordinator", "fit": 50.5, "ranking_category": "principal", "closing_date": "2026-12-10", "priority_reason": "Puente operaciones"},
+  {"baserow_id": 904, "employer": "Test Mfg D", "title": "Planner", "fit": 50, "ranking_category": "exploratoria", "employer_tier": 1, "exploratory_justification": "Empleador Tier 1 con vía graduate", "closing_date": "2026-12-01"},
+  {"baserow_id": 905, "employer": "Test Energy E", "title": "EOI Site Roles", "fit": null, "ranking_category": "exploratoria", "employer_tier": 1, "eoi": true, "exploratory_justification": "EOI de proyecto Tier 1 en zona"},
+  {"baserow_id": 906, "employer": "Old Co", "title": "Analyst", "fit": 80, "ranking_category": "principal", "estado": "Cerrada"}
+ ],
+ "applications": [{"baserow_id": 950, "state": "enviada", "sent_date": "2026-11-01"}],
+ "decisions_required": ["Posible duplicado 902 / 907 (misma empresa y cargo)"],
+ "proposed_weekend_actions": ["Preparar 1 y 2 (cierre antes del 5 de diciembre)"]}

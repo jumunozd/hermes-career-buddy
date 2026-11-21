@@ -1,0 +1,6 @@
+{"opportunities": [
+ {"baserow_id": 911, "employer": "Test Utility A (ficticia)", "title": "Maintenance Planner", "fit": 72, "ranking_category": "principal",
+  "discovered_at": "2026-11-14T06:30:00+11:00", "posted_at": "2026-11-13T15:00:00+11:00", "closing_date": "2026-11-30",
+  "ad_text": "For a confidential discussion contact Tom Price on 0400 111 222."},
+ {"baserow_id": 912, "employer": "Test Council B (ficticio)", "title": "CI Officer", "fit": null, "ranking_category": "pendiente_revision",
+  "discovered_at": "2026-11-14T07:00:00+11:00", "posted_at": null, "closing_date": null, "ad_text": "Enquiries to Ana Lee on 03 62xx xxxx"}]}

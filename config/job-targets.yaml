@@ -1,0 +1,161 @@
+# Job Hunter target catalogue (machine-readable). Source: private/knowledge/kb/"Cargos objetivos para el job hunter.md"
+# (The user, received 2026-11-14, sha256 cb54c3c2488037ca). Read by hcb/targets.py; the agent does not need the .md.
+# Does NOT change A-H scoring: groups and bridge signals are parallel labels (job-hunter.md D-JH-05).
+version: "1.0.0"
+north_star: >
+  First Australian professional experience related to Industrial Engineering, moving towards operations,
+  continuous improvement, business process analysis/redesign and asset management. Entry roles accepted
+  when they have a real connection to those areas. Australia-Chile mobility (5-10 years) is NOT a current filter.
+
+groups:
+  A:   # priority families: search always
+    mode: always
+    category_hint: principal
+    families:
+      business_process: [Business Process Analyst, Process Analyst, Business Improvement Analyst, Business Systems Analyst, Organisation and Methods Analyst]
+      continuous_improvement: [Continuous Improvement Analyst, Continuous Improvement Officer, Continuous Improvement Coordinator, Process Improvement Analyst, Process Improvement Officer, Operational Excellence Analyst]
+      operations: [Operations Analyst, Operational Performance Analyst, Operations Improvement Analyst, Business Operations Analyst, Operations Improvement Coordinator]
+      asset_management: [Asset Management Analyst, Asset Management Officer, Asset Performance Analyst, Asset Planning Officer, Asset Management Coordinator]
+  B:   # direct engineering + graduate programmes: search always, high priority when specialty matches
+    mode: always
+    category_hint: principal
+    families:
+      engineering: [Industrial Engineer, Junior Industrial Engineer, Graduate Industrial Engineer, Graduate Engineer, Trainee Engineer, Operations Engineer, Graduate Operations Engineer, Process Engineer, Production Engineer, Plant Engineer, Manufacturing Engineer, Project Engineer, Quality Engineer, Reliability Engineer]
+    rules:
+      - "Check specialty requirements for Plant, Project and Reliability Engineer (mechanical, electrical, plant process)."
+      - "Graduate programmes: degree completed 2019; flag/exclude only those requiring a recent graduation date."
+      - "Never claim Industrial Engineering qualifies for every engineering branch."
+  C:   # planning, coordination, industrial projects: bridges
+    mode: always
+    category_hint: principal
+    families:
+      production: [Production Planner, Production Scheduler, Production Coordinator, Manufacturing Planner]
+      operations: [Operations Planner, Operations Coordinator, Resource Planner]
+      maintenance: [Maintenance Planner, Maintenance Scheduler, Work Management Planner, Maintenance Coordinator]
+      assets: [Asset Planner, Asset Coordinator, Asset Planning Officer]
+      projects: [Project Coordinator, Project Officer, Project Support Officer, Project Administrator, PMO Analyst]
+      supply_chain: [Supply Chain Analyst, Supply Chain Coordinator, Inventory Planner, Procurement Officer, Logistics Coordinator]
+      quality: [Quality Coordinator, Quality Assurance Officer, Quality Systems Officer]
+  D:   # professional entry / technical support: entry doors
+    mode: always
+    category_hint: depends_on_bridge
+    families:
+      engineering_support: [Engineering Assistant, Engineering Support Officer, Engineering Coordinator]
+      technical_support: [Technical Officer, Technical Support Officer, Technical Administrator]
+      operations: [Operations Support Officer, Operations Officer, Operations Assistant]
+      assets: [Asset Support Officer, Asset Data Officer, Asset Administration Officer]
+      planning: [Planning Officer, Scheduling Officer, Planning Assistant]
+      projects: [Junior Project Officer, Project Support Administrator, Engineering Project Assistant]
+      business_improvement: [Business Improvement Officer, Business Support Officer, Process Support Officer]
+      inventory: [Inventory Controller, Inventory Coordinator, Purchasing Officer]
+      quality: [Quality Assistant, Quality Systems Assistant]
+    rule: "Avoid generic administration roles with no verifiable connection to groups A-C."
+  E:   # strategic operational entries: selective, always exploratory
+    mode: selective
+    category_hint: exploratoria
+    families:
+      operational: [Trainee Production Operator, Production Operator, Process Operator, Plant Operator, Stores Coordinator, Warehouse Coordinator, Maintenance Administrator, Site Administrator, Production Assistant,
+                    Remote Feed Operator, Feed Operator]   # feed operators: the user, 2026-11-17 (Huon Aquaculture)
+    conditions:   # all required
+      - "Employer in a target industry with established technical operations or engineering team."
+      - "Concrete exposure to production, maintenance, assets, processes or operational improvement."
+      - "Identifiable training, mobility or progression routes (a possibility, never assumed)."
+      - "Viable Tasmanian working conditions."
+
+top12_initial_queries: [Continuous Improvement Officer, Operations Coordinator, Production Planner, Maintenance Planner,
+  Asset Management Officer, Project Coordinator, Engineering Support Officer, Business Improvement Officer,
+  Business Process Analyst, Operations Analyst, Graduate Industrial Engineer, Asset Management Analyst]
+
+seniority_words: [junior, graduate, trainee, senior, lead, principal, assistant, entry, level, i, ii, iii]
+
+# Duty-text signals (§8.4). Counted by hcb/targets.py; evidence lines are quoted back.
+bridge_signals:
+  improvement: [improve process, process improvement, improve processes, workflow, continuous improvement, lean, efficiency, root cause, redesign, streamline]
+  analysis: [analys, kpi, performance, data, report, dashboard, power bi, excel, insight]
+  planning: [production planning, maintenance planning, scheduling, forecasting, resource planning, capacity planning]
+  operations_technical: [operations team, production line, manufacturing, maintenance, plant, engineers, engineering team, technical team, asset, reliability, quality assurance, quality control, quality systems, project delivery, site team, infrastructure]
+  systems: [erp, sap, system, register, document control, database, cmms]
+generic_admin_signals: [inbox, reception, phone enquiries, data entry, filing, diary management, mail, front desk, photograph, imagery, formatting]
+
+sectors_priority: [energy_utilities, mining_resources, manufacturing_food, infrastructure_government, healthcare_large_orgs, logistics_supply_chain]
+location_rules:
+  - "Physically workable in Tasmania: on-site, hybrid in Tasmania, or remote from Tasmania when explicitly allowed."
+  - "Hybrid Melbourne/Sydney with regular mainland attendance is not viable (8579 rules in job-hunter.md 9.3)."
+  - "Hybrid in Tasmania gets only a slight preference; never enough to drop a good first engineering role."
+  - "Remote Australia does not imply working from Chile; mobility is a 5-10 year goal, not a filter."
+search_frequency: daily   # the user 2026-11-14, overrides catalogue §8.1 (Mon-Fri)
+ranking_rules: "All fit > 50 % ranked; Top 5 highlighted; up to 3 exploratory (mainly group E / strategic entries) kept separate."
+
+reconciliation:
+  - "Catalogue §8.1 says Monday-Friday; RESOLVED 2026-11-14: The user confirmed a DAILY cycle (D-USR-01 prevails, weekends included)."
+  - "Supersedes config/career-targets.yaml (2026-11-14): its four target roles are group A here."
+
+# Entry Signal indicators v1.0 (P-1, approved 2026-11-15). Rule (job-hunter.md §6.5): >= 4 positives and no
+# critical negative -> Strategic Entry; >= 2 critical negatives -> Dead-End Risk; else Neutral; unknown = not met.
+# `hints` let hcb/targets.py pre-fill a suggestion; the Job Hunter confirms each indicator with a quoted ad line.
+entry_signal:
+  version: "1.0"
+  source: "Reconstructed from 'Cargos objetivos' §3-5, §8.4 (KB v2.0 R2 §9.1 missing)"
+  indicators:
+    - id: 1
+      critical: true
+      name: technical_or_operational_connection
+      positive: "works with operations, maintenance, production, projects, assets or engineering teams"
+      negative: "generic administration with no contact with those areas"
+    - id: 2
+      critical: false
+      name: processes_systems_data
+      positive: "owns registers, systems, reporting, data or document control"
+      negative: "no system or data responsibility"
+    - id: 3
+      critical: false
+      name: improvement_responsibility
+      positive: "diagnoses or proposes process/workflow improvements"
+      negative: "only executes fixed tasks"
+    - id: 4
+      critical: false
+      name: target_industry_employer
+      positive: "employer in a priority Tasmanian sector (energy, utilities, mining, manufacturing, food, infrastructure, government, health, logistics)"
+      negative: "outside target industries"
+      hints: [energy, utility, utilities, water, mining, mineral, manufactur, food processing, infrastructure, civil, construction, council, government, hospital, health, logistics, supply chain, port, rail]
+    - id: 5
+      critical: true
+      name: growth_path
+      positive: "employer has group A-C roles or the ad mentions progression/development pathways"
+      negative: "isolated role with no structure to grow into (stated)"
+      hints: [career progression, career development, development opportunities, pathway, grow your career, internal opportunities, progression]
+    - id: 6
+      critical: true
+      name: learning_value
+      positive: "skills transfer to the four target families (process, CI, operations, assets)"
+      negative: "repetitive work with no judgement and high automation risk"
+    - id: 7
+      critical: false
+      name: training_offered
+      positive: "training, mentoring, study support or development programme mentioned"
+      negative: null
+      hints: [training, mentoring, mentor, study assistance, professional development, development program, upskill]
+
+# RT-14 (2026-11-16). Listing-card triage: titles of regulated or clearly different professions are
+# recorded in the Seen log from the card alone, without reading the detail page (saves ~20 s per read).
+# Every other title not in the catalogue is still read ("never reject by title alone").
+# The user, 2026-11-17: "Senior quedan fuera, de por si ya el titulo pide experiencia". A title with one of
+# these words is logged from the listing card (never read, never announced, never in the fallback).
+excluded_title_words: [senior, lead, principal, manager]   # lead, principal, manager added by the user 2026-11-17
+
+out_of_field_titles: [nurse, midwife, teacher, teaching, educator, doctor, physician, registrar, intensivist,
+  staff specialist, medical officer, psychiatrist, psycholog, pharmacist, speech patholog, physiotherap,
+  occupational therapist, dietitian, social worker, paramedic, dentist, dental, radiograph, sonograph,
+  legal practitioner, lawyer, solicitor, carer, personal care, home help, domestic services, kitchen, cook,
+  chef, cleaner, gardener, bus driver, correctional officer, police, firefighter,
+  library, librarian,   # library: the user, 2026-11-17 ("yo no soy bibliotecario")
+  trades assistant, materials tester,   # the user, 2026-11-17: Trades Assistant and Construction Materials Tester do not fit
+  maintainer, dispatcher, customer service]   # the user, 2026-11-17: Mechanical Maintainer, Emergency Medical Dispatcher, Customer Service out
+
+# RT-14: a catalogue title with clinical / laboratory / classroom duties goes to "revisar funciones".
+field_mismatch_signals: [patholog, specimen, laborator, clinical, patient, nursing, medical scientist,
+  phlebotom, ward, theatre, classroom, curriculum, students]
+
+# RT-14: locations given only as a region (TSS "South", "North", "North West").
+region_only_locations: [south, southern, north, northern, north west, north-west, northwest, statewide,
+  state wide, tasmania, various, multiple locations, south tas, north tas, north west tas]

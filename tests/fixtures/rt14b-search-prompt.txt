@@ -1,0 +1,14 @@
+PRUEBA REAL RT-14b: SEGUNDA CORRIDA (repetición tras corregir los 4 defectos de RT-14) DEL CICLO DE BÚSQUEDA (fuentes reales; NUNCA se envía, postula ni contacta). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Objetivo: validar en vivo las correcciones de RT-13 y la propuesta P-4 opción B (AP-8b0ed42a08712e3b6d21afc1), y medir el costo de una segunda corrida sobre el mismo conjunto de fuentes. Simula otra vez la corrida del lunes 07:30 (el Seen log ya tiene las decisiones de RT-13).
+Reglas de esta prueba:
+- Baserow: SOLO lectura y vista previa (dry-run). No escribas en vivo.
+- NO corras A-H en esta búsqueda (P-4 B: A-H solo al preparar). El orden es por alineación con los roles objetivo.
+- Lee las fuentes SOLO con bin/hcb sources read --id <id> (y --url para una oferta del mismo sitio). No uses sleep, navegador, web_extract ni execute_code para leer fuentes.
+- contact_research: como máximo 1 oferta, solo si bin/hcb contact trigger la selecciona.
+Pasos:
+(1) bin/hcb task make --role job_hunter --action search --refs RT-14b --cycle RT-14b y delega al Job Hunter (un hijo). El Job Hunter sigue su skill: bin/hcb sources due --now 2026-11-16T07:30:00+11:00, lee SOLO los listados con bin/hcb sources read y sigue el paso 3 de su skill (1.8.0): por cada tarjeta, bin/hcb seen check con los datos de la tarjeta y --closing, luego bin/hcb triage; abre el detalle solo si read_detail es true; region_only va a pendiente_revision, bin/hcb targets match, elegibilidad 8579, bin/hcb classify, bin/hcb contact policy, bin/hcb baserow dedup (dry-run) y bin/hcb seen add para cada decisión nueva. Guarda cada anuncio relevante nuevo en state/ads/ y la evidencia en state/RT-14b/.
+(2) Valida con bin/hcb task validate.
+(3) Arma el snapshot con los registros nuevos y corre bin/hcb contact trigger --snapshot <archivo> --now 2026-11-16T07:30:00+11:00; si selecciona alguna, delega contact_research para 1 y valida con bin/hcb contact validate.
+(4) bin/hcb daily <snapshot> --now 2026-11-16T07:30:00+11:00.
+Entrega en español: por fuente (leída / fallida / cobertura reducida, y cuántos anuncios eran known_unchanged), anuncios nuevos, candidatas relevantes con grupo de alineación y categoría, contactos si hubo, el mensaje del digest tal como lo recibiría el usuario (o "silencio: nada nuevo"), y lo que no se pudo hacer. Nada se envía ni se contacta.

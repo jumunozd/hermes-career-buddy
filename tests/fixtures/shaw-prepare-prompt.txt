@@ -1,0 +1,12 @@
+PREPARACIÓN REAL (oferta real; NUNCA se envía ni se contacta). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Solicitud del usuario (chat 2026-11-14): preparar la postulación para "Business Development (BD) Support Officer", Shaw Contracting (Aust) Pty Ltd, Launceston, SEEK 95836385.
+- Anuncio completo (snapshot suministrado por el usuario, no verificado en vivo): state/ads/seek-95836385.txt
+- opportunity_ref = SEEK-95836385, preparation_id = PREP-SHAW-001. No hay registro en Baserow: no leas ni escribas Baserow.
+- Aprobación ya registrada: AP-46a7be909307596c5a31fc49 ("prepare_only; sending_blocked"). No registres otra.
+- verify_vigencia no aplica en esta sesión: documents_required según el anuncio = CV + cover letter (resume and cover letter por email). No hay límites declarados.
+- Delegación real con delegate_task, en orden y esperando cada resultado: (1) Writer action draft (debe usar su Writer pack), (2) Recruiter action review ronda 1 (estricta), verificado con bin/hcb review <archivo> --round 1.
+- Construye cada Task Envelope con bin/hcb task make y valida cada resultado con bin/hcb task validate.
+- Si la ronda 1 es "No pasa a entrevista", NO lances más rondas en esta sesión: deja el siguiente envelope preparado.
+- Nada se envía ni se contacta a nadie. No modifiques el Job Application Engine.
+Entrega en español: ruta de la versión, documentos con líneas MEDIA:/ruta, veredicto y razones, Missing Fact Requests como preguntas concretas, y el recordatorio de que el usuario envía por email a la dirección del anuncio.

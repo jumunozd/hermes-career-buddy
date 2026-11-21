@@ -1,0 +1,8 @@
+PRUEBA FUNCIONAL CONTROLADA, CONTINUACIÓN (anuncio sintético). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Reanuda la preparación TEST-SYN-001 / PREP-TEST-001 desde el estado guardado en state/tasks/ (no repitas tareas completadas: Writer draft T-WR-5f4ba3f0beca y Recruiter ronda 1 T-RE-228d8cf7e69d ya terminaron; la aprobación AP-35fe476f01dbdd6690be7f0c sigue vigente para "prepare_only; sending_blocked; test").
+La tarea Writer revise ronda 2 T-WR-d0b04c58e1bb quedó bloqueada SIN ejecutarse (límite de subagentes de la sesión anterior); reutiliza ese mismo envelope.
+Esta sesión permite 2 subagentes: (1) delegate_task Writer revise ronda 2 aplicando el feedback del Recruiter de state/tasks/T-RE-228d8cf7e69d.result.json (nueva versión v2, sin inventar hechos fuera de evidence_available), (2) delegate_task Recruiter review ronda 2 (estricta) sobre v2, verificado con bin/hcb review <archivo> --round 2.
+Valida cada resultado con bin/hcb task validate. Si la ronda 2 da "No pasa a entrevista", NO lances la ronda 3 en esta sesión: deja preparado su envelope y reporta.
+Nada se envía ni se contacta. No modifiques el Job Application Engine.
+Al final, en español: versión publicada, cambios aplicados, veredicto y razones de la ronda 2, Missing Fact Requests pendientes, y fallos.

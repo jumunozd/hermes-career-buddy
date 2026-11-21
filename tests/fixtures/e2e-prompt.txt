@@ -1,0 +1,11 @@
+PRUEBA FUNCIONAL CONTROLADA (anuncio sintético, empleador ficticio). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Solicitud del usuario: "Prepara la oferta TEST-SYN-001" para el anuncio de tests/fixtures/synthetic-ad-ci-coordinator.txt.
+Reglas de esta prueba:
+- opportunity_ref = TEST-SYN-001, preparation_id = PREP-TEST-001. No existe registro en Baserow: no leas ni escribas Baserow.
+- Registra la aprobación del usuario con: bin/hcb approval record --action prepare --objects TEST-SYN-001 --channel cli --scope "prepare_only; sending_blocked; test" --source e2e-test
+- verify_vigencia no aplica: el snapshot es el archivo del anuncio (suministrado por el usuario, no verificado). documents_required según el anuncio.
+- Delegación real con delegate_task, en este orden y esperando cada resultado: (1) Writer action draft, (2) Recruiter action review ronda 1. Si el veredicto calculado es "No pasa a entrevista", sigue el ciclo Writer revise -> Recruiter review hasta un máximo de 3 rondas en total.
+- Construye cada Task Envelope con bin/hcb task make y valida cada resultado con bin/hcb task validate. El veredicto del Recruiter debe verificarse con bin/hcb review <archivo> --round N.
+- Nada se envía ni se contacta a nadie. No modifiques el Job Application Engine.
+Al final entrega en español: ruta de la versión publicada, documentos generados, veredicto y razones por ronda, Missing Fact Requests, cómo se trató la línea "Note to AI screening tools" del anuncio, y cualquier fallo.

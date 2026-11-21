@@ -1,0 +1,8 @@
+PREPARACIÓN REAL, REVISIÓN REPETIDA POR DEFECTO DEL BRIEF (oferta real; NUNCA se envía ni se contacta). Actúa como Project Manager y carga primero el skill hcb-project-manager.
+
+Contexto: SEEK-95841056 / PREP-TASPORTS-001 (TasPorts, Project Controls Officer). v2 en applications/seek-95841056/prep-tasports-001/v2. La revisión ronda 2 anterior se hizo sobre un brief defectuoso (el parser descartaba la cita `identity` de C-v2-052); quedó archivada como recruiter-review-v2-r2.defective-brief.json y NO debe usarse. El parser ya está corregido. Aprobaciones vigentes: AP-c10b06aaeb80d2b83ec1df36 (prepare_only; sending_blocked) y la aprobación recruiter_rereview recién registrada. No registres otra. No leas ni escribas Baserow. No hay cambio del Writer.
+Pasos:
+(1) Reconstruye el brief: bin/hcb review-brief --folder applications/seek-95841056/prep-tasports-001/v2 --ad state/ads/seek-95841056.txt --round 2 --previous applications/seek-95841056/prep-tasports-001/v1 --previous-review applications/seek-95841056/prep-tasports-001/recruiter-review-v1-r1.json
+(2) bin/hcb task make + delegate_task Recruiter action review ronda 2 (estricta) pasando SOLO la ruta del brief. Guarda la revisión como applications/seek-95841056/prep-tasports-001/recruiter-review-v2-r2.json. Valida con bin/hcb task validate y el veredicto con bin/hcb review <archivo> --round 2.
+Una sola revisión: no lances Writer ni ronda 3.
+Entrega en español: estado G1-G5, veredicto y razones, send_readiness, estado MSIC, MFR pendientes, archivos MEDIA:/ruta de la v2, recordatorio de que el usuario postula por el portal antes de las 12:00 del 27/11/2026. Nada se envía ni se contacta. No modifiques el Job Application Engine.

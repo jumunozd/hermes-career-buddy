@@ -1,0 +1,31 @@
+name_on_documents: Alex Example
+name_never: [Álex Example, Alex Exemple]
+professional_identity: Industrial Engineer
+identity_backing: Bachelor of Industrial Engineering
+identity_note: Synthetic persona for the public demo.
+location_line: Launceston, Tasmania
+relocation:
+  hobart: willing to relocate to Hobart
+  launceston: based in Launceston
+phone: 0400 000 000
+email: alex@example.com
+working_rights: Full working rights (synthetic)
+working_rights_display: Full working rights in Australia
+working_rights_display_note: Synthetic.
+driver_licence:
+  status: held
+  include_when: role involves travel or field work
+  licence_class: C
+  expiry: '2030'
+  expiry_note: Synthetic.
+  display: Driver Licence (Class C)
+msic:
+  status: not held
+  display: null
+  source: synthetic
+  wording_rule: never claim
+available_from: immediately
+available_from_display: Available immediately
+available_from_updated: 2026-11-17
+available_from_note: Synthetic.
+languages: [English (professional), Spanish (native)]

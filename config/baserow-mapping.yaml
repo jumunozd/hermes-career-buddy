@@ -1,0 +1,118 @@
+# Baserow mapping, built from the LIVE schema read on 2026-11-13 (read-only GET of
+# /api/database/fields/table/839/ through the earlier Baserow integration client).
+# Master §6.2 / §8.1: reuse real values; never invent fields or options.
+base_url: "http://localhost:8080"
+table_id: 839
+schema_verified_at: "2026-11-13"
+
+fields:                       # exact names and types as returned by Baserow
+  "Job Title":      {id: 7898, type: text, primary: true}
+  "Company":        {id: 7899, type: text}
+  "Job URL":        {id: 7900, type: url}
+  "Location":       {id: 7901, type: text}
+  "Status":         {id: 7902, type: single_select,     # single_select since P-6 (2026-11-19): one state per offer
+                     options: [Discovered, Shortlisted, Waiting Documents, Preparing,
+                               Ready for Review, Applied, Interview, Rejected, Withdrawn, Closed]}
+  "Closing Date":   {id: 7903, type: date}
+  "Date applied":   {id: 7904, type: date}
+  "Salary":         {id: 7905, type: number}
+  "Next Follow Up": {id: 7906, type: date}
+  "Notes":          {id: 7907, type: long_text}
+  "Documents":      {id: 7915, type: link_row, note: "links to another table; never read or written (out of the token's scope)"}
+  "Opportunity Ref":  {id: 7917, type: text}   # P-6
+  "Ranking Category": {id: 7918, type: single_select, options: [principal, exploratoria, pendiente_revision, fuera_de_ranking]}   # P-6
+  "Alignment Group":  {id: 7919, type: single_select, options: [A, B, C, D, E, none]}   # P-6
+  "Catalogue Title":  {id: 7920, type: text}   # P-6
+  "Review Reason":    {id: 7921, type: text}   # P-6
+  "Entry Signal":     {id: 7922, type: single_select, options: [Strategic Entry, Neutral]}   # P-6
+  "Fit":              {id: 7923, type: number}   # P-6
+  "Source":           {id: 7924, type: single_select, options: [TSS, Council, Employer site, SEEK (pasted), LinkedIn (pasted), Email alert]}   # P-6
+  "Posted Date":      {id: 7925, type: date}   # P-6
+  "Discovered":       {id: 7926, type: date}   # P-6
+  "Ad Contact":       {id: 7927, type: text}   # P-6
+  "Latest Version":   {id: 7928, type: text}   # P-6
+
+# Logical semantics (Master §8) -> real Status option. Since P-6 the category lives in `Ranking Category`;
+# `null` = carried by that field (and still mirrored in the Notes tag block for audit).
+opportunity_state_map:
+  descubierta: Discovered
+  elegible_rankeada: Shortlisted
+  exploratoria: null              # confirmed name; no option exists -> [estado=Exploratoria]
+  pendiente_revision: null        # confirmed name; no option exists -> [estado=Pendiente de revisión]
+  cerrada: Closed                 # P-6 (2026-11-19); "Withdrawn" stays the USER's own withdrawal
+  preparacion_autorizada: Preparing
+application_state_map:
+  documentos_en_preparacion: Preparing
+  esperando_documento: Waiting Documents
+  lista_revision_humana: Ready for Review
+  enviada: Applied                # only after the user's own "Enviada [ID]" (D-PM-03)
+  entrevista: Interview
+  rechazo: Rejected
+  retirada: Withdrawn
+
+# Fixed, parseable tag block written at the top of Notes (job-hunter.md §6.10).
+# Example: [hcb v1][estado=Exploratoria][cat=exploratoria][fit=62][ah=1.1:sha][route=B][elig=8579-OK][entry=Neutral][ref=OPP-...]
+notes_tag_block:
+  prefix: "[hcb v1]"
+  keys: [estado, cat, fit, ah, route, elig, entry, ref, pkg, latest, approved, dup_of,
+         posted, seen, phone, contact, emptype, noapproach, outreach]
+         # posted/seen/phone/contact: D-USR-01 daily alert. emptype/noapproach/outreach: P-2
+         # (outreach = none|drafted|sent_by_user, set only from the user's own report). People found by
+         # Research live in private/state/research/<opp>/contacts.json until MIG-01 adds contact fields.
+
+# Schema v2 (P-6, approved by the user 2026-11-19, AP-c19aab8213487acf07d7bf5a). Applied with
+# `bin/hcb baserow migrate-schema` (run by the user in a terminal: it asks for the Baserow login itself).
+# Additive only: creates missing fields and adds missing Status options; never renames or deletes.
+# Supersedes MIG-01.
+schema_v2:
+  add_status_options: [Closed]
+  add_fields:
+    - {name: "Opportunity Ref", type: text}
+    - {name: "Ranking Category", type: single_select, options: [principal, exploratoria, pendiente_revision, fuera_de_ranking]}
+    - {name: "Alignment Group", type: single_select, options: [A, B, C, D, E, none]}
+    - {name: "Catalogue Title", type: text}
+    - {name: "Review Reason", type: text}
+    - {name: "Entry Signal", type: single_select, options: [Strategic Entry, Neutral]}
+    - {name: "Fit", type: number, decimals: 0}
+    - {name: "Source", type: single_select, options: [TSS, Council, Employer site, SEEK (pasted), LinkedIn (pasted), Email alert]}
+    - {name: "Posted Date", type: date}
+    - {name: "Discovered", type: date}
+    - {name: "Ad Contact", type: text}
+    - {name: "Latest Version", type: text}
+  rollback: "Delete the added fields and the Closed option in Baserow, or restore ~/.hermes/career-buddy/backups/20261119-pre-P6/baserow-db.dump."
+
+# P-7 (approved 2026-11-19, AP-c569ebc1e3783b6fab688596): Documents and Contacts, written by Hermes
+# (create/update only, never delete). Field names/types as created by the user and checked live.
+tables:
+  documents:
+    table_id: 838
+    fields:
+      "Document Name":   {type: text}
+      "Document Type":   {type: single_select, options: [CV, Cover letter, Selection criteria, Outreach note, Interview brief, Interview simulation]}
+      "File":            {type: file}
+      "Version":         {type: number}
+      "Notes":           {type: long_text}
+      "Application":     {type: link_row, table: 839}
+      "Package Version": {type: text}
+      "SHA256":          {type: text}
+      "Approved":        {type: boolean}
+      "Opportunity Ref": {type: text}
+  contacts:
+    table_id: 837
+    fields:
+      "Name":        {type: text}
+      "Company":     {type: text}
+      "Role":        {type: text}
+      "Channel":     {type: single_select, options: [Phone (ad), Business email, LinkedIn, Careers inbox, Other]}
+      "Phone":       {type: text}
+      "Email":       {type: text}
+      "Source URL":  {type: url}
+      "Confidence":  {type: single_select, options: [confirmed, inferred]}
+      "Origin":      {type: single_select, options: [Ad, Research, Networking]}
+      "Approach":    {type: single_select, options: [allowed, no-approach clause]}
+      "Application": {type: link_row, table: 839}
+      # networking (the user, 2026-11-19): people the user reaches out to, with relationship follow-up
+      "Relationship Status": {type: single_select, options: [To contact, Contacted, Replied, Meeting, No reply]}
+      "Last Contact":        {type: date}
+      "Next Follow Up":      {type: date}
+      "Notes":               {type: long_text}
