@@ -64,16 +64,21 @@ búsqueda web (`search_discovery`).
 | ☐ | 2 | BESIX Watpac | SmartRecruiters | alerta, Hobart (estadio Macquarie Point) |
 | ☐ | 2 | Saputo (Burnie, Smithton) | Workday | alerta, Tasmania |
 | ☐ | 2 | Fonterra (Wynyard) | Avature | alerta, Tasmania |
+| ☐ | 2 | Simplot (Devonport, Ulverstone) | talent community | careers.simplot.com, alerta Tasmania |
+| ☐ | 2 | Spirit of Tasmania (TT-Line) | portal propio | alerta de empleos, Devonport |
 | ☐ | 2 | Mondelez (Cadbury Claremont) | portal propio | alerta, Claremont / Hobart |
 | ☐ | 2 | APA (Basslink) | Workday | alerta, Tasmania |
 | ☐ | 2 | Momentum Energy | PageUp | alerta, Hobart |
 | ☐ | 2 | Tas Gas (Solstice Energy) | ELMO | alerta |
 | ☐ | 3 | Metro Tasmania, Sustainable Timber Tasmania | ELMO | alerta |
 | ☐ | 3 | Toll, Kymera (Ecka Granules) | portal propio / Dayforce | alerta, Tasmania |
+| ☐ | 3 | Launceston Airport | LiveHire | talent community + alertas |
 | ☐ | 3 | Concejos Kingborough, Clarence, Central Coast | applynow / TechnologyOne | alerta si existe |
 
 No hace falta alerta (el sistema ya lee su página): TSS (opcional de respaldo), Glenorchy, Devonport, Nyrstar,
-Huon, TasRail, SAGE, Hazell; y el grupo P de P-12 cuando se active.
+Huon, TasRail, SAGE, Hazell; y el grupo P de P-12 (Shaw, Hansen Yuncken, SeaRoad, Qube, Cement Australia,
+Tasmanian Irrigation, Boral, Hobart Airport, Elphinstone). Fairbrother, Petuna y Cromarty publican en SEEK: las
+cubren las 5 búsquedas.
 
 ## Paso 4. Cuando lleguen los primeros correos
 Avísame. Con los correos reales confirmo los remitentes de `config/email-alerts.yaml`, escribo un lector por
