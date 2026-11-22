@@ -145,3 +145,6 @@ no fit without an A-H run; dedup ran before every write preview.
 portal's tracking redirect: never open it, never read the ad page. Classify from `card_text` (title, employer,
 location, salary, bullets) exactly like other `read_detail_allowed: false` items; when the duties are unknown,
 record `Pendiente de revisión` with the link for the user.
+For these cards write `review_reason: "aviso en portal: falta el aviso completo"`, never "revisar funciones"
+(that phrase means the duties belong to another field and discards the offer). Keep the card text short in
+`ad_text`; the user sends the full ad (📎, «Aviso <ID>») before any preparation.

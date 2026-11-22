@@ -80,8 +80,11 @@ def kept(o: dict, today: str, exclude_titles: set[str] = frozenset()) -> bool:
         return False
     if any(targets._stem_rx(w).search(fold(t)) for w in targets.catalogue().get("out_of_field_titles", [])):
         return False
-    if "revisar funciones" in (daily._review_reason(o) or ""):
+    portal = daily.portal_card(o)
+    if "revisar funciones" in (daily._review_reason(o) or "") and not portal:
         return False
+    if portal:   # 2026-11-22: an alert card has no duties to judge; the user sends the ad (📎) before preparing
+        return bool(targets.match_title(t).get("group") or targets.aligned_tokens(t))
     return bool(targets.match_title(t).get("group"))
 
 
@@ -137,6 +140,11 @@ def register_snapshot(path, today: str, live: bool, live_rows=None, writer=None,
     snap = json.loads(path.read_text(encoding="utf-8"))
     live_rows = live_rows if live_rows is not None else baserow.list_rows()
     by_ref = {r.get("Opportunity Ref"): r["id"] for r in live_rows if r.get("Opportunity Ref")}
+    # 2026-11-22: the same vacancy from another channel (e-mail alert vs the employer page) has another ref and
+    # a differently written location: an open row with the same employer + title is the same offer.
+    _st = lambda r: (r.get("Status") or {}).get("value") if isinstance(r.get("Status"), dict) else r.get("Status")
+    by_job = {(fold(r.get("Company") or ""), fold(r.get("Job Title") or "")): r["id"] for r in live_rows
+              if _st(r) not in ("Closed", "Rejected", "Withdrawn")}
     writer = writer or baserow.write
     results = []
     for o in snap.get("opportunities", []):
@@ -150,6 +158,11 @@ def register_snapshot(path, today: str, live: bool, live_rows=None, writer=None,
         if ref in by_ref:
             o["baserow_id"] = by_ref[ref]
             results.append({"ref": ref, "action": "already_in_baserow", "row_id": by_ref[ref]})
+            continue
+        same = by_job.get((fold(f.get("Company") or ""), fold(f.get("Job Title") or "")))
+        if same:
+            o["baserow_id"] = same
+            results.append({"ref": ref, "action": "already_in_baserow", "row_id": same, "why": "same employer and title"})
             continue
         baserow.build_payload(f, option_ids)          # validate before any write
         r = writer("create", f, "register:" + ref, live=live, task_id="register")

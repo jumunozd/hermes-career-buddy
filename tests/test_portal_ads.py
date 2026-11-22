@@ -84,5 +84,31 @@ class ParseAndDigest(Base):
         self.assertTrue(daily._needs_pdf(items[0])); self.assertFalse(daily._needs_pdf(items[1]))
 
 
+class RegisterPortalCards(Base):
+    CARD = {"title": "Project Manager Assistant", "employer": "Example Engineering", "ranking_category": "pendiente_revision",
+            "review_reason": "revisar funciones; abrir en SEEK", "url": "https://email.s.seek.com.au/uni/ss/c/x",
+            "ad_text": "Project Manager Assistant\nExample Engineering\nRocherlea TAS"}
+
+    def test_portal_card_is_kept_but_other_field_is_not(self):
+        from hcb import registry
+        self.assertTrue(registry.kept(dict(self.CARD), "2026-11-22"))
+        other = dict(self.CARD, url="https://careers.example.com/job/1", ad_text="x" * 900)
+        self.assertFalse(registry.kept(other, "2026-11-22"))                        # a read ad from another field
+        self.assertFalse(registry.kept(dict(self.CARD, title="Project Manager"), "2026-11-22"))
+        self.assertFalse(registry.kept(dict(self.CARD, title="Registered Nurse Assistant"), "2026-11-22"))
+
+    def test_same_employer_and_title_is_not_registered_twice(self):
+        import json
+        from hcb import registry
+        snap = Path(self.tmp.name) / "snap.json"
+        snap.write_text(json.dumps({"opportunities": [dict(self.CARD, title="Project Controls Officer", employer="TasPorts")]}))
+        live = [{"id": 29, "Company": "TasPorts", "Job Title": "Project Controls Officer", "Status": {"value": "Preparing"},
+                 "Opportunity Ref": "SEEK-95841056"}]
+        calls = []
+        res = registry.register_snapshot(snap, "2026-11-22", live=False, live_rows=live,
+                                         writer=lambda *a, **k: calls.append(a) or {})
+        self.assertEqual(res["results"][0]["action"], "already_in_baserow"); self.assertEqual(calls, [])
+
+
 if __name__ == "__main__":
     unittest.main()

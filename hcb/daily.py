@@ -145,7 +145,16 @@ def _discarded_field(o: dict) -> bool:
     t = fold(o.get("title", ""))
     if any(_stem_rx(w).search(t) for w in catalogue().get("out_of_field_titles", [])):
         return True
-    return "revisar funciones" in (_review_reason(o) or "")
+    return "revisar funciones" in (_review_reason(o) or "") and not portal_card(o)
+
+
+def portal_card(o: dict) -> bool:
+    """An offer known only from a portal card (alert e-mail, SEEK/LinkedIn/Indeed link): its duties are unknown,
+    not "from another field", so "revisar funciones" must not discard it (2026-11-22)."""
+    from . import adsource
+    url = o.get("canonical_url") or o.get("url") or o.get("employer_url")
+    # the agent may copy the card into ad_text: a card is far shorter than a full ad
+    return (o.get("channel") == "email_alert" or adsource.needs_user_ad(url)) and len((o.get("ad_text") or "").strip()) < adsource.MIN_CHARS
 
 
 def _fallback_items(now: datetime, already_notified: set) -> tuple[list, dict | None]:
