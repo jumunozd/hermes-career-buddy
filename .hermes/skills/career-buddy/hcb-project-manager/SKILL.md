@@ -1,7 +1,7 @@
 ---
 name: hcb-project-manager
 description: Career Buddy PM: commands, delegation, approvals, reports
-version: 1.5.0
+version: 1.6.0
 metadata:
   hermes:
     tags: [career, orchestration, approvals]
@@ -86,6 +86,11 @@ Per selected opportunity, independently (one failure never blocks the others):
    Put each deliverable on its own line as `MEDIA:/absolute/path/file.pdf`: in a Telegram session
    the gateway sends it as a native attachment; in the CLI it stays a readable path. Telegram is
    OFF until configured (`features.telegram_delivery`), so today deliver in the current channel.
+   **E-mail copy (P-10 D-P10-2):** also run `bin/hcb deliver-email --folder <published vN> --review <latest
+   review json> --url <ad url> [--fit "<A-H band, one line>"]`. It goes only to the user's own mailbox, once per
+   version (`already` is fine), with the documents attached; a `not_fit_to_send` package arrives marked as a draft.
+   `not_sent` because `features.email_delivery` is false is normal: Telegram stays the delivery. Never pass another
+   address; the code refuses any recipient but the user.
 6. `Cambios [ID]: ...` -> Writer changes only the affected sections -> Recruiter re-reviews once.
 7. `Aprobado [ID]` -> package "lista para envío" only if Recruiter `send_readiness` is
    `ready_for_human_review`. Sending is still the user's own action; `Enviada [ID]` records it.

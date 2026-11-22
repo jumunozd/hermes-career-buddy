@@ -313,6 +313,24 @@ def cmd_daily(a):
     _out(digest)
 
 
+def cmd_deliver_email(a):
+    from . import delivery
+    res = delivery.send_package(a.folder, a.review, a.fit, a.url, a.title, a.company, a.resend, a.dry_run)
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0 if res.get("status") in ("sent", "already", "dry_run") else 1
+
+
+def cmd_mail_test(a):
+    from . import mailer
+    from .util import now_iso
+    res = mailer.send(f"mail_test:{now_iso()}", "Hermes Career Buddy: correo de prueba",
+                      "Prueba de envío (P-10). Si lees esto, el sistema puede enviarte los paquetes de postulación "
+                      "y el informe del sábado a esta dirección, y solo a esta dirección.\n\nHermes Career Buddy",
+                      what="mail_test", require_flag=False, dry_run=a.dry_run)
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0 if res.get("status") in ("sent", "dry_run") else 1
+
+
 def cmd_daily_send(a):
     from . import daily, dashboard
     res = daily.send(a.digest)
@@ -454,6 +472,13 @@ def main(argv=None):
     x = s.add_parser("daily", help="daily digest of new opportunities (D-USR-01)")
     x.add_argument("snapshot"); x.add_argument("--since-hours", type=int); x.add_argument("--now")
     x.set_defaults(f=cmd_daily)
+    x = s.add_parser("deliver-email", help="e-mail a published package to the user (P-10; allowlist: only him)")
+    x.add_argument("--folder", required=True); x.add_argument("--review"); x.add_argument("--fit")
+    x.add_argument("--url"); x.add_argument("--title"); x.add_argument("--company")
+    x.add_argument("--resend", action="store_true"); x.add_argument("--dry-run", action="store_true")
+    x.set_defaults(f=cmd_deliver_email)
+    x = s.add_parser("mail-test", help="send one test e-mail to the user's own mailbox (works before email_delivery is on)")
+    x.add_argument("--dry-run", action="store_true"); x.set_defaults(f=cmd_mail_test)
     x = s.add_parser("daily-send", help="send a saved digest to Telegram (hermes send, no LLM) and record the outcome")
     x.add_argument("--digest", required=True); x.set_defaults(f=cmd_daily_send)
     x = s.add_parser("daily-delivered", help="record a digest send: delivered (offers become notified) or --failed")

@@ -114,9 +114,10 @@ def build(snapshot: dict, today: date, report_id: str | None = None, market_synt
     return report
 
 
-def send(report_id: str, runner=None) -> dict:
+def send(report_id: str, runner=None, smtp=None) -> dict:
     """Send the weekly report PDF to the user's Telegram (hermes send, no LLM) and record it in report.json.
-    Gmail stays off (TV-07). Refuses a report over the page limit; never sends twice."""
+    With features.email_delivery the PDF goes to the user's mailbox and Telegram gets a short notice (P-10 D-P10-3).
+    Refuses a report over the page limit; never sends twice."""
     from . import daily
     rep = load(report_id)
     path = project_path("reports") / report_id / "report.json"
@@ -133,18 +134,30 @@ def send(report_id: str, runner=None) -> dict:
     tmpdir = Path(tempfile.mkdtemp(prefix="hcb-report-"))
     pdf = tmpdir / f"Weekly-Report-{re.sub(r'[^A-Za-z0-9-]+', '-', report_id)}.pdf"
     shutil.copyfile(rep["files"]["pdf"], pdf)
-    text = (f"📊 Reporte semanal {report_id}: {n_top} en el Top 5, {n_exp} exploratorias, "
-            f"{len(rep.get('followups_recommended') or [])} seguimientos sugeridos.\n"
+    head = (f"📊 Reporte semanal {report_id}: {n_top} en el Top 5, {n_exp} exploratorias, "
+            f"{len(rep.get('followups_recommended') or [])} seguimientos sugeridos.\n")
+    # P-10 D-P10-3: the PDF goes by e-mail when e-mail delivery is on; Telegram keeps a short notice.
+    # If the e-mail is not sent, Telegram carries the PDF as before.
+    email = {"status": "not_sent", "reason": "features.email_delivery is false"}
+    if config()["features"].get("email_delivery"):
+        from . import mailer
+        email = mailer.send(f"weekly_report:{report_id}", f"Weekly Report {report_id}",
+                            head + "\nEl informe va adjunto en PDF.\nPara preparar ofertas escribe en Telegram "
+                            "«Prepara las ofertas» y los números del informe. Preparar no autoriza enviar.\n\n"
+                            "Hermes Career Buddy", [pdf], what="weekly_report", smtp=smtp)
+    by_mail = email.get("status") in ("sent", "already")
+    text = (head
             # no square brackets: hermes send drops the attachment when the caption has "[...]" (tested 2026-11-19)
-            "Para preparar escribe Prepara las ofertas y los números del reporte (por ejemplo 1 y 3). "
+            + "Para preparar escribe Prepara las ofertas y los números del reporte (por ejemplo 1 y 3). "
             "Preparar no autoriza enviar.\n"
-            f"MEDIA:{pdf}")
+            + ("📧 El PDF te llegó por correo." if by_mail else f"MEDIA:{pdf}"))
     try:
         ok, ref, err = daily.hermes_send(text, runner)
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
     rep["delivery"] = ({"status": "delivered", "channel": "telegram", "message_ref": ref, "at": now_iso()} if ok
                        else {"status": "failed", "channel": "telegram", "error": (err or "")[:300], "at": now_iso()})
+    rep["delivery"]["email"] = {k: v for k, v in email.items() if k in ("status", "reason", "at", "error")}
     path.write_text(dump(rep), encoding="utf-8")
     state.event("delivery", what="weekly_report", report_id=report_id, status=rep["delivery"]["status"])
     return {"report_id": report_id, **rep["delivery"]}
