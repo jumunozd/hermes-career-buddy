@@ -63,23 +63,34 @@ NOISE = re.compile(r"(?i)^(recently posted|new|featured|be an early applicant|qu
                    r"\$[\d,]+.*|[\d,.]+\s*(k|per (hour|year|annum)).*|see all.*)$")
 
 
+LOC_LINE = re.compile(r"(?i)(\b(TAS|VIC|NSW|QLD|SA|WA|NT|ACT)\b|\bAustralia\b|\bRemote\b)(\s*\([^)]*\))?\s*$")
+
+
 def parse_seek(text: str) -> list[dict]:
-    """SEEK alert / recommendation e-mails (plain part): each card starts after a '[image: logo]' line with
-    title, company and location lines, optional salary and bullet lines, then the job link."""
+    """SEEK alert / recommendation e-mails (plain part). Cards are the text between job links: title, company,
+    location ('Suburb, Region TAS', optional '(Hybrid)'), optional salary, bullets, then the link. Found by the
+    location line, because a card without an employer logo has no '[image: logo]' marker (2026-11-22 sample)."""
     cards = []
-    blocks = re.split(r"(?m)^\s*\[image: [^\]]*logo[^\]]*\]\s*$", text)[1:]
-    for b in blocks:
-        lines = [l.strip() for l in b.strip().splitlines()]
-        url = next((m.group(1) for l in lines for m in [URL.fullmatch(l)] if m), None)
-        head = [l for l in lines if l and not URL.fullmatch(l) and not l.startswith(("-", "•", "*", "[image"))]
-        if len(head) < 3 or not url:
+    lines = text.splitlines()
+    seg, segs = [], []
+    for l in lines:
+        m = URL.fullmatch(l.strip())
+        if m:
+            segs.append((seg, m.group(1)))
+            seg = []
+        else:
+            seg.append(l)
+    for seg, url in segs:
+        head = [l.strip() for l in seg if l.strip() and not l.strip().startswith(("-", "•", "*", "[image"))]
+        idx = next((i for i, l in enumerate(head) if i >= 2 and LOC_LINE.search(l) and len(l) < 90), None)
+        if idx is None:
             continue
-        title, company, location = head[0], head[1], head[2]
-        if NOISE.match(title) or len(title) > 120:
+        title, company, location = head[idx - 2], head[idx - 1], head[idx]
+        if NOISE.match(title) or len(title) > 120 or title.endswith((".", ":")):
             continue
-        cut = b.find("<" + url) if ("<" + url) in b else b.find(url)
-        card_text = re.sub(r"<https://[^>]+>", "", b[:cut if cut > 0 else None]).strip()
-        salary = next((l for l in head[3:6] if re.match(r"^\$[\d,]", l)), "")
+        start = max(i for i, l in enumerate(seg) if l.strip() == title)
+        card_text = "\n".join(seg[start:]).strip()
+        salary = next((l for l in head[idx + 1:idx + 3] if re.match(r"^\$[\d,]", l)), "")
         cards.append({"title": title, "company": company, "location": location, "url": url,
                       "salary": salary, "card_text": card_text[:2000]})
     return cards

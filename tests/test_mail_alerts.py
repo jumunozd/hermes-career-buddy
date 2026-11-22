@@ -67,6 +67,21 @@ class Parse(unittest.TestCase):
         self.assertEqual(mailalerts.parse_message(raw("Me <me@gmail.com>"))["cards"], [])
 
 
+class SeekFormats(unittest.TestCase):
+    def test_card_without_logo_marker_and_entry_titles(self):
+        text = ("Hi Jane, we've got new job recommendations for you\nWe recommend these jobs based on your profile and\n"
+                "applications.\nProject Manager Assistant\nExample Engineering Pty Ltd\nRocherlea, Launceston & North East TAS\n"
+                "Recently posted\n<https://email.s.seek.com.au/uni/ss/c/A1/h1>\n[image: logo]\nExecutive Lead\nExample Dept\n"
+                "Hobart, Hobart TAS\n$215,000 + super\n\n   - Strategic direction\n\n<https://email.s.seek.com.au/uni/ss/c/B2/h2>\n"
+                "View more jobs\n<https://email.s.seek.com.au/uni/ss/c/C3/h3>\n")
+        cards = mailalerts.parse_seek(text)
+        self.assertEqual([c["title"] for c in cards], ["Project Manager Assistant", "Executive Lead"])
+        from hcb import targets
+        self.assertTrue(targets.triage("Project Manager Assistant", cards[0]["location"], strict=True)["read_detail"])
+        self.assertFalse(targets.triage("Executive Lead", cards[1]["location"], strict=True)["read_detail"])
+        self.assertFalse(targets.triage("Project Manager", "Hobart TAS", strict=True)["read_detail"])
+
+
 class Run(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

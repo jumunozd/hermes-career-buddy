@@ -125,6 +125,8 @@ def aligned_tokens(title: str) -> list[str]:
 def excluded_by_title(title: str) -> list[str]:
     """Words in the title that the user excluded (job-targets.yaml `excluded_title_words`, e.g. senior)."""
     ft = fold(title or "")
+    if any(re.search(r"\b" + re.escape(o) + r"\b", ft) for o in catalogue().get("excluded_title_overrides", [])):
+        return []            # "Project Manager Assistant", "Graduate Lead ..." are entry roles (2026-11-22)
     return [w for w in catalogue().get("excluded_title_words", []) if re.search(r"\b" + re.escape(w) + r"\b", ft)]
 
 

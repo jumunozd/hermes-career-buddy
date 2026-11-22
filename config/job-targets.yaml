@@ -142,6 +142,9 @@ entry_signal:
 # The user, 2026-11-17: "Senior quedan fuera, de por si ya el titulo pide experiencia". A title with one of
 # these words is logged from the listing card (never read, never announced, never in the fallback).
 excluded_title_words: [senior, lead, principal, manager]   # lead, principal, manager added by the user 2026-11-17
+# 2026-11-22 (SEEK alert sample): "Project Manager Assistant" is an entry role, not a manager. A title that also has one
+# of these words is not excluded by the words above (it goes on to the normal triage).
+excluded_title_overrides: [assistant, trainee, graduate, cadet, intern, internship, apprentice]
 
 out_of_field_titles: [nurse, midwife, teacher, teaching, educator, doctor, physician, registrar, intensivist,
   staff specialist, medical officer, psychiatrist, psycholog, pharmacist, speech patholog, physiotherap,
