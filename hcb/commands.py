@@ -21,6 +21,16 @@ def parse(message: str) -> dict:
     raw = message.strip()
     t = fold(raw)
 
+    # The user sends the full ad for an offer the system may not read: "Aviso 27" + a PDF or the pasted text.
+    m = re.match(r"\s*aviso (?:id\s*)?(\d{1,9}|o-[0-9a-f]{6})\b", t)
+    if m:
+        doc = re.search(r"saved at: (.+?\.(?:pdf|txt|md|html?))\b", raw, flags=re.I)
+        rest = raw[m.end():].strip(" :\n") if not doc else ""
+        return {"intent": "ad_supplied", "ref": m.group(1), "file": doc.group(1).strip() if doc else None,
+                "has_text": len(rest) > 200, "authorises": "prepare_only", "blocks": ["send", "contact"],
+                "next": "bin/hcb ad-save --ref <ref> --file <file> (or --text-file with the pasted text), "
+                        "then bin/hcb prepare-request --ref <ref>"}
+
     m = re.fullmatch(r"prepara (?:la )?oferta (o-[0-9a-f]{6})", t)
     if m:  # digest code for an offer not yet in Baserow (dry-run period)
         return {"intent": "prepare", "by": "digest_ref", "values": [m.group(1)],

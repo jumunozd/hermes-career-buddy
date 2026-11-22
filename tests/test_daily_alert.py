@@ -299,7 +299,9 @@ class PrepareDocsP10(unittest.TestCase):
         from hcb import prepare_request
         with tempfile.TemporaryDirectory() as tmp:
             with mock.patch("hcb.state.project_path", side_effect=lambda k: Path(tmp)), \
-                 mock.patch("hcb.prepare_request.known", side_effect=lambda r: r == "27"):
+                 mock.patch("hcb.prepare_request.known", side_effect=lambda r: r == "27"), \
+                 mock.patch("hcb.prepare_request.job_url", return_value="https://careers.example.com/job/1"), \
+                 mock.patch("hcb.prepare_request.describe", return_value=("Officer", "Acme")):
                 calls = []
                 w = lambda *a, **k: calls.append(a) or {"write_performed": True, "verified": True}
                 first = prepare_request.request("27", "1", writer=w)

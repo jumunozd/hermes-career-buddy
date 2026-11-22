@@ -273,6 +273,12 @@ def keyboard_for(items: list[dict]) -> list[list[dict]]:
             for n, i in enumerate(top, 1)]
 
 
+def _needs_pdf(i: dict) -> bool:
+    """The user, 2026-11-22: portal ads (alert e-mails, SEEK/LinkedIn/Indeed) need the user's PDF to be prepared."""
+    from . import adsource
+    return adsource.needs_user_ad(i.get("employer_url")) and not adsource.has_ad(str(i.get("baserow_id")))
+
+
 def render_top3(items: list[dict], now: datetime) -> str:
     """P-10 daily message (the user's sketch, 2026-11-20): TOP 3 with link and who to call, then the rest."""
     top, rest, expl = split_top3(items)
@@ -287,12 +293,15 @@ def render_top3(items: list[dict], now: datetime) -> str:
             tag = " (Strategic Entry)" if i.get("entry_signal") == "Strategic Entry" else ""
             L.append(f"   Te acerca a: {', '.join(i['bridges_to'])}{tag}")
         L.append(f"   {_call_line(i)}")
+        if _needs_pdf(i):
+            L.append(f"   📎 Aviso en portal (el sistema no lo abre): para preparar, mándame el PDF con «Aviso {i['baserow_id']}»")
         L.append(f"   ▶ Botón Prepare Docs #{n} o «Prepara la oferta {i['baserow_id']}»"
                  + (f" · mensaje: «Prepara contacto {i['baserow_id']}»" if i.get("research_contacts") and not i.get("no_approach_clause") else ""))
     if rest:
         L.append("\n📋 OTRAS OFERTAS (de mejor a peor)")
         for n, i in enumerate(rest, len(top) + 1):
             L.append(f"{n}. {i['title']} – {i['employer']} · {_fit_label(i)} · {_close(i)} · ID {i['baserow_id']}"
+                     + (" · 📎 PDF" if _needs_pdf(i) else "")
                      + (f"\n   🔗 {i['employer_url']}" if i.get("employer_url") else ""))
     if expl:
         L.append("\n🔎 EXPLORATORIAS")
@@ -302,6 +311,8 @@ def render_top3(items: list[dict], now: datetime) -> str:
                      + (f"\n   Te acerca a: {', '.join(i['bridges_to'])}" + (" (Strategic Entry)" if i.get("entry_signal") == "Strategic Entry" else "")
                         if i.get("bridges_to") else ""))
     L.append("\nTop 3: botón Prepare Docs. Cualquier otra: «Prepara la oferta <ID>».")
+    if any(_needs_pdf(i) for i in items):
+        L.append("📎 = aviso de SEEK/LinkedIn/Indeed: ábrelo, guárdalo en PDF y mándamelo con «Aviso <ID>» para prepararlo.")
     L.append("El sistema no llama ni postula: tú decides y contactas.")
     return "\n".join(L)
 

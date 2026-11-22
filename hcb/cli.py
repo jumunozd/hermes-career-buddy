@@ -341,6 +341,19 @@ def cmd_mail_alerts(a):
     return 0 if not res.get("error") else 1
 
 
+def cmd_ad_save(a):
+    from . import adsource, prepare_request
+    text = Path(a.text_file).read_text(encoding="utf-8") if a.text_file else None
+    t = e = ""
+    try:
+        t, e = prepare_request.describe(a.ref)
+    except Exception:
+        pass
+    res = adsource.save(a.ref, a.file, text, t or "", e or "")
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0 if res.get("status") == "saved" else 1
+
+
 def cmd_daily_send(a):
     from . import daily, dashboard
     res = daily.send(a.digest)
@@ -491,6 +504,9 @@ def main(argv=None):
     x.add_argument("--dry-run", action="store_true"); x.set_defaults(f=cmd_mail_test)
     x = s.add_parser("mail-alerts", help="read new job-alert e-mails (read-only; --peek records nothing)")
     x.add_argument("--peek", action="store_true"); x.set_defaults(f=cmd_mail_alerts)
+    x = s.add_parser("ad-save", help="save the full ad the user sent (PDF or text) for an offer the system may not read")
+    x.add_argument("--ref", required=True); x.add_argument("--file"); x.add_argument("--text-file")
+    x.set_defaults(f=cmd_ad_save)
     x = s.add_parser("daily-send", help="send a saved digest to Telegram (hermes send, no LLM) and record the outcome")
     x.add_argument("--digest", required=True); x.set_defaults(f=cmd_daily_send)
     x = s.add_parser("daily-delivered", help="record a digest send: delivered (offers become notified) or --failed")

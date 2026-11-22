@@ -1,4 +1,4 @@
 name: career-buddy-buttons
-version: 1.0.0
+version: 1.1.0
 description: "Hermes Career Buddy (P-10): handles the daily digest's Prepare Docs buttons. A tap by the authorised user runs bin/hcb prepare-request (idempotent) and hands the Project Manager the instruction 'Prepara la oferta <ID>'."
 author: "Hermes Career Buddy"

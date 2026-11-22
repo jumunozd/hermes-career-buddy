@@ -25,6 +25,18 @@ def request(ref: str, user_id: str = "", writer=None, live: bool = True) -> dict
     if not known(ref):
         state.event("prepare_request_refused", ref=ref, user=user_id or None, reason="unknown offer")
         return {"status": "refused", "reason": f"offer {ref} not found in Baserow or in any sent digest"}
+    # The user, 2026-11-22: an offer whose ad the system may not read (alert e-mail, SEEK/LinkedIn/Indeed) starts
+    # only once the user has sent the full ad (PDF or text); until then the button asks for it.
+    from . import adsource
+    url = job_url(ref)
+    if url != "unknown" and not adsource.has_ad(ref) and adsource.needs_user_ad(url):
+        t, e = describe(ref)
+        state.event("prepare_request_needs_ad", ref=ref, user=user_id or None)
+        return {"status": "needs_ad", "ref": ref, "title": t, "employer": e,
+                "confirmation": f"📎 Para preparar {t or 'esta oferta'}{(' – ' + e) if e else ''} (ID {ref}) necesito el aviso completo.\n"
+                                "El sistema no abre SEEK, LinkedIn ni Indeed. Abre el aviso con el link, guárdalo en PDF "
+                                "(Compartir → Imprimir → Guardar como PDF) y mándamelo aquí con el texto «Aviso " + ref + "».\n"
+                                "También puedes pegar el texto del aviso. Apenas llegue, empiezo la preparación."}
     key = f"prepare-request:{ref}"
     done = state.ledger_get(key)
     if done and done["status"] == "applied":
@@ -90,3 +102,19 @@ def describe(ref: str) -> tuple[str | None, str | None]:
         pass
     return None, None
 
+
+
+def job_url(ref: str) -> str | None:
+    """The offer's link: Baserow `Job URL` (row id) or the digest item's link (o-code)."""
+    import json
+    from .util import project_path
+    try:
+        if ref.isdigit():
+            return baserow.get_row(int(ref)).get("Job URL")
+        for f in sorted((project_path("reports") / "daily").glob("D-*.json"), reverse=True):
+            for i in json.loads(f.read_text(encoding="utf-8")).get("items", []):
+                if str(i.get("baserow_id")) == ref:
+                    return i.get("employer_url")
+    except Exception:
+        return "unknown"            # cannot tell: let the PM decide (never block on a Baserow outage)
+    return None

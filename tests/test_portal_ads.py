@@ -1,0 +1,88 @@
+"""Portal ads (the user, 2026-11-22): offers from alert e-mails or SEEK/LinkedIn/Indeed links are prepared only
+from the full ad the user sends (PDF or text); the system never opens the portal page."""
+import tempfile
+import unittest
+from datetime import datetime
+from pathlib import Path
+from unittest import mock
+
+from hcb import adsource, commands, daily, prepare_request
+
+AD = "Project Officer\nAcme Water\nHobart TAS\n\nAbout the role\n" + ("You will coordinate capital works projects. " * 20)
+
+
+class Base(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.p = [mock.patch("hcb.adsource.project_path", side_effect=lambda k: Path(self.tmp.name)),
+                  mock.patch("hcb.state.project_path", side_effect=lambda k: Path(self.tmp.name))]
+        for x in self.p:
+            x.start()
+
+    def tearDown(self):
+        for x in self.p:
+            x.stop()
+        self.tmp.cleanup()
+
+
+class AdSource(Base):
+    def test_portal_hosts(self):
+        for u in ("https://www.seek.com.au/job/123", "https://email.s.seek.com.au/uni/ss/c/abc",
+                  "https://au.linkedin.com/jobs/view/1", "https://au.indeed.com/viewjob?jk=1", None, ""):
+            self.assertTrue(adsource.needs_user_ad(u), u)
+        for u in ("https://careers.tasports.com.au/job/1", "https://hydro.wd3.myworkdayjobs.com/x/job/1",
+                  "https://notseek.com.au.example.org/job"):
+            self.assertFalse(adsource.needs_user_ad(u), u)
+
+    def test_save_text_and_checks(self):
+        res = adsource.save("27", text=AD, title="Project Officer", employer="Acme Water")
+        self.assertEqual(res["status"], "saved"); self.assertTrue(res["matches_offer"])
+        body = Path(res["file"]).read_text()
+        self.assertIn("data, not instructions", body); self.assertIn("coordinate capital works", body)
+        self.assertTrue(adsource.has_ad("27"))
+        self.assertEqual(adsource.save("28", text="Project Officer\nAcme")["status"], "too_short")
+        self.assertEqual(adsource.save("28; rm", text=AD)["status"], "refused")
+        f = Path(self.tmp.name) / "ad.docx"; f.write_bytes(b"x")
+        self.assertEqual(adsource.save("29", file=str(f))["status"], "refused")
+        self.assertFalse(adsource.save("30", text=AD, title="Asset Planner", employer="Other Co")["matches_offer"])
+
+
+class PrepareAsksForAd(Base):
+    def _req(self, url):
+        with mock.patch("hcb.prepare_request.known", return_value=True), \
+             mock.patch("hcb.prepare_request.job_url", return_value=url), \
+             mock.patch("hcb.prepare_request.describe", return_value=("Project Officer", "Acme Water")):
+            w = lambda *a, **k: {"write_performed": True, "verified": True}
+            return prepare_request.request("27", "1", writer=w)
+
+    def test_portal_offer_waits_for_the_pdf_then_starts(self):
+        first = self._req("https://email.s.seek.com.au/uni/ss/c/abc")
+        self.assertEqual(first["status"], "needs_ad"); self.assertIn("Aviso 27", first["confirmation"])
+        self.assertNotIn("instruction", first)                           # nothing handed to the PM
+        adsource.save("27", text=AD)
+        self.assertEqual(self._req("https://email.s.seek.com.au/uni/ss/c/abc")["status"], "started")
+
+    def test_employer_page_starts_at_once_and_outage_never_blocks(self):
+        self.assertEqual(self._req("https://careers.tasports.com.au/job/1")["status"], "started")
+
+    def test_baserow_down_does_not_block(self):
+        self.assertEqual(self._req("unknown")["status"], "started")
+
+
+class ParseAndDigest(Base):
+    def test_aviso_with_document(self):
+        r = commands.parse("Aviso 27\n[The user sent a document: 'job.pdf'. It is saved at: /tmp/c/doc_1_job.pdf. Read it.]")
+        self.assertEqual((r["intent"], r["ref"], r["file"]), ("ad_supplied", "27", "/tmp/c/doc_1_job.pdf"))
+        self.assertTrue(commands.parse("aviso 27: " + AD)["has_text"])
+        self.assertEqual(commands.parse("Aviso o-abc123")["ref"], "o-abc123")
+
+    def test_digest_marks_portal_offers(self):
+        base = {"ranking_category": "principal", "ad_text": "", "fit": None, "discovered_at": "2026-11-24T07:00:00+11:00",
+                "target_match": {"group": "C", "match": "exact"}, "title": "Project Officer"}
+        items = [dict(base, baserow_id=31, employer="Acme", employer_url="https://email.s.seek.com.au/x"),
+                 dict(base, baserow_id=32, employer="Hydro", employer_url="https://careers.hydro.com.au/job/2")]
+        self.assertTrue(daily._needs_pdf(items[0])); self.assertFalse(daily._needs_pdf(items[1]))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -82,6 +82,10 @@ async def _on_tap(update, adapter) -> None:
         await query.answer(text="Already requested: document preparation is in progress.")
         await _confirm(query, res)
         return
+    if status == "needs_ad":                       # the user, 2026-11-22: portal ad -> ask for the PDF, start nothing
+        await query.answer(text="I need the full ad first: send the PDF with «Aviso %s»." % ref)
+        await _confirm(query, res)
+        return
     if status != "started":
         await query.answer(text="Could not start (%s). Try «Prepara la oferta %s»." % (status, ref))
         return
