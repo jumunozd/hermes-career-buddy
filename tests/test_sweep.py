@@ -58,6 +58,19 @@ class SweepTest(unittest.TestCase):
     def tearDown(self):
         self.p.stop(); self.tmp.cleanup()
 
+    def test_weekend_sweep_with_mail_alerts(self):
+        """2026-11-22 manual Sunday test: due() has no 'skipped' on weekends (KeyError), and the mail cards
+        must survive (state is committed only after the sweep file is written)."""
+        from datetime import datetime
+        from hcb import sweep
+        from tests.test_mail_alerts import raw
+        cfg = util.config(); cfg["features"] = {**cfg["features"], "email_alerts": True}
+        with mock.patch("hcb.mailalerts.config", return_value=cfg):
+            out = sweep.sweep(datetime.fromisoformat("2026-11-22T21:20:00+11:00"), mail_messages=[(1, raw())])
+        self.assertEqual(out["skipped_sources"], [])
+        self.assertIn("Continuous Improvement Coordinator", [s["title"] for s in out["shortlist"]])
+        self.assertEqual(out["mail_alerts"]["parsed"], 1); self.assertNotIn("new_state", out["mail_alerts"])
+
     def test_parse_tss_cards(self):
         from hcb import sweep
         cards = sweep.parse_cards(TSS_PAGE, r"careers\.jobs\.tas\.gov\.au/jobs/(?!search)[a-z0-9-]+-\d", "TSS")

@@ -251,15 +251,18 @@ def sweep(now: datetime, read=None, search=None, mail_messages=None) -> dict:
     mail = None
     if config()["features"].get("email_alerts"):
         from . import mailalerts
-        mail = mailalerts.run(now, messages=mail_messages)
+        mail = mailalerts.run(now, messages=mail_messages, commit=False)   # mark read only after the sweep file exists
         shortlist += mail.get("shortlist", [])
     out = {"at": now_iso(), "simulated_now": now.isoformat(), "per_source": per_source, "shortlist": shortlist,
            "discovery": {k: disc[k] for k in ("per_source",) if disc} if disc else None,
-           "mail_alerts": {k: v for k, v in mail.items() if k != "shortlist"} if mail else None,
-           "needs_agent": needs_agent, "skipped_sources": due["skipped"],
+           "mail_alerts": {k: v for k, v in mail.items() if k not in ("shortlist", "new_state")} if mail else None,
+           "needs_agent": needs_agent, "skipped_sources": due.get("skipped", []),
            "next": "Job Hunter: read ONLY the shortlist detail pages (bin/hcb sources read --id --url), "
                    "then targets match / classify / seen add; read needs_agent sources the old way."}
     d = project_path("state") / "sweeps"
     d.mkdir(parents=True, exist_ok=True)
     (d / f"sweep-{now:%Y%m%d-%H%M}.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    if mail and mail.get("new_state"):
+        from . import mailalerts
+        mailalerts.commit(mail["new_state"])
     return out

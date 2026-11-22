@@ -185,7 +185,7 @@ def fetch_new(imap=None) -> tuple[list[tuple[int, bytes]], dict]:
             pass
 
 
-def run(now, imap=None, messages=None) -> dict:
+def run(now, imap=None, messages=None, commit: bool = True) -> dict:
     """Read new alert e-mails and return a shortlist in the sweep's format. `messages` = [(uid, raw)] for tests."""
     if not config()["features"].get("email_alerts"):
         return {"skipped": "features.email_alerts is false", "shortlist": []}
@@ -232,11 +232,16 @@ def run(now, imap=None, messages=None) -> dict:
                               "seen_status": chk["status"], "why": tri["reason"],
                               "read_detail_allowed": False, "card_text": c["card_text"],
                               "note": "alert link is a tracking redirect: never opened by the system; the user clicks it"})
-    if new_state:
+    if new_state and commit:
         _save_state({**new_state, "at": now_iso()})
     rec = {"at": now_iso(), **stats}
     state._append("mail-alerts-runs.jsonl", rec)
-    return {**stats, "shortlist": shortlist}
+    return {**stats, "shortlist": shortlist, **({"new_state": new_state} if new_state and not commit else {})}
+
+
+def commit(new_state: dict) -> None:
+    """Record the processed UIDs (the sweep calls this after its output file is written)."""
+    _save_state({**new_state, "at": now_iso()})
 
 
 def peek() -> list[dict]:
