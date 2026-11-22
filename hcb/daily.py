@@ -113,6 +113,8 @@ def build_digest(snapshot: dict, now: datetime, since_hours: int | None = None,
             continue
         if str(ref_of(o)) in already_notified:
             continue
+        if o.get("tracked_status") not in (None, "", "Discovered", "Shortlisted"):   # already being prepared / applied
+            continue
         if o.get("ranking_category") not in config()["daily_alert"]["include_categories"]:
             continue
         if excluded_by_title(o.get("title", "")):        # the user: no Senior roles (2026-11-17)
@@ -154,7 +156,8 @@ def portal_card(o: dict) -> bool:
     from . import adsource
     url = o.get("canonical_url") or o.get("url") or o.get("employer_url")
     # the agent may copy the card into ad_text: a card is far shorter than a full ad
-    return (o.get("channel") == "email_alert" or adsource.needs_user_ad(url)) and len((o.get("ad_text") or "").strip()) < adsource.MIN_CHARS
+    return ((o.get("channel") == "email_alert" or (bool(url) and adsource.needs_user_ad(url)))
+            and len((o.get("ad_text") or "").strip()) < adsource.MIN_CHARS)
 
 
 def _fallback_items(now: datetime, already_notified: set) -> tuple[list, dict | None]:
@@ -259,6 +262,8 @@ def _fit_label(i: dict) -> str:
         return f"fit {i['fit']}"
     if al.get("group"):
         return f"Grupo {al['group']} · {al.get('catalogue_title')}"      # P-4 B / D-P10-1: alignment, no A-H in search
+    if _needs_pdf(i):
+        return "título afín (fuera del catálogo)"                         # portal card: duties unknown, not wrong
     return "revisar funciones"
 
 
@@ -285,7 +290,8 @@ def keyboard_for(items: list[dict]) -> list[list[dict]]:
 def _needs_pdf(i: dict) -> bool:
     """The user, 2026-11-22: portal ads (alert e-mails, SEEK/LinkedIn/Indeed) need the user's PDF to be prepared."""
     from . import adsource
-    return adsource.needs_user_ad(i.get("employer_url")) and not adsource.has_ad(str(i.get("baserow_id")))
+    url = i.get("employer_url")
+    return bool(url) and adsource.needs_user_ad(url) and not adsource.has_ad(str(i.get("baserow_id")))
 
 
 def render_top3(items: list[dict], now: datetime) -> str:
@@ -294,7 +300,8 @@ def render_top3(items: list[dict], now: datetime) -> str:
     L = [f"🏆 TOP 3 — Mejor alineación ({now:%d/%m})"]
     for n, i in enumerate(top, 1):
         L.append(f"\n{n}. {i['title']} – {i['employer']}")
-        reason = f" · pendiente: {i['review_reason']}" if i.get("review_reason") else ""
+        reason = (" · pendiente: falta el aviso completo" if _needs_pdf(i)
+                  else f" · pendiente: {i['review_reason']}" if i.get("review_reason") else "")
         L.append(f"   {_fit_label(i)} · {_close(i)}{reason}")
         if i.get("employer_url"):
             L.append(f"   🔗 {i['employer_url']}")

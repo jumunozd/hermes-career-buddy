@@ -110,5 +110,18 @@ class RegisterPortalCards(Base):
         self.assertEqual(res["results"][0]["action"], "already_in_baserow"); self.assertEqual(calls, [])
 
 
+    def test_digest_skips_offers_already_being_prepared_and_labels_cards(self):
+        from datetime import datetime
+        now = datetime.fromisoformat("2026-11-22T21:35:00+11:00")
+        base = dict(self.CARD, discovered_at="2026-11-22T21:26:00+11:00")
+        snap = {"opportunities": [dict(base, baserow_id=32, tracked_status="Discovered"),
+                                  dict(base, title="Project Controls Officer", employer="TasPorts", baserow_id=29,
+                                       tracked_status="Preparing")]}
+        d = daily.build_digest(snap, now)
+        self.assertEqual([i["baserow_id"] for i in d["items"]], [32])
+        self.assertIn("falta el aviso completo", d["message"]); self.assertIn("Aviso 32", d["message"])
+        self.assertNotIn("revisar funciones", d["message"])
+
+
 if __name__ == "__main__":
     unittest.main()

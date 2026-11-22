@@ -145,6 +145,7 @@ def register_snapshot(path, today: str, live: bool, live_rows=None, writer=None,
     _st = lambda r: (r.get("Status") or {}).get("value") if isinstance(r.get("Status"), dict) else r.get("Status")
     by_job = {(fold(r.get("Company") or ""), fold(r.get("Job Title") or "")): r["id"] for r in live_rows
               if _st(r) not in ("Closed", "Rejected", "Withdrawn")}
+    status_of = {r["id"]: _st(r) for r in live_rows}
     writer = writer or baserow.write
     results = []
     for o in snap.get("opportunities", []):
@@ -157,11 +158,13 @@ def register_snapshot(path, today: str, live: bool, live_rows=None, writer=None,
         ref = f["Opportunity Ref"]
         if ref in by_ref:
             o["baserow_id"] = by_ref[ref]
+            o["tracked_status"] = status_of.get(by_ref[ref])
             results.append({"ref": ref, "action": "already_in_baserow", "row_id": by_ref[ref]})
             continue
         same = by_job.get((fold(f.get("Company") or ""), fold(f.get("Job Title") or "")))
         if same:
             o["baserow_id"] = same
+            o["tracked_status"] = status_of.get(same)        # the digest skips offers already being prepared
             results.append({"ref": ref, "action": "already_in_baserow", "row_id": same, "why": "same employer and title"})
             continue
         baserow.build_payload(f, option_ids)          # validate before any write
