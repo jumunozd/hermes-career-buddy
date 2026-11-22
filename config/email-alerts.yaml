@@ -9,14 +9,14 @@ mailbox:
   folder: "Career Buddy Alertas"
   mode: read_only            # IMAP EXAMINE; no delete / move / flag code exists (tested)
   address_file: private/config/alerts-mailbox.yaml
-feature_flag: features.email_alerts   # stays false until P-3/P-12 are approved and RT-16 passes
+feature_flag: features.email_alerts   # on 2026-11-22 (P-12 approved); RT-16 per sender as each portal's first real alert arrives
 
 never_open_links_matching:  # links that act on the account when opened
   - '(?i)unsubscribe|opt-?out|manage[-_ ]?alert|preferences|settings|login|sign-?in|apply'
 
 senders:
   # portals: job pages never read (terms / robots); the e-mail text is the evidence
-  - {id: seek,       domains: [seek.com.au],               status: draft, job_link: 'seek\.com\.au/job/(\d+)', read_job_page: false}
+  - {id: seek,       domains: [seek.com.au],               status: confirmed, sender_seen: s.seek.com.au, links: tracking_redirect, job_link: 'seek\.com\.au/job/(\d+)', read_job_page: false}
   - {id: linkedin,   domains: [linkedin.com],              status: draft, job_link: 'linkedin\.com/(?:comm/)?jobs/view/(\d+)', read_job_page: false}
   - {id: indeed,     domains: [indeed.com, indeed.com.au], status: draft, job_link: '[?&]jk=([0-9a-f]{16})', read_job_page: false}
   # agencies and graduate boards

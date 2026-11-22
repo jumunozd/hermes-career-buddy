@@ -170,7 +170,7 @@ def _total_pages(text: str) -> int | None:
     return None
 
 
-def sweep(now: datetime, read=None, search=None) -> dict:
+def sweep(now: datetime, read=None, search=None, mail_messages=None) -> dict:
     """Run the deterministic part of a search. `read(source_id, url)` defaults to `sources.read`;
     `search(query, limit)` is the discovery search (P-12), run only when config discovery.enabled is true."""
     read = read or (lambda sid, url=None: sources.read(sid, url))
@@ -247,8 +247,15 @@ def sweep(now: datetime, read=None, search=None) -> dict:
     if (config().get("discovery") or {}).get("enabled") and due["run"]:
         disc = discovery.run(now, search=search)
         shortlist += disc.get("shortlist", [])
+    # P-3 + P-12 D-P12-1: job-alert e-mails (read-only IMAP, card text only, links never opened), every run
+    mail = None
+    if config()["features"].get("email_alerts"):
+        from . import mailalerts
+        mail = mailalerts.run(now, messages=mail_messages)
+        shortlist += mail.get("shortlist", [])
     out = {"at": now_iso(), "simulated_now": now.isoformat(), "per_source": per_source, "shortlist": shortlist,
            "discovery": {k: disc[k] for k in ("per_source",) if disc} if disc else None,
+           "mail_alerts": {k: v for k, v in mail.items() if k != "shortlist"} if mail else None,
            "needs_agent": needs_agent, "skipped_sources": due["skipped"],
            "next": "Job Hunter: read ONLY the shortlist detail pages (bin/hcb sources read --id --url), "
                    "then targets match / classify / seen add; read needs_agent sources the old way."}

@@ -150,7 +150,8 @@ class Security(unittest.TestCase):
         # Launch 2026-11-17: Telegram delivery (to the user's own chat) and the weekday job, approved by the user.
         approved_flags = {o.split(":")[0] for r in state._read("approvals.jsonl") if r.get("action") == "feature_enable"
                           for o in r.get("objects", [])}
-        for flag in ("telegram_delivery", "scheduled_jobs", "baserow_live_writes"):
+        # 2026-11-22: e-mail to the user's own address (P-10) and the read-only alerts reader (P-12 D-P12-1).
+        for flag in ("telegram_delivery", "scheduled_jobs", "baserow_live_writes", "email_delivery", "email_alerts"):
             if feats.pop(flag, False):
                 self.assertIn(flag, approved_flags)
         self.assertFalse(any(feats.values()))   # gmail_report stays off

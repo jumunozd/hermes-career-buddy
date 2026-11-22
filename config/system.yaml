@@ -61,8 +61,9 @@ features:                              # Everything external starts OFF (Master 
   baserow_live_writes: true               # user approved 2026-11-19 (AP-e35b03aa24aa888279e4d02e, P-6): create/update only, never delete
   telegram_delivery: true                 # user approved 2026-11-17; bin/hcb daily-send (hermes send, no LLM), live test passed
   gmail_report: false                     # TV-07 / TV-10 pending
-  email_delivery: false                   # P-10 D-P10-2/3: packages + Saturday PDF to the user's iCloud (allowlist: only him); ON after bin/hcb mail-test
+  email_delivery: true                    # P-10 D-P10-2/3: packages + Saturday PDF to the user's iCloud (allowlist: only him); test e-mail received 2026-11-22
   scheduled_jobs: true                    # user approved: weekday aa639c87a2bb (2026-11-17), Friday 8f98c9127775 + Saturday ea20eb1adf2a (2026-11-19); profile career-buddy
+  email_alerts: true                      # P-12 D-P12-1 (2026-11-22): read-only IMAP of the alerts folder, allowlisted senders, card text only, links never opened
   web_discovery: true                     # 2026-11-16 (AP-338e1986beb43f61360209de): only the enabled page_read sources
   contact_research: true                  # P-2 (RT-12c passed 2026-11-15): Research finds <= 2 public business contacts per fresh offer.
                                           # ON only after RT-12 passes; uses Hermes `web` toolset, never sends.

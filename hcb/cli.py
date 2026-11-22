@@ -331,6 +331,16 @@ def cmd_mail_test(a):
     return 0 if res.get("status") in ("sent", "dry_run") else 1
 
 
+def cmd_mail_alerts(a):
+    from . import mailalerts
+    if a.peek:
+        print(json.dumps(mailalerts.peek(), ensure_ascii=False, indent=2)); return 0
+    from datetime import datetime
+    res = mailalerts.run(datetime.now().astimezone())
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0 if not res.get("error") else 1
+
+
 def cmd_daily_send(a):
     from . import daily, dashboard
     res = daily.send(a.digest)
@@ -479,6 +489,8 @@ def main(argv=None):
     x.set_defaults(f=cmd_deliver_email)
     x = s.add_parser("mail-test", help="send one test e-mail to the user's own mailbox (works before email_delivery is on)")
     x.add_argument("--dry-run", action="store_true"); x.set_defaults(f=cmd_mail_test)
+    x = s.add_parser("mail-alerts", help="read new job-alert e-mails (read-only; --peek records nothing)")
+    x.add_argument("--peek", action="store_true"); x.set_defaults(f=cmd_mail_alerts)
     x = s.add_parser("daily-send", help="send a saved digest to Telegram (hermes send, no LLM) and record the outcome")
     x.add_argument("--digest", required=True); x.set_defaults(f=cmd_daily_send)
     x = s.add_parser("daily-delivered", help="record a digest send: delivered (offers become notified) or --failed")

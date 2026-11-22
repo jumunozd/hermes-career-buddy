@@ -139,3 +139,9 @@ snapshot, not independently verified" unless the user's own confirmation is in t
 ## Verification
 Every registered record has provenance, A-H method version and a classification rule id;
 no fit without an A-H run; dedup ran before every write preview.
+
+## E-mail alerts (P-12 D-P12-1, 2026-11-22)
+`bin/hcb sweep` also returns shortlist items with `channel: email_alert` (source `MAIL-SEEK`, ...). Their `url` is the
+portal's tracking redirect: never open it, never read the ad page. Classify from `card_text` (title, employer,
+location, salary, bullets) exactly like other `read_detail_allowed: false` items; when the duties are unknown,
+record `Pendiente de revisión` with the link for the user.

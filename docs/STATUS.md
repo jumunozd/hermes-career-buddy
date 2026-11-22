@@ -156,3 +156,4 @@ fresh Telegram session; source list approved and group A enabled (JH-TV-02, `web
 - 2026-11-21 · **P-13 status page built** (AP-689edb7643cf91b9f7f12c2b): bin/hcb dashboard, read-only board from Baserow + system health + coverage + funnel, refreshed after each run. VPS access still to decide. 179 tests OK.
 - 2026-11-21 · **«Estado» on Telegram** (D-P13-4, AP-9db57bfb74ee4b4fee39b43f): PM skill v1.5.0 answers with `bin/hcb dashboard --summary`; the page as a file only on request.
 - 2026-11-22 · **E-mail delivery built** (P-10 part 2): iCloud connected (IMAP read-only + SMTP checked), `bin/hcb deliver-email`, Saturday PDF by e-mail, recipient allowlist = the user only; `features.email_delivery` off until the test e-mail is confirmed. 188 tests OK.
+- 2026-11-22 · **E-mail on:** test e-mail received, `features.email_delivery` on. **Alerts reader** (P-12): `bin/hcb mail-alerts`, read-only, SEEK parser, inside every sweep; `features.email_alerts` on. 194 tests OK.
