@@ -88,11 +88,33 @@ def parse_seek(text: str) -> list[dict]:
 PARSERS = {"seek": parse_seek}
 
 
+def _one_time_forward(msg, cfg) -> str | None:
+    """A single, dated test allowance kept in private/config (the user, 2026-11-22): a forward from the user's
+    own address is read only if the forwarded original sender is allowlisted and the date has not passed."""
+    from datetime import date
+    from . import mailer
+    ot = (mailer.mailbox() or {}).get("one_time_forward") or {}
+    frm = parseaddr(msg.get("From", ""))[1].lower()
+    try:
+        until = date.fromisoformat(str(ot.get("until")))
+    except ValueError:
+        return None
+    if not ot.get("from") or frm != str(ot["from"]).lower() or date.today() > until:
+        return None
+    m = re.search(r"(?im)^(?:from|de):\s*(.+@[^\s>]+>?)\s*$", _plain(msg)[:3000])
+    return sender_id(m.group(1), cfg) if m else None
+
+
 def parse_message(raw: bytes, cfg: dict | None = None) -> dict:
     msg = email.message_from_bytes(raw, policy=policy.default)
     sid = sender_id(msg.get("From", ""), cfg)
     out = {"from_domain": parseaddr(msg.get("From", ""))[1].rsplit("@", 1)[-1].lower(),
            "subject": str(msg.get("Subject", ""))[:200], "date": str(msg.get("Date", "")), "sender": sid, "cards": []}
+    if not sid:
+        sid = _one_time_forward(msg, cfg)
+        out["sender"] = sid
+        if sid:
+            out["via"] = "one_time_forward_test"
     if not sid:
         out["skipped"] = "sender not in config/email-alerts.yaml"
         return out
