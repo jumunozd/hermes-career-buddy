@@ -95,7 +95,7 @@ zones:                         # job-hunter.md §3.6 (approved D-JH-02, D-JH-09)
   in_scope:
     sur: [Hobart, Glenorchy, Clarence, Kingborough, Brighton, Derwent Park, Lutana, Cambridge, Prince of Wales Bay]
     sur_periferia: [New Norfolk, Boyer]
-    norte: [Launceston]
+    norte: [Launceston, Rocherlea, Invermay, Mowbray, Newnham, Kings Meadows, Youngtown, Prospect, Western Junction]   # Launceston suburbs and industrial areas (2026-11-23)
     norte_periferia: [George Town, Bell Bay]
     noroeste: [Burnie, Devonport, Heybridge, Penguin, Ulverstone, Parramatta Creek, Spreyton]
     noroeste_periferia: [Wynyard, Latrobe]

@@ -1,7 +1,7 @@
 ---
 name: hcb-job-hunter
 description: Career Buddy Job Hunter: discover, verify, A-H, register
-version: 1.9.0
+version: 1.10.0
 metadata:
   hermes:
     tags: [career, job-search, tasmania]
@@ -97,7 +97,8 @@ Only for a PM Task Envelope with `role: job_hunter`: `search` (daily cycle, D-US
 5. **No A-H during `search` (P-4 option B, AP-8b0ed42a08712e3b6d21afc1).** The ranking is the
    deterministic alignment with the user's target roles: put the `bin/hcb targets match` result in the
    opportunity JSON as `target_match`, plus `entry_signal` and `bridges_to`. Fit stays null (never
-   estimated). A-H runs later, only when the user asks to prepare the offer (PM, procedure C step 0).
+   estimated). A-H is not part of preparing documents either (the user, 2026-11-23): it runs only when the user asks for a fit.
+   `verify_vigencia` never runs A-H and never blocks on zone/title signals for an offer the user chose.
    Out-of-catalogue roles (`category_hint: out_of_catalogue`) go to the Seen log only.
 6. **Classify:** write the opportunity facts (incl. `target_match`) to JSON and run `bin/hcb classify <file>`.
    Gates C1-C6 first (zone, 8579, work rights, taxonomy, mining, expired), then the alignment rules A0-A4:

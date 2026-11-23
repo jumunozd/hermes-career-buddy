@@ -1,7 +1,7 @@
 ---
 name: hcb-project-manager
 description: Career Buddy PM: commands, delegation, approvals, reports
-version: 1.7.1
+version: 1.8.0
 metadata:
   hermes:
     tags: [career, orchestration, approvals]
@@ -73,12 +73,13 @@ first lines; if `matches_offer` is false, ask whether it is the right ad before 
 A long pasted text with no `Aviso <ID>` right after a `needs_ad` reply: `bin/hcb parse` gives `ad_supplied` with
 `inferred: true` and the ref; do the same steps and say in one line "Lo guardé como aviso de la oferta <ID>".
 Per selected opportunity, independently (one failure never blocks the others):
-0. **A-H with real fit (P-4 option B).** the user's `Prepara la oferta X` also confirms the vacancy is open:
-   record it with `bin/hcb approval record --action vacancy_open --objects <ref> --scope "The user confirms the
-   vacancy is open by asking to prepare it" --source "<message ref>"`, then
-   `bin/hcb ah vacancy-open --approval <that id> --url <employer listing> [--read-at <last read>]` and
-   `bin/hcb ah run --ad <file> --state VERIFIED --verification '<that JSON>'`. Tell the user the fit in one line.
-   DO_NOT_RECOMMEND or a knockout -> stop and ask him (as with Shaw) before the Writer. Otherwise go on.
+0. **No fit before drafting (the user, 2026-11-23).** `Prepara la oferta X` is the user's decision: do NOT run
+   A-H, do not wait for a fit and do not ask about fit, zone or title signals before the Writer. Record the
+   vacancy confirmation (`bin/hcb approval record --action vacancy_open --objects <ref> --scope "The user confirms
+   the vacancy is open by asking to prepare it" --source "<message ref>"`) and go on. The Job Hunter task in
+   step 1 is only `verify_vigencia` (never A-H). A-H runs only when the user asks for it («Fit <ID>»):
+   `bin/hcb ah vacancy-open --approval <id> [--url <listing>]`, then `bin/hcb ah run --ad <file> --state VERIFIED
+   --verification '<that JSON>'`. Use `bin/hcb` commands as they are, never inline `python3 -c` scripts.
 1. Job Hunter `verify_vigencia` -> `vigente | cerrada | incierta`, snapshot, `documents_required`.
    `cerrada` -> stop and report; `incierta` -> report and ask.
 2. Writer `draft` (round 1 input) -> published version vN with Draft Result.
