@@ -112,7 +112,44 @@ def parse(message: str) -> dict:
     if re.search(r"\b(envia|enviar|manda|mandar|postula|contacta|contactar)\b", t):
         return {"intent": "refused", "reason": "El sistema no envía postulaciones ni contacta a terceros (D-PM-03)."}
 
+    # A long pasted text right after the system asked for an ad (prepare-request -> needs_ad) is that ad,
+    # even without "Aviso <ID>" in front (the user, 2026-11-23, pasted the ad text alone).
+    ref = pending_ad_request() if len(raw) >= 400 else None
+    if ref:
+        return {"intent": "ad_supplied", "ref": ref, "file": None, "has_text": True, "inferred": True,
+                "why": f"the system asked for the ad of offer {ref} and no ad has been saved since",
+                "authorises": "prepare_only", "blocks": ["send", "contact"],
+                "next": "bin/hcb ad-save --ref <ref> --text-file <file with the pasted text>, "
+                        "then bin/hcb prepare-request --ref <ref>; say in one line it was filed as offer <ref>"}
+
     return {"intent": "unknown", "needs": "interpretacion_pm_con_confirmacion"}
+
+
+def pending_ad_request(hours: int = 24) -> str | None:
+    """The offer whose ad the system asked for most recently (event prepare_request_needs_ad), if no ad was
+    saved for it since and the request is recent. None when there is nothing pending or it is ambiguous."""
+    from datetime import datetime, timedelta
+    from . import state
+    try:
+        evs = state._read("events.jsonl")
+    except (OSError, ValueError):
+        return None
+    pending: dict[str, str] = {}
+    for e in evs:
+        if e.get("kind") == "prepare_request_needs_ad" and e.get("ref"):
+            pending[str(e["ref"])] = e.get("at", "")
+        elif e.get("kind") == "ad_saved" and e.get("ref"):
+            pending.pop(str(e["ref"]), None)
+    if not pending:
+        return None
+    ref, at = max(pending.items(), key=lambda kv: kv[1])
+    try:
+        when = datetime.fromisoformat(at)
+    except ValueError:
+        return None
+    if datetime.now(when.tzinfo) - when > timedelta(hours=hours):
+        return None
+    return ref
 
 
 def resolve_numbers(numbers: list[int], report: dict) -> dict:

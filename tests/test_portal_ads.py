@@ -125,3 +125,28 @@ class RegisterPortalCards(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PastedAdWithoutPrefix(unittest.TestCase):
+    """The user, 2026-11-23: after 'needs_ad' they pasted the ad text alone, without 'Aviso 32'."""
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        from unittest import mock
+        self.tmp = tempfile.TemporaryDirectory()
+        self.p = mock.patch("hcb.state.project_path", side_effect=lambda k: Path(self.tmp.name))
+        self.p.start()
+
+    def tearDown(self):
+        self.p.stop(); self.tmp.cleanup()
+
+    def test_long_text_after_request_is_that_ad(self):
+        from hcb import commands, state
+        ad = "Project Manager Assistant\nAcme | Rocherlea, TAS\n" + "Duties include scheduling and reporting. " * 15
+        self.assertEqual(commands.parse(ad)["intent"], "unknown")             # nothing was asked
+        state.event("prepare_request_needs_ad", ref="32", user="1")
+        res = commands.parse(ad)
+        self.assertEqual((res["intent"], res["ref"], res["inferred"]), ("ad_supplied", "32", True))
+        self.assertEqual(commands.parse("hola, ¿cómo va?")["intent"], "unknown")  # short chat is not an ad
+        state.event("ad_saved", ref="32", origin="pasted_text", chars=900)
+        self.assertEqual(commands.parse(ad)["intent"], "unknown")             # already saved
