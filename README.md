@@ -15,11 +15,23 @@ deterministic code enforces the rules; the person makes every decision.
 
 | When | What happens | Where you see it |
 |---|---|---|
-| Mon-Fri 07:30 / 12:30 / 16:30 | The **Job Hunter** sweeps approved job boards and employer pages, skips what it has seen, discards out-of-scope titles, ranks the rest by alignment with the target roles | Telegram: **Top 3** with a *Prepare Docs* button, then the other offers best to worst (silent when nothing is new) |
-| On a button tap | The **Writer** builds a CV and cover letter from the fact bank only; the **Recruiter** reviews them in a separate context (up to 3 rounds, deterministic verdict gates) | Telegram confirmation, then the package (PDF/DOCX) |
+| Mon-Fri 07:30 / 12:30 / 16:30 | The **Job Hunter** sweeps approved job boards, employer pages and the job-alert e-mails (read-only mailbox, links never opened), skips what it has seen, discards out-of-scope titles, ranks the rest by alignment with the target roles | Telegram: **Top 3** with a *Prepare Docs* button, then the other offers best to worst (silent when nothing is new) |
+| On a button tap | The **Writer** builds a CV and cover letter from the fact bank only; the **Recruiter** reviews them in a separate context (up to 3 rounds, deterministic verdict gates) | Telegram confirmation, then the package (PDF/DOCX) by e-mail, only to the user's own address |
 | Friday 18:00 | The **Research Agent** reviews the local market; the PM closes expired offers and flags follow-ups | Input for Saturday |
-| Saturday 08:00 | Weekly report (max 3 pages) | PDF in Telegram |
+| Saturday 08:00 | Weekly report (max 3 pages) | PDF by e-mail, notice in Telegram |
 | Daily 03:00 | Encrypted backup of the private data and the database, verified before old copies are pruned | Local archive |
+
+Offers that only exist on SEEK, LinkedIn or Indeed are never scraped: the system marks them 📎 and asks the
+user for the ad (a PDF or the pasted text) before preparing documents.
+
+## Results so far (first 10 days of real use, Nov 2026)
+
+- **287 job postings screened** from approved boards, employer pages and alert e-mails; out-of-scope ones
+  logged with the rule that discarded them.
+- **16 daily digests** delivered to Telegram, **26 document versions** for 8 applications, each reviewed by the
+  Recruiter agent before reaching the user.
+- **51 recorded approvals**: every configuration, source or rule change has a written trail.
+- **210+ automated tests** covering the rules, the integrations and the security limits.
 
 Every application is stored in **Baserow** (applications, documents, networking contacts), the
 system's own source of truth.

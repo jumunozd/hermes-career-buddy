@@ -1,4 +1,4 @@
-# Status register (updated 2026-11-17)
+# Status register (updated 2026-11-23)
 
 Legend: **Specified** = designed and documented · **Implemented** = files/config/integration exist ·
 **Validated** = passed a test with the real runtime or real artefacts (evidence in `private/test-evidence/` since P-5).
@@ -28,7 +28,11 @@ Nothing is "operational" unless it is Validated.
 | Baserow live write + read-back | ✔ | ✔ schema v2, `register` + `backfill` | ✔ live 2026-11-19: 5 rows written and verified (26-30) | P-6 |
 | Telegram commands/delivery | ✔ | ✔ bot on profile `career-buddy`; digest sent by code (`bin/hcb daily-send` -> `hermes send`) | ✔ live 2026-11-17: test digest delivered (message 53+), recorded once, idempotent | — |
 | Weekly report (≤ 3 pages, number map) | ✔ | ✔ | ✔ synthetic snapshot (1 page) | RT-04 |
-| Gmail delivery of the report | ✔ | ✘ | ✘ | TV-07/TV-10 pending |
+| E-mail delivery (packages + weekly report PDF) | ✔ | ✔ iCloud SMTP, recipient allowlist = the user only, once per key (`hcb/mailer.py`, `hcb/delivery.py`) | ✔ live 2026-11-22 (test mail) | P-10 part 2 |
+| Job-alert e-mails as a source (read-only IMAP, sender allowlist, links never opened) | ✔ | ✔ `hcb/mailalerts.py`, merged into the sweep | ✔ live 2026-11-22: SEEK alert -> Baserow row 32 -> digest | P-12 |
+| Portal ads supplied by the user (PDF or pasted text, `Aviso <ID>`) | ✔ | ✔ `hcb/adsource.py`, `needs_ad` reply, plugin v1.1.0 | ✔ live 2026-11-23: button asked for the ad; pasted ad saved for offer 32 | P-12 |
+| Telegram Top 3 + `Prepare Docs` buttons, «Estado» | ✔ | ✔ Bot API + plugin `career-buddy-buttons` | ✔ live | P-10 part 1 |
+| Migration readiness (`bin/hcb doctor --deploy`) | ✔ | ✔ 17 runtime checks with the VPS fix each | ✔ Mac 17/17 (2026-11-23) | docs/DEPLOYMENT.md |
 | Follow-up at 10 days (recommend only) | ✔ | ✔ | ✔ unit + report | tests, RT-04 |
 | Daily new-offer digest + call suggestion (D-USR-01) | ✔ | ✔ `hcb/daily.py`, `bin/hcb daily`, `bin/hcb contacts` | ✔ unit + CLI (synthetic); delivery needs Telegram | tests/test_daily_alert.py |
 | Weekday discovery (Job Hunter `search`) | ✔ | ✔ skill + deterministic sweep (`bin/hcb sweep`); group A page_read sources enabled (Hydro withdrawn) | ✔ live, manual runs RT-13/14/14b/15 (RT-15: 10.8 min); not scheduled yet | P-3 for SEEK/LinkedIn alerts |
@@ -47,12 +51,12 @@ Nothing is "operational" unless it is Validated.
 | TV-04 | Job Application Engine | **Replaced by P-5** (facts in `private/facts/`, method in `engine/`) | Read-only; selftest 4/4; pipeline replay passes from project folder; fingerprint guard |
 | TV-05 | A-H evaluator | **Verified** | `private/ah-evaluator` (copied unchanged 2026-11-17); original validator reused; pins match Engine |
 | TV-06 | Baserow | **Verified (read)** | localhost:8080 table 839, 11 fields; Status options lack the 3 confirmed semantics → Notes tags + MIG-01 |
-| TV-07 | Gmail | Pending | Sender account and mechanism not chosen |
+| TV-07 | E-mail | **Verified** | Dedicated iCloud alias + app password (not Gmail): read-only alerts folder and SMTP delivery to the user only (2026-11-22) |
 | TV-08 | Telegram | **Connected** | Bot on dedicated Hermes profile `career-buddy` (own .env, `terminal.cwd` = project); default profile has no Telegram |
 | TV-09 | Schedule hours | **Decided** | Search + contacts + digest Mon-Fri 07:30/12:30/16:30; Friday review + maintenance 18:00; Saturday report 08:00 (Australia/Hobart, the user 2026-11-15). Not installed yet |
-| TV-10 | Report format in Gmail | Pending | HTML + PDF produced locally |
+| TV-10 | Report by e-mail | **Implemented** | PDF attached by e-mail, short Telegram notice; first Saturday run pending |
 | TV-11 | Models / Codex | Observed | Default profile already uses provider `openai-codex`; no provider change made |
-| TV-12 | Mac vs VPS | Out of scope | No VPS work (per mission) |
+| TV-12 | Mac vs VPS | **Ready, waiting** | Built on the Mac, target Hostinger VPS; `bin/hcb doctor --deploy` 17/17; move waits for the user's resources (2026-11-23) |
 | TV-13 | Deep Research source approval | Pending | KB v2.0 missing; all sources disabled |
 | TV-14 | Costs / limits | Pending | Test runs used the existing Codex subscription |
 
@@ -71,24 +75,19 @@ Nothing is "operational" unless it is Validated.
   Kept: `~/CareerDevelopmentOS/{AGENTS.md,baserow-integration,outputs,test-files}`, the Baserow container and data.
 - No changes to the Job Application Engine, Baserow data, Hermes code, plugins or cron.
 
-## Remaining dependencies (in order, updated 2026-11-17)
+## Remaining work (updated 2026-11-23)
 
-Done: initial commit (`d86aa5d`); Telegram bot on Hermes profile `career-buddy`, project context verified from a
-fresh Telegram session; source list approved and group A enabled (JH-TV-02, `web_discovery: true`).
+The system runs every weekday from the Mac (search, e-mail alerts, digest, buttons, packages by e-mail,
+daily encrypted backup). What is left, in order:
 
 | # | Step | Who | Unblocks |
 |---|---|---|---|
-| 1 | Turn on `features.telegram_delivery` and run one real digest to Telegram (send + `bin/hcb daily-delivered`) | You approve, Claude Code tests | Digest delivery (TV-08) |
-| 2 | Install the three jobs from `config/schedules.yaml` with `--workdir` = this folder, profile `career-buddy` | You approve, Claude Code installs | Mon-Fri / Friday / Saturday cycle |
-| 3 | Baserow live writes: add Create + Update (never Delete) on table 839 to the dedicated token, set `features.baserow_live_writes: true`, then approve one marked test record + read-back | You | Real registration, Cerrada, references (TV-06) |
-| 4 | Decide MIG-01 (new Status options Exploratoria / Pendiente de revisión / Cerrada + Fit, Ranking Category, Opportunity Ref, Latest Version fields) after a Baserow backup | You | Native Baserow views instead of Notes tags |
-| 5 | Failure-injection tests of Master §13.5 (Baserow down, Telegram failure mid-delivery, restart during a cron run) once 2, 3 and 6 exist | Claude Code | Acceptance §14 |
-| 6 | Gmail for the Saturday report (TV-07, TV-10; note: sending needs its own decision, P-3 is read-only): pick sender + mechanism (Hermes email gateway or the `himalaya` skill), test a marked email to yourself | You | Saturday delivery |
-| 7 | Validate interview preparation end to end (`Entrevista [ID] [fecha]` on the synthetic package) and Research `market_review` with web tools | Claude Code | Interview flow, Friday review |
-| 8 | Voice fidelity: run `candidate-writing-voice/references/cases.json` and record your choices in `decisions.md` | You + Writer | Voice validation |
-| 9 | **P-3 email alerts (PENDING: the user's manual setup)**: account decided (D-P3-1 = A, dedicated alerts Gmail, 2026-11-16): create that account, create the Gmail label + filter `Career Buddy/Alertas`, create the alerts on the 13 portals listed in docs/proposals/P-3.md, create the Google Cloud OAuth client (gmail.readonly only), approve P-3. Then Claude Code builds `hcb/mail.py` + parsers from the first real emails and runs RT-16 | You, then Claude Code | SEEK, LinkedIn, Hydro, TasNetworks, TasWater, TasPorts, Bell Bay, Marinus coverage |
-| 10 | Publish on GitHub (create the repository, add a LICENSE); later the Hostinger move (docs/DEPLOYMENT.md) | You | Portfolio, server |
-| 11 | Off-disk copy of the daily backup (iCloud Drive recommended, `backup.extra_destinations`): the user decided 2026-11-19 to do it once the system is finished | You decide, Claude Code configures | Protection against losing the Mac |
+| 1 | First complete package from a user-supplied ad (offer 32: Writer -> Recruiter -> e-mail) | System, the user checks | End-to-end evidence |
+| 2 | Failure-injection tests (Baserow down, Telegram failure mid-delivery, restart during a cron run) | Claude Code | Acceptance §14 |
+| 3 | Interview preparation end to end; voice fidelity cases (`candidate-writing-voice/references/cases.json`) | Claude Code + the user | Interview flow, voice validation |
+| 4 | Publish on GitHub (main only) | The user approves | Portfolio |
+| 5 | Off-site copy of the backup | The user decides | Protection against losing the Mac |
+| 6 | VPS access (D-P13-3) and the move (docs/DEPLOYMENT.md, `bin/hcb doctor --deploy` on the VPS) | The user, when resources arrive | Runs without the Mac |
 
 ## Change log after the initial build
 - 2026-11-13 · D-USR-01 daily new-opportunity digest with call suggestion (`hcb/daily.py`).
