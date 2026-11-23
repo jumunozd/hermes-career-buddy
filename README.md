@@ -7,7 +7,7 @@
 CVs from verified evidence and reviews them like a recruiter, and never applies or contacts anyone on
 its own.**
 
-Built on [Hermes Agent](https://github.com/NousResearch/hermes-agent) by Juan Munoz (Industrial Engineer)
+Directed by Juan Munoz (Industrial Engineer) and built on [Hermes Agent](https://github.com/NousResearch/hermes-agent)
 as a portfolio project in human-centred AI automation: agents do the searching, drafting and checking;
 deterministic code enforces the rules; the person makes every decision.
 
