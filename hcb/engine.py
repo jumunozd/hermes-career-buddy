@@ -12,6 +12,7 @@ A published version folder is never modified; a change creates the next version.
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -20,7 +21,7 @@ from pathlib import Path
 from . import state
 from .util import cv_stem, dump, engine_dir, facts_root, now_iso, project_path, sha256_file, write_new
 
-ENGINE_PY = "/usr/bin/python3"   # the Engine's scripts need PyYAML, which the system python has
+ENGINE_PY = os.environ.get("HCB_ENGINE_PY", "/usr/bin/python3")   # the Engine scripts need PyYAML (macOS system python; python3-yaml on Linux)
 DELIVERABLE_EXT = {".pdf", ".docx", ".md", ".html", ".txt"}
 
 

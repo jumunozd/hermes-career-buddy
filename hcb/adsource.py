@@ -9,6 +9,7 @@ phone) or the pasted text. `bin/hcb ad-save --ref <ID> --file <pdf>` turns it in
 from __future__ import annotations
 
 import re
+import shutil
 import subprocess
 from pathlib import Path
 from urllib.parse import urlparse
@@ -48,6 +49,10 @@ def _pdf_text(path: Path) -> str:
             return "\n".join(p.get_text() for p in d)
     except ImportError:
         pass
+    if shutil.which("pdftotext"):                      # poppler-utils: the Linux/VPS path
+        r = subprocess.run(["pdftotext", "-layout", str(path), "-"], capture_output=True, text=True, timeout=60)
+        if r.returncode == 0 and r.stdout.strip():
+            return r.stdout
     # The Hermes venv has neither library: the macOS system Python has PyMuPDF (used by the Engine build).
     for py in ("/usr/bin/python3", "python3"):
         try:

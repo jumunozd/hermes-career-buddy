@@ -1,0 +1,4 @@
+# Python packages for the Hermes venv that runs bin/hcb (the Engine scripts use the system python3 + PyYAML).
+jsonschema>=4
+ruamel.yaml>=0.18
+pypdf>=4          # reads the ad PDFs the user sends (falls back to pdftotext)

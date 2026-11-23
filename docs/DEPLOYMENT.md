@@ -4,6 +4,10 @@ The Mac is the build and test machine; the target is a Linux VPS (the user, 2026
 The move itself waits for the user's approval of a migration plan. Everything below is kept current so the
 move is a checklist, not a project.
 
+**Readiness check:** `bin/hcb doctor --deploy` lists every runtime dependency below, whether this machine has it,
+and the VPS fix. It never reads a secret's content (only existence and file mode). Run it on the Mac before the move
+and on the VPS after `git clone` + restore: the move is done when it reports `ready: true`.
+
 ## Everything the system needs, and where it lives
 | Item | Today (Mac) | On the VPS |
 |---|---|---|
@@ -19,7 +23,10 @@ move is a checklist, not a project.
 | Telegram delivery | `hermes send` from the career-buddy profile (`bin/hcb daily-send`, `report-send`) | unchanged |
 | PDF render | Chrome (macOS path) found by `hcb/report.py` and `engine/build/fit.py` | Chromium on Linux, auto-detected (`HCB_CHROME` overrides) |
 | PDF text check (ATS) | `pdftotext` if installed, else `swift` (macOS) | install `poppler-utils` (`pdftotext`) |
-| Python | Hermes venv (jsonschema, ruamel) + `/usr/bin/python3` with PyYAML for the engine scripts | `python3-yaml`, Hermes install |
+| Python | Hermes venv (jsonschema, ruamel) + `/usr/bin/python3` with PyYAML for the engine scripts | `pip install -r requirements.txt` in the Hermes venv; `python3-yaml` (`HCB_ENGINE_PY` overrides the engine python) |
+| Ad PDFs sent by the user | Hermes venv has no PDF library: macOS system python's PyMuPDF | `pypdf` (requirements.txt) or `pdftotext` (poppler-utils), both auto-detected |
+| E-mail (alerts reader + package delivery) | iCloud IMAP/SMTP; `private/config/alerts-mailbox.yaml`; app password `~/.hermes/career-buddy/secrets/icloud-app-password` (600) | same files (restored + typed again); outbound port 587 and 993 open |
+| Telegram buttons | plugin `deploy/hermes-plugin/career-buddy-buttons` copied to the profile's `plugins/` | copy again, `hermes gateway restart` |
 | Node | `engine/build/node_modules` | `npm ci` in `engine/build` |
 | Docker CLI | `~/.docker/bin/docker` (config `backup.docker`) | `/usr/bin/docker`, auto-detected |
 | Power / sleep | Mac must stay on AC (`pmset -c sleep 0`); on battery runs are delayed | not applicable (VPS always on) |

@@ -27,6 +27,10 @@ def cmd_privacy_scan(a):
 
 
 def cmd_doctor(_a):
+    if getattr(_a, "deploy", False):
+        from . import portability
+        _out(portability.summary())
+        return
     import shutil
     import subprocess
     from . import engine
@@ -440,7 +444,9 @@ def cmd_event(a):
 def main(argv=None):
     p = argparse.ArgumentParser(prog="hcb", description="Hermes Career Buddy deterministic tools")
     s = p.add_subparsers(dest="cmd", required=True)
-    s.add_parser("doctor").set_defaults(f=cmd_doctor)
+    x = s.add_parser("doctor"); x.add_argument("--deploy", action="store_true",
+                                               help="migration readiness: every runtime dependency, ok or the VPS fix")
+    x.set_defaults(f=cmd_doctor)
     x = s.add_parser("privacy-scan", help="P-5 leak guard: personal data in files git would publish")
     x.add_argument("--verbose", action="store_true"); x.set_defaults(f=cmd_privacy_scan)
     x = s.add_parser("parse"); x.add_argument("message"); x.add_argument("--report"); x.set_defaults(f=cmd_parse)
