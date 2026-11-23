@@ -11,6 +11,23 @@ Directed by Juan Munoz (Industrial Engineer) and built on [Hermes Agent](https:/
 as a portfolio project in human-centred AI automation: agents do the searching, drafting and checking;
 deterministic code enforces the rules; the person makes every decision.
 
+## Why this exists
+
+After a successful visa process I arrived in Tasmania with a clear goal: an engineering role in my own field,
+where I can grow my professional experience and contribute to the community I now live in. That field is
+small here. The right roles are few, they appear on many different boards and employer pages, and each one
+deserves an application written for it, not a generic CV.
+
+So this is not a general job search engine that points at everything. It is a narrow one, designed around my
+target roles, my region, my verified experience and the way I like to work. It looks only where those roles
+appear, discards what would not move my career forward, and prepares documents I can stand behind.
+
+That is also the idea I want to explore beyond my own job search. Many people and businesses pay for large
+general-purpose software and never get its full value, because it was not shaped around their needs or it
+is hard to understand. With today's AI tools we can afford to build the opposite: small systems customised
+to one person's or one team's workflow, that they actually use every day, with the human still making
+the decisions.
+
 ## What it does
 
 | When | What happens | Where you see it |

@@ -70,6 +70,23 @@ def private_terms(root: Path | None = None) -> tuple[set[str], set[str]]:
                 (places if re.search(r"(?i)\b(mine site|tasmania|chile)\b", seg) or key == "location" else terms).add(seg)
     for s in _strings(roles.get("referees") or []):
         terms.add(s.strip())
+    # Real people the system found or the user added (networking contacts): their names never go public.
+    import json as _json
+    for f in (root / "state" / "research").glob("*/contacts.json"):
+        try:
+            data = _json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        for c in (data.get("contacts") if isinstance(data, dict) else data) or []:
+            if isinstance(c, dict) and c.get("name") and len(str(c["name"]).split()) >= 2:
+                terms.add(str(c["name"]).strip())
+    box = root / "config" / "alerts-mailbox.yaml"
+    if box.exists():
+        for k, v in (load_yaml(box) or {}).items():
+            if isinstance(v, str) and "@" in v:
+                terms.add(v.strip())
+            elif isinstance(v, dict) and isinstance(v.get("from"), str):
+                terms.add(v["from"].strip())
     extra = root / "privacy-terms.txt"
     if extra.exists():
         terms |= {l.strip() for l in extra.read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")}

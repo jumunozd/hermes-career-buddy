@@ -36,6 +36,19 @@ class PrivacyScan(unittest.TestCase):
             f.write_text(f"worked at {some}\n", encoding="utf-8")
             self.assertTrue(any(h["kind"] == "private_fact" for h in privacy.scan([f], util.ROOT / "private")))
 
+    @unittest.skipUnless((util.ROOT / "private" / "facts" / "identity.yaml").exists(), "needs the private zone")
+    def test_contact_names_and_mailbox_addresses_are_private(self):
+        terms, _ = privacy.private_terms(util.ROOT / "private")
+        import json
+        for f in (util.ROOT / "private" / "state" / "research").glob("*/contacts.json"):
+            data = json.loads(f.read_text(encoding="utf-8"))
+            for c in (data.get("contacts") if isinstance(data, dict) else data) or []:
+                if isinstance(c, dict) and len(str(c.get("name") or "").split()) >= 2:
+                    self.assertIn(c["name"], terms)
+        box = util.ROOT / "private" / "config" / "alerts-mailbox.yaml"
+        if box.exists():
+            self.assertTrue(any("@" in t for t in terms))
+
     def test_private_zone_is_ignored_by_git(self):
         self.assertIn("private/", (util.ROOT / ".gitignore").read_text())
         self.assertFalse(any("private/" in str(p.relative_to(util.ROOT)) for p in privacy.publishable_files()))
