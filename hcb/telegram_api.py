@@ -26,6 +26,35 @@ def _profile_env() -> dict:
     return out
 
 
+LONG_URL = 70           # SEEK alert links are ~400-character tracking redirects (the user, 2026-11-23)
+URL_RE = re.compile(r"https?://[^\s<>]+")
+PORTAL_NAMES = {"seek": "SEEK", "linkedin": "LinkedIn", "lnkd": "LinkedIn", "indeed": "Indeed"}
+
+
+def _u16(s: str) -> int:
+    return len(s.encode("utf-16-le")) // 2          # Telegram entity offsets count UTF-16 units
+
+
+def linkify(text: str) -> tuple[str, list[dict]]:
+    """Replace each long URL with a short clickable label ('Abrir aviso en SEEK') using text_link entities,
+    so the message stays plain text (no parse_mode escaping). Short URLs stay visible as they are."""
+    from urllib.parse import urlparse
+    out, ents, pos = [], [], 0
+    for m in URL_RE.finditer(text):
+        url = m.group(0)
+        if len(url) <= LONG_URL:
+            continue
+        host = (urlparse(url).hostname or "").lower()
+        name = next((v for k, v in PORTAL_NAMES.items() if k in host.split(".")), None)
+        label = f"Abrir aviso en {name}" if name else f"Abrir enlace ({host.removeprefix('www.')})"
+        out.append(text[pos:m.start()])
+        ents.append({"type": "text_link", "offset": _u16("".join(out)), "length": _u16(label), "url": url})
+        out.append(label)
+        pos = m.end()
+    out.append(text[pos:])
+    return "".join(out), ents
+
+
 def send_message(text: str, keyboard: list[list[dict]], api=None) -> tuple[bool, str | None, str | None]:
     """Returns (ok, message_id, error), like daily.hermes_send."""
     import sys
@@ -39,8 +68,13 @@ def send_message(text: str, keyboard: list[list[dict]], api=None) -> tuple[bool,
         for b in row:
             if len(b["callback_data"].encode()) > 64 or not b["callback_data"].startswith("hcb:"):
                 return False, None, f"invalid callback_data {b['callback_data']!r}"
-    body = {"chat_id": chat, "text": text[:4096], "disable_web_page_preview": True,
+    text, ents = linkify(text)
+    text = text[:4096]
+    ents = [e for e in ents if e["offset"] + e["length"] <= _u16(text)]
+    body = {"chat_id": chat, "text": text, "disable_web_page_preview": True,
             "reply_markup": {"inline_keyboard": keyboard}}
+    if ents:
+        body["entities"] = ents
     if api:
         res = api(body)
     else:
