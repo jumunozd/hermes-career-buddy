@@ -83,7 +83,9 @@ The page 2 running header and footer repeat header line 2.
   A$10,000 avoided, A$300 to A$75 monthly). A derived percentage always carries its base in the same
   sentence (D-P9-4), e.g. "about 96% (from around 120 to 5 minutes)". Never repeat "approximately" in one
   bullet; never reuse the Summary sentence word for word in a bullet.
-- Contact line 2 = `identity.contact_line_2_display` (visa 491 + driver licence), every CV.
+- Reductions read as percentages first, in the CV AND the letter (the user, 2026-11-25): "cut monthly server
+  costs by 75% (from A$300 to A$75)", never only "from A$300 to A$75". `hcb style` fails a reduction without its %.
+- Contact line 2 = `identity.contact_line_2_display` exactly ("FULL RIGHT TO WORK (SUBCLASS 491)", nothing else; the user 2026-11-25), every CV.
 - Education: the degree line may add "Coursework included ..." naming verified academic units (plant layout,
   capacity and mass balance, project evaluation, BPMN in Bizagi), each cited in the claim map.
 - Certifications: every credential marked `always_include`, names copied literally (checked); add other

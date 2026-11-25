@@ -296,7 +296,8 @@ def check_v2(C, folder):
                 if tool not in facts_text:
                     errors.append(f"Skills: la herramienta '{tool}' no esta literal en facts/.")
     # availability line kept
-    if ident.get("available_from_display") and "available" not in (C.get("contact_line_1", "") + C.get("contact_line_2", "")).lower():
+    # contact_line_2_display (the user, 2026-11-25) fixes line 2 exactly; then availability is not required there
+    if ident.get("available_from_display") and not ident.get("contact_line_2_display") and "available" not in (C.get("contact_line_1", "") + C.get("contact_line_2", "")).lower():
         errors.append("Falta la linea de disponibilidad (identity.available_from_display) en el contacto.")
     return errors, warns
 

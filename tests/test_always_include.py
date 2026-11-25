@@ -103,3 +103,21 @@ class TitleStyle(unittest.TestCase):
     def test_missing_decision_and_contact_line(self):
         self.assertIn("engineering_required", self._run(None, "X", "Y.")["stdout_tail"])
         self.assertIn("contact_line_2", self._run(True, "Industrial Engineer", "x.", contact="other")["stdout_tail"])
+
+
+class ReductionsAsPercentage(TitleStyle):
+    def _letter(self, text):
+        (self.folder / "targets.yaml").write_text("engineering_required: true\n")
+        (self.folder / "content.json").write_text(json.dumps(
+            {"identity_line": "Industrial Engineer", "professional_summary": "x.",
+             "contact_line_2": "FULL RIGHT TO WORK | Driver Licence (Class C)", "letter": {"paragraphs": [{"text": text}]}}))
+        cfg = {"cv": {"title_rule": "by_engineering_requirement", "reductions_as_percentage": True,
+                      "contact_line_2_from_facts": True}}
+        with mock.patch("hcb.util.config", return_value=cfg):
+            return engine.style_check(self.folder)
+
+    def test_reduction_needs_its_percentage(self):
+        bad = self._letter("I cut monthly server costs from A$300 to A$75.")
+        self.assertEqual(bad["exit"], 1); self.assertIn("75%", bad["stdout_tail"])
+        self.assertEqual(self._letter("I cut monthly server costs by 75% (from A$300 to A$75).")["exit"], 0)
+        self.assertEqual(self._letter("Output went from 4,500 to 5,000 kg.")["exit"], 0)   # increases are not reductions

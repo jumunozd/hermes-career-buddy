@@ -87,4 +87,5 @@ cv:                                       # style v3 (the user, 2026-11-25); che
                                           #   yes -> header = professional_identity (credential-led)
                                           #   no  -> header in the role's vocabulary (capability-led), never "Industrial Engineer"
   background_in_first_sentence: true      # capability-led: the Summary's FIRST sentence names the engineering background
-  contact_line_2_from_facts: true         # contact line 2 = identity.contact_line_2_display (visa 491 + licence)
+  reductions_as_percentage: true          # "from A$300 to A$75" always with its % in the same sentence (the user, 2026-11-25)
+  contact_line_2_from_facts: true         # contact line 2 = identity.contact_line_2_display exactly (only the 491 right to work)

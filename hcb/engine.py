@@ -144,6 +144,22 @@ def style_check(folder: Path) -> dict:
                     stem = pid.lower().rsplit(" ", 1)[0]          # "industrial" (+ engineer/engineering)
                     if not re.search(re.escape(stem) + r"\s+engineer", first.lower()):
                         errs.append(f"Summary: la primera frase debe nombrar la formacion ('{pid}' / '{stem.title()} Engineering')")
+    if rule.get("reductions_as_percentage"):
+        # the user, 2026-11-25: "from A$300 to A$75" lands harder as "75% (from A$300 to A$75)". Every reduction
+        # written as from X to Y (CV or letter) carries its percentage in the same sentence.
+        texts = [C.get("professional_summary", "")]
+        texts += [b.get("text", "") for r in C.get("experience", []) for b in r.get("bullets", [])]
+        texts += [p.get("line", "") for p in C.get("projects", [])]
+        texts += [p.get("text", "") for p in (C.get("letter") or {}).get("paragraphs", [])]
+        num = r"(?:A\$|\$)?(\d[\d,]*(?:\.\d+)?)"
+        for t in texts:
+            for sent in re.split(r"(?<=[.;])\s", str(t).replace("**", "")):
+                for m in re.finditer(r"from\s+(?:approximately\s+|around\s+|about\s+)?" + num
+                                     + r"\s+to\s+(?:approximately\s+|around\s+|about\s+)?" + num, sent):
+                    a, b = (float(x.replace(",", "")) for x in m.groups())
+                    if a > b > 0 and "%" not in sent:
+                        pct = round((a - b) / a * 100)
+                        errs.append(f"reduccion sin porcentaje: '{m.group(0)}' -> escribir '{pct}% ({m.group(0)})'")
     want = ident.get("contact_line_2_display")
     if rule.get("contact_line_2_from_facts") and want and str(C.get("contact_line_2", "")).strip() != want:
         errs.append(f"contacto: contact_line_2 debe ser identity.contact_line_2_display: '{want}'")

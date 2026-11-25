@@ -77,8 +77,8 @@ class V2Guards(unittest.TestCase):
     def test_unknown_tool_and_missing_availability_fail(self):
         errs = self.run_v2(content(skills=[{"label": "AI", "terms": "Agents (Codex Brain)"}], contact_line_2="x"))
         self.assertTrue(any("Codex Brain" in e for e in errs))
-        if IDENT.get("available_from_display"):
-            self.assertTrue(any("disponibilidad" in e for e in errs))
+        if IDENT.get("available_from_display") and not IDENT.get("contact_line_2_display"):
+            self.assertTrue(any("disponibilidad" in e for e in errs))   # a fixed line 2 (2026-11-25) replaces it
 
 
 if __name__ == "__main__":
