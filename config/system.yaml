@@ -81,3 +81,10 @@ backup:                                   # bin/hcb backup (2026-11-19): private
 languages:
   user_channel: es                        # D-PM-08
   documents: en-AU                        # natural Australian English, C1
+
+cv:                                       # style v3 (the user, 2026-11-25); checked by `hcb style` in bin/hcb engine run
+  title_rule: by_engineering_requirement  # ad requires engineering (degree, Engineer/Analyst title, technical analysis)?
+                                          #   yes -> header = professional_identity (credential-led)
+                                          #   no  -> header in the role's vocabulary (capability-led), never "Industrial Engineer"
+  background_in_first_sentence: true      # capability-led: the Summary's FIRST sentence names the engineering background
+  contact_line_2_from_facts: true         # contact line 2 = identity.contact_line_2_display (visa 491 + licence)

@@ -49,6 +49,18 @@ function orderExperience(C) {
   keyed.sort((a, b) => a.k - b.k || a.i - b.i);
   C.experience = keyed.map((x) => { x.r._block = byTitle.get(x.r.title).block; return x.r; });
 
+  // Style v3 (the user, 2026-11-25): thematic experience headings and a context line per role, from facts/.
+  // content.json can opt out with "experience_headings": false or a role "context": "".
+  if (C.experience_headings === undefined || C.experience_headings === null) {
+    const dh = (yaml.load(fs.readFileSync(ROLES, "utf8")) || {}).experience_order || {};
+    C.experience_headings = dh.default_headings || null;
+  }
+  if (C.experience_headings === false) C.experience_headings = null;
+  C.experience.forEach((r) => {
+    const fr = byTitle.get(r.title);
+    if (r.context === undefined || r.context === null) r.context = (fr && fr.context_display) || "";
+  });
+
   const after = C.experience.map((r) => r.title).join(" > ");
   if (after !== before) console.log(`orden ajustado por bloque (${blocks.join(" > ")}): ${after}`);
   return C;

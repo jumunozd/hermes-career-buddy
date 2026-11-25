@@ -155,7 +155,20 @@ section{ margin-bottom:2pt; }
 p{ text-align:left; margin-bottom:3pt; }
 li{ text-align:left; margin-bottom:2.4pt; padding-left:10pt; }
 .sk{ margin-bottom:2.8pt; }
-.role{ margin-top:6pt; margin-bottom:1.5pt; line-height:1.35; justify-content:flex-start; gap:6pt; }
+.role{ margin-top:6pt; margin-bottom:1.5pt; line-height:1.35; justify-content:flex-start; gap:8pt; }
+/* Dates stay next to the employer: right-aligned dates were read apart from the role by the macOS PDF reader
+   in 2 of 5 roles (ATS A7, tested 2026-11-25 with flex, grid, table, absolute and justify layouts). */
+.role .d{ color:#4a4a4a; }
+/* Style v3 (2026-11-25): stronger headings, name in capitals, page 2 running header, a little more air */
+body{ font-size:10.1pt; line-height:1.3; }
+li{ margin-bottom:3pt; }
+h2{ margin-top:12pt; }
+.sk{ margin-bottom:3.4pt; }
+.header .name{ text-transform:uppercase; font-weight:400; }
+h2{ font-weight:700; letter-spacing:.4pt; border-bottom:.9pt solid var(--navy); }
+.role .t{ color:#1b1b1b; }
+.runhead{ display:flex; justify-content:space-between; font-size:8.8pt; font-weight:700; color:var(--navy);
+  text-transform:uppercase; letter-spacing:.3pt; margin:0 30pt; padding:16pt 0 3pt; border-bottom:.6pt solid var(--navy); }
 
 .ctx{ margin-bottom:2pt; color:#5a5a5a; line-height:1.35; }
 .footer{ background:none; color:#7a7a7a; text-align:center; padding:0 30pt 14pt; }
@@ -215,7 +228,8 @@ function cvHtml() {
   ${COMPACT ? `<div class="footer"><div class="slim">${esc(NAME)} | ${esc(C.identity_line)} | Page 1 of 2</div></div>` : ""}
 </div>
 <div class="page">
-  <div class="pad" style="padding-top:26pt">
+  ${COMPACT ? `<div class="runhead"><span>${esc(C.name)}</span><span>${esc(C.identity_line)}</span></div>` : ""}
+  <div class="pad" style="padding-top:${COMPACT ? 4 : 26}pt">
     ${p2Jobs}
     ${projAfter}
     <section><h2>Education</h2><ul>${li(C.education)}</ul></section>

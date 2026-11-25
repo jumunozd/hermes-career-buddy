@@ -138,6 +138,7 @@ def words(b):
 # P-9 (2026-11-20): rules v2, opted in per CV with "rules_version": "v2" in content.json.
 V2_SUMMARY_MAX_WORDS = 90
 V2_SKILLS_MAX_TERMS = 8
+V2_BULLET_BUDGET = 14   # style v3 (2026-11-25): two full pages, like the user's Engineer 2026 CV
 
 
 def limits(C):
@@ -307,12 +308,24 @@ def main():
     folder = cpath.parent
     C = json.loads(cpath.read_text(encoding="utf-8"))
 
+    # Style v3 (2026-11-25): thematic headings and role context lines resolved from facts INTO content.json, so the
+    # renderers and ats_check.py see the same values (content.json can opt out: experience_headings false, context "").
+    if C.get("rules_version") == "v2":
+        rd = yaml.safe_load((FACTS / "roles.yaml").read_text(encoding="utf-8")) or {}
+        dh = (rd.get("experience_order") or {}).get("default_headings")
+        if C.get("experience_headings") is None and dh:
+            C["experience_headings"] = dh
+        ctx = {r["title_on_documents"]: r.get("context_display") for r in rd.get("roles", [])}
+        for r in C["experience"]:
+            if r.get("context") is None:
+                r["context"] = ctx.get(r["title"]) or ""
+
     sel_path = folder / "selection.json"
     priority, always, selected, budget = {}, set(), None, BULLET_BUDGET
     if sel_path.exists():
         selected = set()
         S = json.loads(sel_path.read_text(encoding="utf-8"))
-        budget = S.get("bullet_budget") or BULLET_BUDGET
+        budget = S.get("bullet_budget") or (V2_BULLET_BUDGET if C.get("rules_version") == "v2" else BULLET_BUDGET)
         for u in S["units"]:
             for i in u["ids"]:
                 priority[i] = u["gain"]
@@ -357,6 +370,29 @@ def main():
                f"{C['experience'][ri]['title']} (relevancia {score}, {', '.join(b.get('evidence') or [])})")
         dropped.append(msg)
         print(f"[FIT] {msg}")
+
+    # Style v3 (2026-11-25): place the page break automatically so page 1 is full. A whole role moves up to page 1
+    # while it fits; no half-empty first page because the Writer guessed the break. Opt out: "auto_page_break": false.
+    if C.get("rules_version") == "v2" and C.get("auto_page_break", True) and C["experience"]:
+        n = len(C["experience"])
+        chosen = None
+        for k in range(n, 0, -1):                 # k = first role on page 2 (n: every role on page 1)
+            for r in C["experience"]:
+                r.pop("page_break_before", None)
+            if k < n:
+                C["experience"][k]["page_break_before"] = True
+            cpath.write_text(json.dumps(C, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            run(["node", "build/make-html.js", str(cpath)])
+            p1 = measure(folder / f"{CV_STEM}.html")[0]
+            if p1["used"] <= p1["limit"] - SAFETY_PX:
+                chosen = k
+                break
+        if chosen is None:                         # not even one role fits: keep the first role on page 1
+            for r in C["experience"]:
+                r.pop("page_break_before", None)
+            if n > 1:
+                C["experience"][1]["page_break_before"] = True
+        print(f"[FIT] salto de pagina automatico: {'ninguno' if chosen == n else 'antes de ' + C['experience'][chosen if chosen is not None else 1]['title']}")
 
     for step in range(MAX_STEPS + 1):
         cpath.write_text(json.dumps(C, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

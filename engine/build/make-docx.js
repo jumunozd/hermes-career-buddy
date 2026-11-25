@@ -106,7 +106,7 @@ function buildCv() {
   const kids = [];
 
   // Banda navy de cabecera. A4: tracking real, no espacios literales.
-  kids.push(band([new TextRun({ text: C.name, font: FONT_HEAD, size: half(COMPACT ? 22 : 30), color: WHITE, characterSpacing: COMPACT ? 40 : 140 })],
+  kids.push(band([new TextRun({ text: COMPACT ? C.name.toUpperCase() : C.name, font: FONT_HEAD, size: half(COMPACT ? 22 : 30), color: WHITE, characterSpacing: COMPACT ? 40 : 140 })],
     NAVY, { spacing: { before: 200, after: 0, line: 460 } }));
   kids.push(band([new TextRun({ text: C.identity_line, font: FONT_HEAD, size: half(15), color: WHITE, bold: true, characterSpacing: 60 })], NAVY));
   kids.push(band([new TextRun({ text: C.capability_nouns, font: FONT_BODY, size: half(11), color: WHITE })],

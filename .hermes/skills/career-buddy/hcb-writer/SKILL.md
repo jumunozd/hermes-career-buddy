@@ -1,7 +1,7 @@
 ---
 name: hcb-writer
 description: Career Buddy Writer: tailored CV and cover letter
-version: 1.4.0
+version: 1.5.0
 metadata:
   hermes:
     tags: [career, cv, cover-letter, writing]
@@ -44,6 +44,11 @@ Never for a user conversation, never to send anything.
     the Skills budget allows, one Skills group with the literal tools (e.g. "AI tools: Claude | Claude Code |
     Hermes Agent"). Keep it to these lines: it supports the role, it does not take it over. `bin/hcb engine run`
     fails (`hcb always_include`) if any of them is missing.
+15. **Style v3 (the user, 2026-11-25): method.md §3 and §4a.** Title by `engineering_required` in
+    targets.yaml (credential-led "Industrial Engineer" only when the ad requires engineering; otherwise the
+    role's vocabulary with the Industrial Engineering background in the Summary's first sentence), 14
+    bullets, thematic headings and context lines from facts, numbers with their base, contact line 2 from
+    identity. `hcb style` in `bin/hcb engine run` fails the CV if the title, background or contact line is off.
 
 ## Procedure (`draft`; writer.md §4.1 WR-01..WR-10)
 1. **Intake.** Check the envelope: `approval_scope` contains `prepare_only`, the payload has the

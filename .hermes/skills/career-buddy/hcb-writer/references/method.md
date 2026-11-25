@@ -60,14 +60,36 @@ Register each one in `targets.yaml` with `synonym_of` = literal wording from the
 evidence go to the CV with the ad's word; soft skills are `demonstrated` (proved, never labelled);
 `gap`/`excluded` always carry a reason. Highlight `**keyword**` only for status `cv`, max 2 per bullet.
 
-## 3. Professional Title
-Does the ad require an engineering degree, engineering work or technical analysis?
-- Yes (Engineer, Analyst, Project Engineer): credential-led. `Industrial Engineer | <2-4 capability nouns>`.
-- No (Officer, Coordinator, Administrator, Technician): capability-led, in the role's own vocabulary,
-  e.g. `Operations and Reporting | Process Documentation and System Administration`. The credential moves
-  to Education and a supporting clause of the Summary (never hidden or denied). Overqualification rule
-  is a working hypothesis (one recruiter, July 2026): record where it is applied.
-The identity line in the page 2 footer must match header line 2.
+## 3. Professional Title (parametrised: config `cv.title_rule`, checked by `hcb style`)
+Decide ONE thing and write it in targets.yaml: `engineering_required: true|false` + `professional_title_reason`.
+True when the ad asks for an engineering degree, an Engineer/Analyst/Project Engineer title, or technical
+analysis. Then:
+- `true` -> `professional_title_branch: credential-led`; header line 2 = `professional_identity`
+  ("Industrial Engineer"); capability line = 3-4 specialities (e.g. Project Engineering | Reliability |
+  Process Improvement | AI Automation).
+- `false` (Officer, Coordinator, Administrator, Assistant, Technician) -> `capability-led`; header line 2 in
+  the role's own vocabulary (e.g. "Project Documentation and Administration"), so he does not look
+  overqualified; the Summary's FIRST sentence names the background ("... with an Industrial Engineering
+  background ..."). The degree is never hidden (the user, 2026-11-25).
+The page 2 running header and footer repeat header line 2.
+
+## 4a. Style v3 (the user, 2026-11-25, after comparing with his Engineer 2026 CV): overrides 4 where they differ
+- Fill two pages: `bullet_budget: 14` in targets.yaml (fit.py v2 default); the page break is placed by fit.py
+  automatically (do not set `page_break_before`). Never pad: more evidence units, not longer bullets.
+- Experience under thematic headings, from facts (`experience_order.default_headings`): Selected Project &
+  Improvement Experience (origin), Australian Site & Operations Experience, Additional International
+  Experience. Leave `experience_headings` and each role `context` unset: the renderer fills them from facts.
+- Numbers first: prefer units with magnitudes (e.g. `ecyt_keepa_buildvsbuy` + `ecyt_keepa_operating_cost`:
+  A$10,000 avoided, A$300 to A$75 monthly). A derived percentage always carries its base in the same
+  sentence (D-P9-4), e.g. "about 96% (from around 120 to 5 minutes)". Never repeat "approximately" in one
+  bullet; never reuse the Summary sentence word for word in a bullet.
+- Contact line 2 = `identity.contact_line_2_display` (visa 491 + driver licence), every CV.
+- Education: the degree line may add "Coursework included ..." naming verified academic units (plant layout,
+  capacity and mass balance, project evaluation, BPMN in Bizagi), each cited in the claim map.
+- Certifications: every credential marked `always_include`, names copied literally (checked); add other
+  relevant ones while page 2 has room.
+- Skills: AI tools in their own group ("AI tools: Claude | Claude Code | Hermes Agent"), not merged with
+  another label.
 
 ## 4. CV structure and budgets (the 7-second rule; 11 bullets is the reference CV)
 Order (fixed): header, contact band, PROFESSIONAL SUMMARY, SKILLS, PROFESSIONAL EXPERIENCE (page 1);

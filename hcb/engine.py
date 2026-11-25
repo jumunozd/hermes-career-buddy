@@ -110,6 +110,47 @@ def always_include_check(folder: Path) -> dict:
     return {"cmd": "hcb always_include", "exit": 1 if missing else 0, "stdout_tail": msg, "stderr_tail": ""}
 
 
+def style_check(folder: Path) -> dict:
+    """Style v3 (config `cv`, the user 2026-11-25). Title by the ad's engineering requirement: targets.yaml must
+    say `engineering_required: true|false` (with `professional_title_reason`); credential-led headers use
+    identity.professional_identity, capability-led ones use the role's vocabulary and the Summary's first
+    sentence names the engineering background (avoids looking overqualified without hiding the degree)."""
+    from .util import config, load_yaml
+    rule = config().get("cv") or {}
+    errs = []
+    try:
+        C = json.loads((folder / "content.json").read_text(encoding="utf-8"))
+        T = load_yaml(folder / "targets.yaml") if (folder / "targets.yaml").exists() else {}
+        ident = load_yaml(facts_root() / "facts" / "identity.yaml") or {}
+    except (OSError, ValueError) as e:
+        return {"cmd": "hcb style", "exit": 1, "stdout_tail": f"cannot check: {e}", "stderr_tail": ""}
+    pid = str(ident.get("professional_identity") or "").strip()
+    if rule.get("title_rule") == "by_engineering_requirement" and pid:
+        req = T.get("engineering_required")
+        if not isinstance(req, bool):
+            errs.append("targets.yaml: falta `engineering_required: true|false` (¿el aviso pide ingenieria?)")
+        else:
+            branch = "credential-led" if req else "capability-led"
+            if T.get("professional_title_branch") not in (None, branch):
+                errs.append(f"targets.yaml: engineering_required={req} exige professional_title_branch {branch}")
+            line = str(C.get("identity_line", "")).strip()
+            if req and line != pid:
+                errs.append(f"titulo: el aviso pide ingenieria, el encabezado debe ser '{pid}' (es '{line}')")
+            if not req:
+                if line.lower() == pid.lower():
+                    errs.append(f"titulo: el aviso no pide ingenieria, el encabezado va en el vocabulario del cargo, no '{pid}'")
+                if rule.get("background_in_first_sentence"):
+                    first = re.split(r"(?<=[.!?])\s", str(C.get("professional_summary", "")).replace("**", ""), 1)[0]
+                    stem = pid.lower().rsplit(" ", 1)[0]          # "industrial" (+ engineer/engineering)
+                    if not re.search(re.escape(stem) + r"\s+engineer", first.lower()):
+                        errs.append(f"Summary: la primera frase debe nombrar la formacion ('{pid}' / '{stem.title()} Engineering')")
+    want = ident.get("contact_line_2_display")
+    if rule.get("contact_line_2_from_facts") and want and str(C.get("contact_line_2", "")).strip() != want:
+        errs.append(f"contacto: contact_line_2 debe ser identity.contact_line_2_display: '{want}'")
+    msg = "OK: estilo v3 (titulo segun el aviso, formacion en el Summary, contacto)" if not errs else "; ".join(errs)
+    return {"cmd": "hcb style", "exit": 1 if errs else 0, "stdout_tail": msg, "stderr_tail": ""}
+
+
 def run_pipeline(folder: Path, statement: bool = False) -> dict:
     """Pasada 1 (select_evidence) if targets.yaml exists; fit.py (2 pages, renders md/html/docx/pdf);
     verify.py; ats_check.py; keyword_check.py. Nothing is delivered with a failure (Engine AGENTS.md)."""
@@ -135,6 +176,7 @@ def run_pipeline(folder: Path, statement: bool = False) -> dict:
     if (folder / "targets.yaml").exists():
         steps.append(_run([ENGINE_PY, str(b / "keyword_check.py"), str(folder)], root))
     steps.append(always_include_check(folder))
+    steps.append(style_check(folder))
     after = fingerprint()
     ok = all(s["exit"] == 0 for s in steps)
     result = {"folder": str(folder), "steps": steps, "all_passed": ok,
