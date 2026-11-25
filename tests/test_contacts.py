@@ -245,10 +245,13 @@ class Duplicates(unittest.TestCase):
 class SourceCadence(unittest.TestCase):
     def test_due_by_run(self):
         from hcb import sources
-        tue_first = sources.due(datetime(2026, 11, 17, 7, 30, tzinfo=TZ))
-        tue_noon = sources.due(datetime(2026, 11, 17, 12, 30, tzinfo=TZ))
-        mon_first = sources.due(datetime(2026, 11, 16, 7, 30, tzinfo=TZ))
-        sat = sources.due(datetime(2026, 11, 21, 7, 30, tzinfo=TZ))
+        weekly = [x["id"] for x in sources.registry() if str(x.get("cadence", "")).startswith("first_run:")]
+        read_all = lambda day: [{"source": i, "ok": True, "read_at": f"2026-11-{day}T07:40:00+11:00"} for i in weekly]
+        prev_week = read_all(13)                                       # everything read the week before
+        tue_first = sources.due(datetime(2026, 11, 17, 7, 30, tzinfo=TZ), reads=read_all(16))
+        tue_noon = sources.due(datetime(2026, 11, 17, 12, 30, tzinfo=TZ), reads=read_all(17))   # first run read them
+        mon_first = sources.due(datetime(2026, 11, 16, 7, 30, tzinfo=TZ), reads=read_all(13))
+        sat = sources.due(datetime(2026, 11, 21, 7, 30, tzinfo=TZ), reads=prev_week)
         ids = lambda r: {s["id"] for s in r["run"]}
         self.assertIn("EMP-NYRSTAR", ids(tue_first))
         self.assertNotIn("EMP-HYDRO", ids(tue_first))   # withdrawn in RT-15 (robots Disallow on the serving host)
@@ -259,6 +262,20 @@ class SourceCadence(unittest.TestCase):
         self.assertEqual(sat["run"], [])
         glen = next(s for s in tue_noon["run"] if s["id"] == "COUNCIL-GLENORCHY")
         self.assertEqual(glen["gap_s"], 20)
+
+    def test_missed_weekly_sources_are_caught_up(self):
+        """The user, 2026-11-25: the Mac was offline, the 07:30 run failed and the weekly sources were lost."""
+        from hcb import sources
+        weekly = [x["id"] for x in sources.registry() if str(x.get("cadence", "")).startswith("first_run:")]
+        mon_only = [{"source": i, "ok": True, "read_at": "2026-11-16T07:40:00+11:00"} for i in weekly]
+        noon = sources.due(datetime(2026, 11, 17, 12, 30, tzinfo=TZ), reads=mon_only)   # Tue 07:30 never read
+        ids = [s["id"] for s in noon["run"]]
+        self.assertIn("EMP-NYRSTAR", ids)                                  # Tuesday source caught up at noon
+        self.assertLessEqual(sum(1 for s in noon["run"] if s.get("why")), sources.MAX_WEEKLY_PER_RUN)
+        wed = sources.due(datetime(2026, 11, 18, 12, 30, tzinfo=TZ), reads=mon_only)    # Tue AND Wed missed
+        caught = [s for s in wed["run"] if s.get("why")]
+        self.assertEqual(len(caught), sources.MAX_WEEKLY_PER_RUN)
+        self.assertEqual(caught[0]["scheduled"], "2026-11-17")             # oldest missed first
 
 
 class RT13Fixes(unittest.TestCase):

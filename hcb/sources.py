@@ -2,7 +2,9 @@
 
 Deterministic so the Job Hunter never re-reads every site on every run:
 - every_run            -> each of the three weekday runs (07:30, 12:30, 16:30);
-- first_run:<days>     -> only the first run (before 10:00) on those weekdays.
+- first_run:<days>     -> the first run on those weekdays; if that run did not read it (Mac asleep or offline,
+                          run failed: the user, 2026-11-25), the next weekday run catches it up, oldest first,
+                          at most MAX_WEEKLY_PER_RUN weekly sources per run (terminal time limit).
 Only `enabled: true` + `mode: page_read` sources are ever returned (AP-338e1986beb43f61360209de).
 """
 from __future__ import annotations
@@ -14,30 +16,66 @@ from .util import ROOT, load_yaml
 _DAYS = {"mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
 FIRST_RUN_BEFORE_HOUR = 10
 MIN_GAP_S = 20
+MAX_WEEKLY_PER_RUN = 4
 
 
 def registry() -> list[dict]:
     return load_yaml(ROOT / "config" / "sources.yaml")["sources"]
 
 
-def due(now: datetime) -> dict:
+def _ok_reads(reads=None) -> dict:
+    """source id -> latest successful read date."""
+    if reads is None:
+        from . import state
+        try:
+            reads = state._read("source-reads.jsonl")
+        except (OSError, ValueError):
+            reads = []
+    last = {}
+    for r in reads:
+        if r.get("ok") and r.get("source"):
+            try:
+                d = datetime.fromisoformat(r.get("read_at") or r["at"]).date()
+            except (KeyError, ValueError):
+                continue
+            last[r["source"]] = max(last.get(r["source"], d), d)
+    return last
+
+
+def due(now: datetime, reads=None) -> dict:
+    """`reads` = source-reads rows (tests); default: private/state/source-reads.jsonl."""
+    from datetime import timedelta
     if now.weekday() > 4:
         return {"run": [], "reason": "weekend: no search (D-USR-02)"}
     first = now.hour < FIRST_RUN_BEFORE_HOUR
-    run, skipped = [], []
+    last_ok = _ok_reads(reads)
+    run, skipped, weekly = [], [], []
     for s in registry():
         if not s.get("enabled") or s.get("mode") != "page_read":
             continue
         cad = str(s.get("cadence", ""))
+        item = {"id": s["id"], "name": s["name"], "url": s.get("url"),
+                "gap_s": max(MIN_GAP_S, s.get("crawl_delay_s") or 0)}
         if cad == "every_run":
-            ok = True
-        elif cad.startswith("first_run:"):
+            run.append(item)
+            continue
+        if cad.startswith("first_run:"):
             days = {_DAYS[d.strip()] for d in cad.split(":", 1)[1].split(",")}
-            ok = first and now.weekday() in days
+            # most recent scheduled weekday on or before today (within the last 7 days)
+            sched = next((now.date() - timedelta(days=k) for k in range(7)
+                          if (now.date() - timedelta(days=k)).weekday() in days), None)
+            got = last_ok.get(s["id"])
+            missed = sched is not None and (got is None or got < sched)
+            if missed:
+                weekly.append((sched, item, "catch-up" if (sched < now.date() or not first) else "scheduled"))
+                continue
+        skipped.append(item)
+    weekly.sort(key=lambda x: x[0])
+    for i, (sched, item, why) in enumerate(weekly):
+        if i < MAX_WEEKLY_PER_RUN:
+            run.append({**item, "why": why, "scheduled": sched.isoformat()})
         else:
-            ok = False
-        (run if ok else skipped).append({"id": s["id"], "name": s["name"], "url": s.get("url"),
-                                         "gap_s": max(MIN_GAP_S, s.get("crawl_delay_s") or 0)})
+            skipped.append(item)
     return {"run": run, "skipped": [s["id"] for s in skipped],
             "rules": "page_read only; wait gap_s between reads; honest client identity; no login"}
 
