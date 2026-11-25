@@ -72,6 +72,44 @@ def select_evidence(folder: Path) -> dict:
     return {"step": step, "passed": step["exit"] == 0, "engine_unchanged": before == fingerprint()}
 
 
+def _cited(obj) -> set[str]:
+    out: set[str] = set()
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k in ("evidence", "jae_ref") and isinstance(v, list):
+                out |= {str(x) for x in v}
+            elif k in ("evidence", "jae_ref") and isinstance(v, str):
+                out.add(v)
+            else:
+                out |= _cited(v)
+    elif isinstance(obj, list):
+        for x in obj:
+            out |= _cited(x)
+    return out
+
+
+def always_include_check(folder: Path) -> dict:
+    """Facts the candidate asked to appear in EVERY CV (`always_include: true` in private/facts evidence and
+    credentials; the user, 2026-11-25: his AI skills differentiate him) must be in content.json: evidence cited
+    by a bullet or project, credentials listed under certifications. A CV without them is not published."""
+    from .util import load_yaml
+    root = facts_root() / "facts"
+    try:
+        content = json.loads((folder / "content.json").read_text(encoding="utf-8"))
+        ev = load_yaml(root / "evidence.yaml").get("evidence", [])
+        creds = load_yaml(root / "credentials.yaml").get("credentials", [])
+    except (OSError, ValueError) as e:
+        return {"cmd": "hcb always_include", "exit": 1, "stdout_tail": f"cannot check: {e}", "stderr_tail": ""}
+    cited = _cited(content)
+    certs = " ".join(str(c) for c in (content.get("certifications") or []) + (content.get("education") or [])).lower()
+    missing = [e["id"] for e in ev if e.get("always_include") and e.get("status", "verified") == "verified"
+               and e["id"] not in cited]
+    missing += [c["id"] for c in creds if c.get("always_include") and c["name"].lower() not in certs]
+    msg = ("OK: every always_include fact is in the CV" if not missing else
+           "FALTA en el CV (always_include, pedido por el candidato): " + ", ".join(missing))
+    return {"cmd": "hcb always_include", "exit": 1 if missing else 0, "stdout_tail": msg, "stderr_tail": ""}
+
+
 def run_pipeline(folder: Path, statement: bool = False) -> dict:
     """Pasada 1 (select_evidence) if targets.yaml exists; fit.py (2 pages, renders md/html/docx/pdf);
     verify.py; ats_check.py; keyword_check.py. Nothing is delivered with a failure (Engine AGENTS.md)."""
@@ -96,6 +134,7 @@ def run_pipeline(folder: Path, statement: bool = False) -> dict:
     steps.append(_run([ENGINE_PY, str(b / "ats_check.py"), str(folder)], root))
     if (folder / "targets.yaml").exists():
         steps.append(_run([ENGINE_PY, str(b / "keyword_check.py"), str(folder)], root))
+    steps.append(always_include_check(folder))
     after = fingerprint()
     ok = all(s["exit"] == 0 for s in steps)
     result = {"folder": str(folder), "steps": steps, "all_passed": ok,

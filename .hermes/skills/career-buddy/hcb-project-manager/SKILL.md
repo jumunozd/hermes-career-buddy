@@ -1,7 +1,7 @@
 ---
 name: hcb-project-manager
 description: Career Buddy PM: commands, delegation, approvals, reports
-version: 1.8.0
+version: 1.9.0
 metadata:
   hermes:
     tags: [career, orchestration, approvals]
@@ -13,7 +13,7 @@ metadata:
 
 ## When to Use
 Any user message or scheduled event in Hermes Career Buddy: commands (`Prepara las ofertas`,
-`Cambios`, `Aprobado`, `Enviada`, `Entrevista`, `Resultado`, `Follow-up`, `Pausa`, `Estado`...),
+`Cambios`, `Correo`, `Aprobado`, `Enviada`, `Entrevista`, `Resultado`, `Follow-up`, `Pausa`, `Estado`...),
 weekly cycles (weekday search, Friday review, Saturday report), preparation of applications,
 interview preparation, follow-ups and improvement proposals.
 
@@ -93,16 +93,20 @@ Per selected opportunity, independently (one failure never blocks the others):
    Engine lacks), do NOT launch another strict round: deliver the package with the Missing Fact /
    Evidence Gap questions. When the user adds facts to the Engine -> one `revise` (user_change) + one review.
    If the user declines to add facts and wants a final attempt -> go straight to round 3 (strategic).
-5. Deliver the package as soon as it is ready: verdict, reasons per round, file paths, change
-   summary, Missing Fact Requests as concrete questions ("cárgalo en el banco de hechos, private/facts").
-   Put each deliverable on its own line as `MEDIA:/absolute/path/file.pdf`: in a Telegram session
-   the gateway sends it as a native attachment; in the CLI it stays a readable path. Telegram is
-   OFF until configured (`features.telegram_delivery`), so today deliver in the current channel.
-   **E-mail copy (P-10 D-P10-2):** also run `bin/hcb deliver-email --folder <published vN> --review <latest
-   review json> --url <ad url> [--fit "<A-H band, one line>"]`. It goes only to the user's own mailbox, once per
-   version (`already` is fine), with the documents attached; a `not_fit_to_send` package arrives marked as a draft.
-   `not_sent` because `features.email_delivery` is false is normal: Telegram stays the delivery. Never pass another
-   address; the code refuses any recipient but the user.
+5. **Deliver in Telegram first, e-mail only on request (the user, 2026-11-25).** As soon as the package is
+   ready: run `bin/hcb package-show --folder <published vN>`. It returns `media_lines` (one
+   `MEDIA:/absolute/path/file.pdf` per document: CV, cover letter and any other document, ALL as PDF) and
+   records that this version was shown. Put those lines in your reply exactly as returned (the gateway sends
+   each as a native attachment), plus: verdict, reasons per round, change summary, Missing Fact Requests as
+   concrete questions ("cárgalo en el banco de hechos, private/facts"), and the returned `ask_user` line.
+   Do NOT e-mail yet. The user reviews; `Cambios <ID>: ...` goes to step 6 and the new version is shown the
+   same way.
+   **E-mail (P-10 D-P10-2), only after the user asks («Correo <ID>», «mándalo a mi correo»; `bin/hcb parse`
+   gives intent `email_package`):** run `bin/hcb deliver-email --folder <latest version shown for that offer>
+   --review <latest review json> --url <ad url> --confirmed "<his exact message>" [--fit "<A-H band>"]`. It
+   goes only to the user's own mailbox, once per version, with every document as PDF (add `--with-docx` only
+   if he asks for Word files). The code refuses it if that version was not shown in Telegram or the message
+   is not his confirmation: never work around a refusal, tell him what is missing. Never pass another address.
 6. `Cambios [ID]: ...` -> Writer changes only the affected sections -> Recruiter re-reviews once.
 7. `Aprobado [ID]` -> package "lista para envío" only if Recruiter `send_readiness` is
    `ready_for_human_review`. Sending is still the user's own action; `Enviada [ID]` records it.

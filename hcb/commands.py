@@ -109,6 +109,17 @@ def parse(message: str) -> dict:
     if m:
         return {"intent": "cancel", "target": m.group(1)}
 
+    # "Correo 32" / "Mándalo a mi correo" (the user, 2026-11-25): e-mail the package HE reviewed in Telegram to
+    # his own mailbox. Only his own address is possible (mailer allowlist); never an employer or a contact.
+    m = re.fullmatch(r"correo " + _ID, t)
+    if m or (re.search(r"\b(envia|enviame|enviar|manda|mandame|mandalo|mandalos|mandar)\w*\b", t)
+             and re.search(r"\b(mi correo|al correo|a mi mail|a mi email|por correo)\b", t)
+             and not re.search(r"\b(empresa|empleador|reclutador|recruiter|contacto|postula)\w*", t)):
+        ref = m.group(1) if m else (re.search(r"\b(\d{1,9})\b", t) or [None, None])[1]
+        return {"intent": "email_package", "ref": ref, "authorises": "email_to_user_only",
+                "blocks": ["send_application", "contact"],
+                "next": "bin/hcb deliver-email --folder <latest version shown for that offer> --confirmed \"<this message>\""}
+
     if re.search(r"\b(envia|enviar|manda|mandar|postula|contacta|contactar)\b", t):
         return {"intent": "refused", "reason": "El sistema no envía postulaciones ni contacta a terceros (D-PM-03)."}
 

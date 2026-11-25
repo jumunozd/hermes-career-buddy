@@ -319,9 +319,17 @@ def cmd_daily(a):
 
 def cmd_deliver_email(a):
     from . import delivery
-    res = delivery.send_package(a.folder, a.review, a.fit, a.url, a.title, a.company, a.resend, a.dry_run)
+    res = delivery.send_package(a.folder, a.review, a.fit, a.url, a.title, a.company, a.resend, a.dry_run,
+                                confirmed=a.confirmed, with_docx=a.with_docx)
     print(json.dumps(res, ensure_ascii=False, indent=2))
     return 0 if res.get("status") in ("sent", "already", "dry_run") else 1
+
+
+def cmd_package_show(a):
+    from . import delivery
+    res = delivery.show(a.folder)
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0 if res.get("status") == "shown" else 1
 
 
 def cmd_mail_test(a):
@@ -505,7 +513,11 @@ def main(argv=None):
     x.add_argument("--folder", required=True); x.add_argument("--review"); x.add_argument("--fit")
     x.add_argument("--url"); x.add_argument("--title"); x.add_argument("--company")
     x.add_argument("--resend", action="store_true"); x.add_argument("--dry-run", action="store_true")
+    x.add_argument("--confirmed", help="the user's Telegram message asking for it, e.g. 'Correo 32'")
+    x.add_argument("--with-docx", action="store_true", help="also attach the DOCX files")
     x.set_defaults(f=cmd_deliver_email)
+    x = s.add_parser("package-show", help="Telegram review step: every document as PDF (MEDIA lines), recorded")
+    x.add_argument("--folder", required=True); x.set_defaults(f=cmd_package_show)
     x = s.add_parser("mail-test", help="send one test e-mail to the user's own mailbox (works before email_delivery is on)")
     x.add_argument("--dry-run", action="store_true"); x.set_defaults(f=cmd_mail_test)
     x = s.add_parser("mail-alerts", help="read new job-alert e-mails (read-only; --peek records nothing)")

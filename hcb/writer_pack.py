@@ -88,7 +88,7 @@ def build() -> str:
         L.append(line)
         extra = {k: v for k, v in c.items() if k in {"skills", "relevance_tags", "display_rule", "wording_rule",
                                                        "sql_note", "skills_note", "skills_note_2", "kind",
-                                                       "licence_class", "pending_edit"} and v}
+                                                       "licence_class", "pending_edit", "always_include"} and v}
         for k, v in extra.items():
             L.append(f"  - {k}: {_clean(v)}")
 

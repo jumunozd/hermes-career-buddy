@@ -65,7 +65,7 @@ class Package(Base):
     def _version(self, ready=True):
         prep = Path(self.tmp.name) / "app" / "prep-1"
         v = prep / "v1"; v.mkdir(parents=True)
-        (v / "manifest.json").write_text(json.dumps({"version_id": "PREP-1-v1", "version_label": "v1", "opportunity_ref": "SEEK-1"}))
+        (v / "manifest.json").write_text(json.dumps({"version_id": "PREP-1-v1", "version_label": "v1", "opportunity_ref": "1"}))
         (v / "content.json").write_text(json.dumps({"application": "Acme Water, Asset Officer (Hobart)"}))
         for f in ("cv-juan-munoz.pdf", "cv-juan-munoz.docx", "cover-letter.pdf", "cover-letter.docx"):
             (v / f).write_bytes(b"x")
@@ -81,20 +81,58 @@ class Package(Base):
         self.assertEqual(delivery.split_application("Shaw Contracting (Aust) Pty Ltd, BD Support Officer (Launceston)")[0],
                          "BD Support Officer")
 
+    def _shown(self, ready=True):
+        v = self._version(ready)
+        shown = delivery.show(v)
+        self.assertEqual(shown["status"], "shown")
+        return v, shown
+
     def test_ready_package(self):
-        res = delivery.send_package(self._version(), fit="B, recomendable", smtp=self.smtp)
-        self.assertEqual(res["status"], "sent"); self.assertTrue(res["ready"])
+        v, _ = self._shown()
+        res = delivery.send_package(v, fit="B, recomendable", smtp=self.smtp, confirmed="Correo 1")
+        self.assertEqual(res["status"], "sent", res); self.assertTrue(res["ready"])
         msg = self.sent[0]
         self.assertEqual(msg["Subject"], "Application Ready: Asset Officer | Acme Water")
         names = [p.get_filename() for p in msg.iter_attachments()]
-        self.assertEqual(names, ["cv-juan-munoz.pdf", "cover-letter.pdf", "cv-juan-munoz.docx", "cover-letter.docx"])
+        self.assertEqual(names, ["cv-juan-munoz.pdf", "cover-letter.pdf"])     # every document, as PDF
         body = msg.get_body(("plain",)).get_content()
         self.assertIn("Fit A-H: B, recomendable", body); self.assertIn("Add a scheduling case.", body)
         self.assertIn("nunca envía postulaciones", body)
         self.assertNotIn("—", msg["Subject"] + body)        # no em dashes anywhere
 
+    def test_docx_only_when_asked(self):
+        v, _ = self._shown()
+        delivery.send_package(v, smtp=self.smtp, confirmed="Correo 1", with_docx=True)
+        self.assertEqual(len(list(self.sent[0].iter_attachments())), 4)
+
+    def test_telegram_review_shows_every_pdf(self):
+        _, shown = self._shown()
+        self.assertEqual(shown["files"], ["cv-juan-munoz.pdf", "cover-letter.pdf"])
+        self.assertEqual(shown["media_lines"].count("MEDIA:"), 2)
+        self.assertIn("Correo 1", shown["ask_user"])
+
+    def test_no_email_before_telegram_review_and_confirmation(self):
+        v = self._version()
+        res = delivery.send_package(v, smtp=self.smtp, confirmed="Correo 1")
+        self.assertEqual(res["status"], "not_sent"); self.assertIn("Telegram", res["reason"])
+        delivery.show(v)
+        for msg in (None, "Aprobado 1", "Prepara la oferta 1"):
+            self.assertEqual(delivery.send_package(v, smtp=self.smtp, confirmed=msg)["status"], "not_sent")
+        self.assertEqual(self.sent, [])
+        self.assertEqual(delivery.send_package(v, smtp=self.smtp, confirmed="Mándalo a mi correo")["status"], "sent")
+
+    def test_confirmation_for_another_offer_is_refused(self):
+        v, _ = self._shown()
+        self.assertEqual(delivery.send_package(v, smtp=self.smtp, confirmed="Correo 99")["status"], "not_sent")
+
+    def test_document_without_pdf_is_refused(self):
+        v = self._version()
+        (v / "cover-letter.pdf").unlink()
+        self.assertIn("cover-letter", delivery.show(v)["reason"])
+
     def test_not_fit_package_is_marked_draft(self):
-        res = delivery.send_package(self._version(ready=False), smtp=self.smtp)
+        v, _ = self._shown(ready=False)
+        res = delivery.send_package(v, smtp=self.smtp, confirmed="Correo 1")
         self.assertFalse(res["ready"]); self.assertTrue(self.sent[0]["Subject"].startswith("Application Draft"))
 
     def test_unpublished_folder_is_refused(self):

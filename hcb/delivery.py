@@ -1,8 +1,11 @@
 """Package delivery by e-mail (P-10 D-P10-2). No LLM.
 
-After the Writer and Recruiter rounds, the PM runs `bin/hcb deliver-email --folder <published vN>`: one e-mail
-to the user with the documents attached and a short Spanish summary (verdict, send readiness, A-H fit,
-missing facts). The user always submits the application; this only puts the package in his inbox.
+Review first, e-mail second (the user, 2026-11-25): after the Writer and Recruiter rounds the PM runs
+`bin/hcb package-show --folder <published vN>`, which lists every document as a PDF for Telegram (MEDIA lines)
+and records `package_shown`. The user checks them there, asks for changes if needed, and only when he writes
+«Correo <ID>» the PM runs `bin/hcb deliver-email --folder <vN> --confirmed "<his message>"`. The code refuses
+the e-mail without a Telegram review of that version and without that confirmation. One e-mail, only to the
+user, with every document as a PDF (DOCX only with --with-docx). The user always submits the application.
 """
 from __future__ import annotations
 
@@ -35,13 +38,71 @@ def split_application(label: str) -> tuple[str, str]:
     return role, company.strip()
 
 
-def documents(folder: Path) -> list[Path]:
-    """PDF first (to read on the phone), then DOCX (to edit or upload), in DOC_ORDER."""
+def documents(folder: Path, with_docx: bool = False) -> list[Path]:
+    """Every document as a PDF, in DOC_ORDER (then DOCX only when asked). A document that exists only as DOCX
+    (or md/html) has no PDF: that is an error, never a silent omission."""
     out = []
-    for ext in ("pdf", "docx"):
+    for ext in ("pdf", "docx") if with_docx else ("pdf",):
         for stem in DOC_ORDER:
             out += sorted(p for p in folder.glob(f"{stem}*.{ext}") if p.is_file())
     return out
+
+
+def missing_pdfs(folder: Path) -> list[str]:
+    """Documents of the version (docx/md) whose PDF is missing."""
+    stems = {p.stem for stem in DOC_ORDER for ext in ("docx", "md") for p in folder.glob(f"{stem}*.{ext}")}
+    return sorted(s for s in stems if not (folder / f"{s}.pdf").is_file())
+
+
+def _vkey(folder: Path, man: dict) -> str:
+    return str(man.get("version_id") or Path(folder).resolve())
+
+
+def _ref_of(folder: Path, man: dict) -> str:
+    return str(man.get("opportunity_ref") or folder.parent.parent.name)
+
+
+def show(folder) -> dict:
+    """The Telegram review step: every PDF as a MEDIA line, recorded as shown for this version."""
+    from . import state
+    folder = Path(folder).resolve()
+    man = _load(folder / "manifest.json")
+    if not man:
+        return {"status": "not_shown", "reason": "not a published version (manifest.json missing)"}
+    miss = missing_pdfs(folder)
+    if miss:
+        return {"status": "not_shown", "reason": "documents without PDF: " + ", ".join(miss)}
+    docs = documents(folder)
+    if not docs:
+        return {"status": "not_shown", "reason": "no PDF in the version folder"}
+    ref = _ref_of(folder, man)
+    state.event("package_shown", ref=ref, version_id=man.get("version_id"), version_key=_vkey(folder, man),
+                folder=str(folder),
+                files=[d.name for d in docs])
+    media = "\n".join(f"MEDIA:{d}" for d in docs)
+    return {"status": "shown", "ref": ref, "version_id": man.get("version_id"), "files": [d.name for d in docs],
+            "media_lines": media,
+            "ask_user": f"Revisa los documentos. Si quieres cambios: «Cambios {ref}: ...». "
+                        f"Cuando estén bien, escribe «Correo {ref}» y te los mando a tu correo en PDF."}
+
+
+def check_confirmation(folder: Path, man: dict, confirmed: str | None) -> str | None:
+    """None if the e-mail may go; otherwise the reason it may not."""
+    from . import commands, state
+    ref = _ref_of(folder, man)
+    shown = [e for e in state._read("events.jsonl") if e.get("kind") == "package_shown"
+             and e.get("version_key") == _vkey(folder, man)]
+    if not shown:
+        return (f"version {man.get('version_id') or folder.name} was not shown in Telegram first: run bin/hcb package-show "
+                f"--folder <vN> and wait for «Correo {ref}»")
+    if not confirmed:
+        return f"needs the user's confirmation: --confirmed \"<his message, e.g. Correo {ref}>\""
+    p = commands.parse(confirmed)
+    if p.get("intent") != "email_package":
+        return f"the message {confirmed[:80]!r} is not an e-mail confirmation (expected «Correo {ref}»)"
+    if p.get("ref") and str(p["ref"]) != ref:
+        return f"the confirmation is for offer {p['ref']}, this version is offer {ref}"
+    return None
 
 
 def _latest_review(prep: Path, version_label: str) -> dict | None:
@@ -51,7 +112,7 @@ def _latest_review(prep: Path, version_label: str) -> dict | None:
 
 
 def compose(folder: Path, review: dict | None = None, fit: str | None = None, url: str | None = None,
-            title: str | None = None, company: str | None = None) -> dict:
+            title: str | None = None, company: str | None = None, with_docx: bool = False) -> dict:
     folder = Path(folder)
     man = _load(folder / "manifest.json")
     if not man:
@@ -62,9 +123,12 @@ def compose(folder: Path, review: dict | None = None, fit: str | None = None, ur
     review = review if review is not None else _latest_review(folder.parent, man.get("version_label", ""))
     readiness = (review or {}).get("send_readiness")
     ready = readiness == "ready_for_human_review"
-    docs = documents(folder)
+    miss = missing_pdfs(folder)
+    if miss:
+        raise ValueError("documents without PDF: " + ", ".join(miss))
+    docs = documents(folder, with_docx)
     if not docs:
-        raise ValueError("no PDF or DOCX in the version folder")
+        raise ValueError("no PDF in the version folder")
     subject = (f"Application Ready: {title} | {company}" if ready
                else f"Application Draft, needs your input: {title} | {company}")
     lines = [f"{title}", f"{company}"]
@@ -99,10 +163,16 @@ def compose(folder: Path, review: dict | None = None, fit: str | None = None, ur
 
 
 def send_package(folder, review_path=None, fit=None, url=None, title=None, company=None,
-                 resend=False, dry_run=False, smtp=None) -> dict:
+                 resend=False, dry_run=False, smtp=None, confirmed=None, with_docx=False) -> dict:
     review = _load(Path(review_path)) if review_path else None
+    folder = Path(folder).resolve()
+    man = _load(folder / "manifest.json")
+    if man and not dry_run:
+        why = check_confirmation(folder, man, confirmed)
+        if why:
+            return {"status": "not_sent", "reason": why}
     try:
-        m = compose(Path(folder), review, fit, url, title, company)
+        m = compose(folder, review, fit, url, title, company, with_docx)
     except ValueError as e:
         return {"status": "not_sent", "reason": str(e)}
     res = mailer.send(m["key"], m["subject"], m["body"], m["attachments"], what="application_package",

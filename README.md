@@ -33,7 +33,7 @@ the decisions.
 | When | What happens | Where you see it |
 |---|---|---|
 | Mon-Fri 07:30 / 12:30 / 16:30 | The **Job Hunter** sweeps approved job boards, employer pages and the job-alert e-mails (read-only mailbox, links never opened), skips what it has seen, discards out-of-scope titles, ranks the rest by alignment with the target roles | Telegram: **Top 3** with a *Prepare Docs* button, then the other offers best to worst (silent when nothing is new) |
-| On a button tap | The **Writer** builds a CV and cover letter from the fact bank only; the **Recruiter** reviews them in a separate context (up to 3 rounds, deterministic verdict gates) | Telegram confirmation, then the package (PDF/DOCX) by e-mail, only to the user's own address |
+| On a button tap | The **Writer** builds a CV and cover letter from the fact bank only; the **Recruiter** reviews them in a separate context (up to 3 rounds, deterministic verdict gates) | The package as PDFs in Telegram for the user to review; by e-mail (all PDFs, only to the user's own address) only after he writes «Correo <ID>» |
 | Friday 18:00 | The **Research Agent** reviews the local market; the PM closes expired offers and flags follow-ups | Input for Saturday |
 | Saturday 08:00 | Weekly report (max 3 pages) | PDF by e-mail, notice in Telegram |
 | Daily 03:00 | Encrypted backup of the private data and the database, verified before old copies are pruned | Local archive |
