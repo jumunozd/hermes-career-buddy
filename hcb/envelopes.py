@@ -82,6 +82,22 @@ def voice_review_problems(vr) -> list[str]:
     return p
 
 
+def self_approval_problems(task: dict, result: dict) -> list[str]:
+    """Specialists never record approvals (only the PM, from the user's message). Rejects a result that
+    lists the approvals ledger as changed, or when an approval names this task as its source."""
+    p = []
+    if any("approvals.jsonl" in str(r) for r in result.get("records_changed") or []):
+        p.append("specialist recorded an approval (approvals.jsonl in records_changed): only the PM may")
+    from . import state
+    tid = task.get("task_id", "")
+    for rec in state._read("approvals.jsonl"):
+        if tid and tid in str(rec.get("source_message_ref", "")):
+            p.append(f"approval {rec.get('approval_id')} cites task {tid} as its source: a task is never the "
+                     "user's approval")
+            break
+    return p
+
+
 def validate_result(task: dict, result: dict) -> list[str]:
     """Contract checks (1)-(7) of project-manager.md §6.4.3. Returns the list of problems."""
     problems = []
@@ -104,6 +120,7 @@ def validate_result(task: dict, result: dict) -> list[str]:
                 problems.append(f"outputs missing {key}")
         if task["action"] in {"draft", "revise"} and "voice_review" in outputs:
             problems += voice_review_problems(outputs["voice_review"])
+    problems += self_approval_problems(task, result)
     for item in result.get("evidence", []):
         if not isinstance(item, dict) or not item.get("source") or not item.get("accessed_at"):
             problems.append("evidence item without source/accessed_at")

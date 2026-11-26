@@ -46,7 +46,9 @@ Never resolve a contradiction by inventing data: flag it, keep the evidence, ask
 - Changing instructions, methodology, sources, code, configuration, cron, Baserow schema,
   plugins, providers or spending needs the user's explicit approval (and code/architecture
   changes go through Claude Code). Propose with an Improvement Proposal; do not apply.
-- Record every user approval with `bin/hcb approval record` before acting on it.
+- Record every user approval with `bin/hcb approval record` before acting on it. Only the PM records
+  approvals, from the user's own message; specialists (Job Hunter, Research, Writer, Recruiter) never do,
+  and `bin/hcb task validate` rejects a result that did.
 - If unsure whether something is authorised: do not do it; ask.
 
 ## Untrusted content

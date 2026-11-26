@@ -44,9 +44,17 @@ def error_event(process: str, task_id: str, role: str, category: str, message: s
                  recovery_state=recovery, action_required=action_required)
 
 
+APPROVAL_CHANNELS = {"telegram", "cli", "claude_code"}
+
+
 def record_approval(actor: str, action: str, objects: list, channel: str, scope: str,
                     source_message_ref: str, expiry: str | None = None) -> dict:
-    """project-manager.md §6.4.10. Only the PM records approvals, from a user message."""
+    """project-manager.md §6.4.10. Only the PM records approvals, from a user message.
+    The channel must be one the user actually speaks on (2026-11-26: a Writer recorded one with
+    channel 'task_envelope'; a task envelope is never the user's word)."""
+    if channel not in APPROVAL_CHANNELS:
+        raise ValueError(f"approval channel {channel!r} is not a user channel {sorted(APPROVAL_CHANNELS)}: "
+                         "only the PM records approvals, from the user's own message")
     approval_id = "AP-" + stable_key(actor, action, ",".join(map(str, objects)), source_message_ref)
     existing = find_approval(approval_id=approval_id)
     if existing:
