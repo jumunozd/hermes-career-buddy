@@ -1,7 +1,7 @@
 ---
 name: hcb-writer
 description: Career Buddy Writer: tailored CV and cover letter
-version: 1.5.0
+version: 1.6.0
 metadata:
   hermes:
     tags: [career, cv, cover-letter, writing]
@@ -39,8 +39,9 @@ Never for a user conversation, never to send anything.
 14. **AI skills in every CV (the user, 2026-11-25: "me puede diferenciar del resto").** Units and credentials
     marked `always_include` are IN for every role, operational ones too. For the AI items: (a) a PROJECTS entry
     (one line, `projects_position: after_experience` unless the role is about systems/automation) from
-    `hermes_career_buddy_multiagent`, worded "Directs ... human-centred AI automation ..." (never "built",
-    "developed", "coded"); (b) the Anthropic AI credentials in CERTIFICATION, name copied literally; (c) where
+    `hermes_career_buddy_multiagent`, named with its `project_name_display` ("Hermes | Intelligent Process
+    Automation System") and worded from its claim ("Designed and implemented ..."; never "coded",
+    "programmed"; the 74% always as "estimated", with "over 10 hours per week"); (b) the Anthropic AI credentials in CERTIFICATION, name copied literally; (c) where
     the Skills budget allows, one Skills group with the literal tools (e.g. "AI tools: Claude | Claude Code |
     Hermes Agent"). Keep it to these lines: it supports the role, it does not take it over. `bin/hcb engine run`
     fails (`hcb always_include`) if any of them is missing.
@@ -49,6 +50,10 @@ Never for a user conversation, never to send anything.
     role's vocabulary with the Industrial Engineering background in the Summary's first sentence), 14
     bullets, thematic headings and context lines from facts, numbers with their base, contact line 2 from
     identity. `hcb style` in `bin/hcb engine run` fails the CV if the title, background or contact line is off.
+16. **Positioning (the user, 2026-11-26): `identity.positioning_principle`.** The user is an Industrial Engineer
+    amplified by AI, not an AI developer. Title, Summary and experience lead with industrial engineering or
+    the role's vocabulary; AI is a supporting line that shows business impact, operational efficiency and
+    human-centred innovation, never technical complexity (no models, frameworks, prompts or coding talk).
 
 ## Procedure (`draft`; writer.md §4.1 WR-01..WR-10)
 1. **Intake.** Check the envelope: `approval_scope` contains `prepare_only`, the payload has the

@@ -66,7 +66,8 @@ True when the ad asks for an engineering degree, an Engineer/Analyst/Project Eng
 analysis. Then:
 - `true` -> `professional_title_branch: credential-led`; header line 2 = `professional_identity`
   ("Industrial Engineer"); capability line = 3-4 specialities (e.g. Project Engineering | Reliability |
-  Process Improvement | AI Automation).
+  Process Improvement | Process Automation): industrial engineering first, AI never the headline
+  (`identity.positioning_principle`).
 - `false` (Officer, Coordinator, Administrator, Assistant, Technician) -> `capability-led`; header line 2 in
   the role's own vocabulary (e.g. "Project Documentation and Administration"), so he does not look
   overqualified; the Summary's FIRST sentence names the background ("... with an Industrial Engineering

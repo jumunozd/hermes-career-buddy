@@ -19,7 +19,8 @@ SOURCES = ["facts/identity.yaml", "facts/roles.yaml", "facts/prohibitions.yaml",
            "facts/credentials.yaml", "facts/evidence.yaml"]
 # Evidence keys already shown in the headline row, or pure provenance with no writing value.
 _EV_SKIP = {"id", "role", "claim", "metrics", "capabilities", "match_depth_default", "status",
-            "source", "confirmed_from_vault", "dashboard_content_source"}
+            "source", "confirmed_from_vault", "dashboard_content_source",
+            "pending_metrics"}  # unverified numbers never reach the Writer
 _ROLE_SKIP = {"id", "title_on_documents", "employer_display", "display_dates", "block", "referee"}
 
 
