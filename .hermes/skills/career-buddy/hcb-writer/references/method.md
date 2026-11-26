@@ -90,7 +90,7 @@ The page 2 running header and footer repeat header line 2.
   `projects_position: after_experience` (the default; `before_experience` only when the role itself is about
   systems or automation, with the reason in targets.yaml).
 - Content, chosen by relevance to the vacancy: Hermes Career Buddy is always there (a real, working project;
-  `project_name_display`, rule 14); engineering projects (`project_*` cards: plant design, REP law, solar
+  name `project_name_display`, tag `project_tag_display`, rule 14); engineering projects (`project_*` cards: plant design, REP law, solar
   trees, dLab NOBI) only when relevant (§2 step 4). One entry per project, one line each.
 - Business achievements stay in PROFESSIONAL EXPERIENCE under their employer: never move a result from any
   employer role into Selected Projects. fit.py fails a project that cites employer evidence.
