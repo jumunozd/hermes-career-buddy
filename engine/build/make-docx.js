@@ -131,14 +131,14 @@ function buildCv() {
   // P-9 D-P9-2: projects section (evidence without an employer), before or after experience.
   const projects = () => {
     if (!(C.projects && C.projects.length)) return;
-    kids.push(...sectionHeading(C.projects_heading || "Projects"));
+    kids.push(...sectionHeading(C.projects_heading || "Selected Projects"));
     C.projects.forEach((pr) => {
       kids.push(new Paragraph({ spacing: { before: 120, after: 20 }, keepNext: true,
         children: [bodyRun(pr.name + (pr.tag ? " | " : ""), { bold: true }), bodyRun((pr.tag || "") + "  "), bodyRun(pr.dates || "")] }));
       kids.push(bullet(null, pr.line));
     });
   };
-  if ((C.projects_position || "before_experience") === "before_experience") projects();
+  if (C.projects_position === "before_experience") projects();
   const { headingFor } = require("./order");
   if (!C.experience_headings) kids.push(...sectionHeading("Professional Experience"));
   C.experience.forEach((r, ri) => {
@@ -178,7 +178,7 @@ function buildCv() {
     });
   });
 
-  if (C.projects_position === "after_experience") projects();
+  if ((C.projects_position || "after_experience") === "after_experience") projects();
   kids.push(...sectionHeading("Education"));
   C.education.forEach((e) => kids.push(bullet(null, e)));
 

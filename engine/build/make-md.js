@@ -26,14 +26,14 @@ function cvMd() {
   L.push("---", "");
   const projMd = () => {
     if (!(C.projects && C.projects.length)) return;
-    L.push(`## ${(C.projects_heading || "Projects").toUpperCase()}`, "");
+    L.push(`## ${(C.projects_heading || "Selected Projects").toUpperCase()}`, "");
     C.projects.forEach((p) => {
       L.push(`**${p.name}${p.tag ? " |" : ""}** ${p.tag || ""} ${p.dates || ""}`.trim());
       L.push(`- ${p.line}`, "");
     });
     L.push("---", "");
   };
-  if ((C.projects_position || "before_experience") === "before_experience") projMd();
+  if (C.projects_position === "before_experience") projMd();
   if (!C.experience_headings) L.push("## PROFESSIONAL EXPERIENCE", "");
   C.experience.forEach((r, ri) => {
     const h = require("./order").headingFor(C, ri);
@@ -49,7 +49,7 @@ function cvMd() {
     L.push("");
   });
   L.push("---", "");
-  if (C.projects_position === "after_experience") projMd();
+  if ((C.projects_position || "after_experience") === "after_experience") projMd();
   L.push("## EDUCATION", "");
   C.education.forEach((e) => L.push(`- ${e}`));
   L.push("", "---", "", "## CERTIFICATION", "");

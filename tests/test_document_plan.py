@@ -1,6 +1,7 @@
 """The Engine renders exactly the plan's documents: a cover letter only when the ad asks for one
 (the user, 2026-11-26: a Tasmanian State Service ad wanted CV + Short Form Application and forbade a letter)."""
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -17,6 +18,14 @@ STATEMENT = {"title": ["Short Form Application"], "criteria": [{"heading": "Why"
 TSS_PLAN = {"documents": [{"type": "cv"}, {"type": "selection_criteria", "display_name": "Short Form Application"}],
             "forbidden_documents": ["cover_letter"]}
 STANDARD_PLAN = {"documents": [{"type": "cv"}, {"type": "cover_letter"}]}
+
+
+def _env():
+    """Node runs from engine/: make a relative HCB_PRIVATE_DIR (CI demo persona) absolute."""
+    e = dict(os.environ)
+    if e.get("HCB_PRIVATE_DIR"):
+        e["HCB_PRIVATE_DIR"] = str(Path(e["HCB_PRIVATE_DIR"]).resolve())
+    return e
 
 
 class DocumentPlanCheck(unittest.TestCase):
@@ -66,7 +75,7 @@ class RenderOnlyPlannedDocuments(unittest.TestCase):
             cpath.write_text(json.dumps(content(statement=STATEMENT)))
             for script in ("make-md.js", "make-html.js"):
                 r = subprocess.run(["node", str(BUILD / script), str(cpath)], capture_output=True, text=True,
-                                   cwd=BUILD.parent)
+                                   cwd=BUILD.parent, env=_env())
                 self.assertEqual(r.returncode, 0, r.stderr)
             self.assertFalse((folder / "cover-letter.md").exists())
             self.assertFalse((folder / "cover-letter.html").exists())

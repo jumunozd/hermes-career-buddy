@@ -42,8 +42,8 @@ Facts are NOT here: they are in `facts-digest.md` (generated). Never write a fac
    "University project, assessed and approved by Engineers Australia", "Aug 2024"; dLab: "dLab innovation
    programme, UDD", 2018). Relevance is the only rule: include a project ONLY when it is relevant to the
    position (record the reason in `selection_reason`); no quota, and none at all when no card fits. Write the
-   contribution only as the card's `individual_contribution` allows (dLab: "as part of a team of five",
-   no personal role); external figures stay "cited in the study". Engineers Australia narratives are the
+   contribution only as the card's `individual_contribution` allows (dLab: "as the team's engineer
+   responsible for the technical and financial work"); external figures stay "cited in the study". Engineers Australia narratives are the
    source: the card may say "assessed by Engineers Australia" only together with the skills assessment.
 5. **Transversal pattern** (The user, 2026-10-21): find the ad sentence describing the ideal candidate;
    if a pattern repeats across several roles in the facts, it goes in the capability line, the first
@@ -84,6 +84,18 @@ analysis. Then:
   overqualified; the Summary's FIRST sentence names the background ("... with an Industrial Engineering
   background ..."). The degree is never hidden (the user, 2026-11-25).
 The page 2 running header and footer repeat header line 2.
+
+## 3b. Selected Projects (the user, 2026-11-26)
+- Section heading "Selected Projects" (`projects_heading` default), placed on page 2 by default:
+  `projects_position: after_experience` (the default; `before_experience` only when the role itself is about
+  systems or automation, with the reason in targets.yaml).
+- Content, chosen by relevance to the vacancy: Hermes Career Buddy is always there (a real, working project;
+  `project_name_display`, rule 14); engineering projects (`project_*` cards: plant design, REP law, solar
+  trees, dLab NOBI) only when relevant (§2 step 4). One entry per project, one line each.
+- Business achievements stay in PROFESSIONAL EXPERIENCE under their employer: never move a result from any
+  employer role into Selected Projects. fit.py fails a project that cites employer evidence.
+- Positioning: Industrial Engineer empowered by AI, not an AI Developer. Hermes reads as process automation
+  that saves time and keeps a human in control, never as model or software development.
 
 ## 4a. Style v3 (the user, 2026-11-25, after comparing with his Engineer 2026 CV): overrides 4 where they differ
 - Fill two pages: `bullet_budget: 14` in targets.yaml (fit.py v2 default); the page break is placed by fit.py

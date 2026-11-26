@@ -1,7 +1,7 @@
 ---
 name: hcb-writer
 description: Career Buddy Writer: tailored CV and cover letter
-version: 1.8.1
+version: 1.9.0
 metadata:
   hermes:
     tags: [career, cv, cover-letter, writing]
@@ -40,7 +40,7 @@ Never for a user conversation, never to send anything.
 13. In each tailored CV, explicitly name the target employer in the Professional Summary and connect the candidate's evidenced contribution to this particular role. Use the employer name from the ad, natural wording and the existing Summary word budget; do not add generic praise, invented company facts or implied employment. If the employer is undisclosed, flag the missing name rather than inventing it. User-approved instruction: AP-d34110f2cb69f30f884c9a4c. Apply on new drafts and revisions; never overwrite a published version.
 14. **AI skills in every CV (the user, 2026-11-25: "me puede diferenciar del resto").** Units and credentials
     marked `always_include` are IN for every role, operational ones too. For the AI items: (a) a PROJECTS entry
-    (one line, `projects_position: after_experience` unless the role is about systems/automation) from
+    (one line, in "Selected Projects" on page 2, method.md §3b) from
     `hermes_career_buddy_multiagent`, named with its `project_name_display` ("Hermes | Intelligent Process
     Automation System") and worded from its claim ("Designed and implemented ..."; never "coded",
     "programmed"; the 74% always as "estimated", with "over 10 hours per week"); (b) the Anthropic AI credentials in CERTIFICATION, name copied literally; (c) where
@@ -53,7 +53,7 @@ Never for a user conversation, never to send anything.
     bullets, thematic headings and context lines from facts, numbers with their base, contact line 2 from
     identity. `hcb style` in `bin/hcb engine run` fails the CV if the title, background or contact line is off.
 16. **Positioning (the user, 2026-11-26): `identity.positioning_principle`.** The user is an Industrial Engineer
-    amplified by AI, not an AI developer. Title, Summary and experience lead with industrial engineering or
+    empowered by AI, not an AI Developer (never "AI Developer/Engineer"). Title, Summary and experience lead with industrial engineering or
     the role's vocabulary; AI is a supporting line that shows business impact, operational efficiency and
     human-centred innovation, never technical complexity (no models, frameworks, prompts or coding talk).
 

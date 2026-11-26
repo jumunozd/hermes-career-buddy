@@ -201,11 +201,11 @@ function cvHtml() {
   const p1Jobs = C.experience.slice(0, cut).map((r, i) => job(r, i)).join("");
   const p2Jobs = C.experience.slice(cut).map((r, i) => job(r, i + cut)).join("");
   const proj = (C.projects && C.projects.length)
-    ? `<section><h2>${esc(C.projects_heading || "Projects")}</h2>` + C.projects.map((p) =>
+    ? `<section><h2>${esc(C.projects_heading || "Selected Projects")}</h2>` + C.projects.map((p) =>
         `<div class="job"><div class="role"><span><span class="t">${esc(p.name)}${p.tag ? " |" : ""}</span> ${esc(p.tag || "")}</span>`
         + `<span class="d">${esc(p.dates || "")}</span></div><ul><li>${rich(p.line)}</li></ul></div>`).join("") + `</section>` : "";
-  const projBefore = (C.projects_position || "before_experience") === "before_experience" ? proj : "";
-  const projAfter = C.projects_position === "after_experience" ? proj : "";
+  const projBefore = C.projects_position === "before_experience" ? proj : "";
+  const projAfter = (C.projects_position || "after_experience") === "after_experience" ? proj : "";
   const expOpen = C.experience_headings ? "" : "<h2>Professional Experience</h2>";
 
   const refs = C.referees && C.referees.length

@@ -481,7 +481,7 @@ anteriores). Donde chocan, v2 gana para los CV v2.
    (`[{text, proves_with: [ids de evidencia o credencial]}]`) y cada cifra se repite mas abajo con su base;
    `fit.py` falla si una afirmacion o cifra no tiene prueba.
 2. **Seccion PROJECTS** para evidencia sin empleador (`role: null`): `projects: [{name, tag, line, dates,
-   evidence}]`, `projects_heading`, `projects_position: before_experience | after_experience`. Respeta el
+   evidence}]`, `projects_heading` (default "Selected Projects"), `projects_position: after_experience` (default, page 2) | `before_experience`. Solo evidencia sin empleador o academica: los logros de empresa van en la experiencia. Respeta el
    `attribution_rule` de cada item (por ejemplo nunca "coded" si el codigo lo escribio una IA).
 3. **Encabezados por tema** opcionales: `experience_headings: {origin: ..., australia: ..., international: ...}`.
    El orden de bloques (origen primero) no cambia. Cada encabezado contiene la palabra EXPERIENCE (ATS).

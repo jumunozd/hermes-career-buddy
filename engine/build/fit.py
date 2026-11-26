@@ -236,6 +236,8 @@ def check_v2(C, folder):
     ev = {e["id"]: e for e in yaml.safe_load((FACTS / "evidence.yaml").read_text(encoding="utf-8"))["evidence"]}
     creds = yaml.safe_load((FACTS / "credentials.yaml").read_text(encoding="utf-8"))["credentials"]
     roles = {r["title_on_documents"]: r for r in yaml.safe_load((FACTS / "roles.yaml").read_text(encoding="utf-8"))["roles"]}
+    EMPLOYER_ROLES = {r["id"] for r in yaml.safe_load((FACTS / "roles.yaml").read_text(encoding="utf-8"))["roles"]
+                      if r.get("title_on_documents")}   # roles with a job title; education entries have none
     ident = yaml.safe_load((FACTS / "identity.yaml").read_text(encoding="utf-8")) or {}
     bullets = all_bullets(C)
     body_texts = [b.get("headline", "") + " " + b["text"] for b in bullets] + [p.get("line", "") for p in C.get("projects", [])] \
@@ -247,6 +249,9 @@ def check_v2(C, folder):
         for i in p.get("evidence", []):
             if i not in ev or ev[i].get("status") != "verified":
                 errors.append(f"Project '{p.get('name')}': '{i}' no es evidencia verificada en facts/.")
+            elif ev[i].get("role") in EMPLOYER_ROLES:
+                errors.append(f"Project '{p.get('name')}': '{i}' es un logro de {ev[i]['role']} (empleador): va en la "
+                              "experiencia profesional, no en Selected Projects (the user, 2026-11-26).")
     # D-P9-1b: every summary claim is proven below
     claims = C.get("summary_claims")
     if not claims:
