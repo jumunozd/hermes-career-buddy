@@ -45,6 +45,21 @@
 | R-10 | Master §3.8 / D-PM-05: no normal weekday alerts; Job Hunter Mon-Fri only | **User decision D-USR-01 (2026-11-13) prevails:** Job Hunter runs every day; ONE daily digest of new offers with the ad's phone/contact so the user applies within 24 h and calls the same day himself. The system still never contacts anyone (D-PM-03 unchanged). Implemented in `hcb/daily.py`, `config/system.yaml daily_alert`, PM skill §D0, Job Hunter step 6b, `config/schedules.yaml`. **Updated by D-USR-02 (2026-11-15, AP-19d0bccce02dfb3ac2b94a8c):** back to Monday-Friday as Master §3.8, but 3 runs (07:30, 12:30, 16:30 Hobart); each offer announced once; silent empty runs |
 | R-09 | Engine `out/` contains prior real applications | Used only as format models for the Writer; claims always re-derived from `facts/` |
 
+## 3a. Writing workflow: voice layers (2026-11-26)
+Every CV, letter and statement goes through, in this order:
+`generate -> Soul Voice -> Humanizer -> fact verification -> Recruiter`.
+
+| Layer | What it is | Enforced by |
+|---|---|---|
+| Soul Voice | the user's approved voice skill (`candidate-writing-voice`) plus the Writer voice pack | `voice_review` required in the Writer result (`bin/hcb task validate`) |
+| Humanizer | the bundled Hermes `humanizer` skill, calibrated on the Soul Voice files; Soul Voice prevails | same `voice_review` record, in order |
+| Fact verification | Engine checks + claim map, run after the voice layers so rewording cannot bypass them | `bin/hcb engine run`, incl. `hcb naturalness` (AI-tell lint) |
+| Recruiter | fresh-context review; rubric Q10 rates natural and authentic language | `bin/hcb review` rejects a review without Q10 |
+
+Diagnosis that led to it: the voice skill was a soft instruction inside the drafting step, the load step said
+"load the pack, nothing else", and the result's `voice` field was optional; no recent Writer result showed
+the voice files were read, and nothing checked the language for AI tells.
+
 ## 4. Trust boundaries
 
 ```

@@ -1,7 +1,7 @@
 ---
 name: hcb-writer
 description: Career Buddy Writer: tailored CV and cover letter
-version: 1.7.0
+version: 1.8.0
 metadata:
   hermes:
     tags: [career, cv, cover-letter, writing]
@@ -65,7 +65,10 @@ Never for a user conversation, never to send anything.
 4. **Load the Writer pack, nothing else** (it replaces reading the fact and rule files one by one):
    run `bin/hcb writer-pack --check`; if not fresh, run `bin/hcb writer-pack` (regenerates from
    `private/facts/`). Then, once each: `skill_view(name="hcb-writer", path="references/method.md")`,
-   `references/voice.md`, `references/schemas.md`, and read_file `private/writer/facts-digest.md`. Do NOT
+   `references/voice.md`, `references/voice-layers.md`, `references/schemas.md`, and read_file
+   `private/writer/facts-digest.md`. The voice layers are part of the pack, not extra reading: also load,
+   once each, `skill_view(name="candidate-writing-voice")` with its `references/voice-profile.md`,
+   `references/decisions.md`, `references/examples.md`, and `skill_view(name="humanizer")`. Do NOT
    open `engine/rules/`, `private/voice/`, `private/facts/` or `private/AGENTS.md` with read_file: the
    pack is their distilled, fingerprinted form. Exception: if the pack lacks a rule you need, read only
    that section and report the gap in `issues` so the pack can be improved.
@@ -75,14 +78,19 @@ Never for a user conversation, never to send anything.
    then `bin/hcb engine select --folder <folder>` -> `evidence-log.md` + `selection.json`.
 7. **Draft `content.json`** per `schemas.md` from the IN units of `selection.json` only, following
    method.md §3-6 (Chile first, sales thesis, 7-second budgets, letter layers). Every bullet cites its
-   evidence ids; titles/orgs/dates/contact copied from `facts-digest.md`. Voice: `voice.md`, plus
-   `candidate-writing-voice` `references/voice-profile.md` and `references/decisions.md`, each loaded ONCE
-   per task (not per document). CV bullets stay concise and factual.
+   evidence ids; titles/orgs/dates/contact copied from `facts-digest.md`. CV bullets stay concise and factual.
    Only the documents in the plan: put `letter` in content.json ONLY when the plan has a `cover_letter`
    (omit it when the ad forbids one, e.g. a Tasmanian State Service Short Form Application); put `statement`
    when the plan has `selection_criteria`. `hcb document_plan` in `bin/hcb engine run` fails any mismatch.
    Keywords with status `letter` need a letter: with no letter, use `cv` or `demonstrated`.
-8. **Run the Engine checks:** `bin/hcb engine run --folder <folder>` (fit.py renders md/html/docx/pdf,
+7a. **Soul Voice pass (mandatory, `voice-layers.md` pass 2).** Rewrite the draft against the user's
+   approved voice (`candidate-writing-voice` profile, decisions, examples; `voice.md` sector rules). One final
+   version. Soul Voice prevails over Humanizer.
+7b. **Humanizer pass (mandatory, `voice-layers.md` pass 3).** Run the `humanizer` skill on the letter,
+   statement and Summary (all 34 patterns plus its final anti-AI pass) and on the bullets (listed patterns),
+   using the Soul Voice files as its calibration sample. It removes tells; it never adds facts or overrides
+   Soul Voice. Record both passes in `outputs.voice_review`.
+8. **Fact verification, run the Engine checks:** `bin/hcb engine run --folder <folder>` (fit.py renders md/html/docx/pdf,
    then verify.py, ats_check.py, keyword_check.py). Nothing is delivered with a failure: fix the
    content and rerun. `engine_unchanged` must be true.
 9. **Claim map.** For every factual sentence: `claim_id`, document, location, text, `jae_ref`
@@ -100,7 +108,8 @@ Never for a user conversation, never to send anything.
 ## Procedure (`revise`)
 - Recruiter round: `bin/hcb engine` new version from the previous inputs (copy targets.yaml,
   content.json, selection.json into the new folder), apply each Feedback Item
-  (`applied | partially_applied | not_applied` with reason), rerun step 8-11.
+  (`applied | partially_applied | not_applied` with reason), rerun steps 7a-11 (the voice layers run
+  again on every changed paragraph; `voice_review` is required for a revision too).
 - User change: modify only the affected sections; keep a diff note of unchanged sections.
 
 ## Procedure (`outreach_draft`; P-2, only after `Prepara contacto [ID]`)
@@ -128,5 +137,6 @@ Never for a user conversation, never to send anything.
 ## Verification
 `bin/hcb engine run` all_passed true and engine_unchanged true; manifest.json present with hashes;
 every claim has a jae_ref that exists in `facts/`; documents exactly match the plan;
-`send_status: blocked_until_user_sends`.
+`send_status: blocked_until_user_sends`; `outputs.voice_review` records Soul Voice then Humanizer, in that
+order, before the fact checks; `hcb naturalness` has no failures.
 Before publication, check that the AI project and AI credentials are present (rule 14), and that the Professional Summary names the target employer and states a concise, evidence-backed connection to the role (or records an undisclosed-employer exception).

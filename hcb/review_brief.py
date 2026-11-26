@@ -56,6 +56,17 @@ def _load(folder: Path, name: str, default):
     return json.loads(p.read_text()) if p.exists() else default
 
 
+def _naturalness(folder: Path) -> dict:
+    """Code-side AI-tell report (hcb.naturalness) for Q10; recomputed so it never depends on the Writer."""
+    from . import naturalness
+    cp = folder / "content.json"
+    if not cp.exists():
+        return {}
+    import json
+    r = naturalness.analyse(json.loads(cp.read_text(encoding="utf-8")))
+    return {"fails": r["fails"][:10], "warns": r["warns"][:15], "counts": r["counts"]}
+
+
 def build(folder: Path, ad_file: Path, round_no: int, previous: Path | None = None,
           previous_review: Path | None = None) -> dict:
     folder, ad_file = Path(folder).resolve(), Path(ad_file).resolve()
@@ -113,6 +124,7 @@ def build(folder: Path, ad_file: Path, round_no: int, previous: Path | None = No
         "advertisement_lines": [{"ref": f"AD:L{i}", "text": t} for i, t in enumerate(ad_lines, 1) if t.strip()],
         "documents": docs_text,
         "documents_plan": {"basis": plan.get("basis"), "documents": plan.get("documents")},
+        "naturalness_check": _naturalness(folder),   # Recruiter Q10 (the user, 2026-11-26)
         "writer_requirements_coverage": [{k: r.get(k) for k in ("req_ref", "kind", "status", "claim_ids", "transfer_bridge")}
                                          for r in coverage],
         "claims": compact,

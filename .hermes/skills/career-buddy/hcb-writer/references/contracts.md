@@ -21,6 +21,11 @@ validation:
   engine_pipeline: {all_passed, engine_unchanged}
   self_review: [{dimension, rating: meets|improvable|fails, blocking, note}]
 voice: {skill_version: "1.0.0", decisions_version_read, mode: single_version|variants}
+voice_review:                   # REQUIRED for draft and revise (voice-layers.md; task validate rejects it missing)
+  order: [generate, soul_voice, humanizer, fact_verification]
+  soul_voice: {loaded: [voice-profile.md, decisions.md, examples.md, voice.md], sector, changes: [text]}
+  humanizer: {loaded: true, patterns_fixed: [n], overridden_by_soul_voice: [text], remaining_tells: text}
+  naturalness_check: "pass | warnings: N"
 send_status: blocked_until_user_sends
 ```
 

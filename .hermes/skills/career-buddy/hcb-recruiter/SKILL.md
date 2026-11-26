@@ -60,7 +60,13 @@ or `interview_docs` (Flow B, after a confirmed interview).
    the letter) · Q4 Chile experience explained in the panel's terms · Q5 Australian CV structure ·
    Q6 clear en-AU C1 (blocking only if errors hide essential evidence) · Q7 concrete results when the Engine
    has them · Q8 company alignment (`undeterminable` without company sources) · Q9 no text aimed at
-   automated systems (blocking). Style preferences outside the rubric are `optional` feedback only.
+   automated systems (blocking) · Q10 natural and authentic language (the user, 2026-11-26; always rated):
+   read the documents as the hiring panel would. Does it sound like a real person with this history (the
+   brief's `naturalness_check` lists the code-detected AI tells: banned words, "not X but Y", maxim endings,
+   generic closers, repeated openers, no human layer), or like generic AI-polished text? `fails` and
+   blocking when the letter or Summary would read as AI-written or interchangeable with any candidate;
+   `improvable` for isolated tells, each as an `important` feedback item quoting the phrase and the fix.
+   Never ask for invented personal details. Style preferences outside the rubric are `optional` feedback only.
 7. **Rounds 2-3:** use `delta_vs_previous` and `previous_review`: re-check only changed sections and their
    claims; carry over unchanged statuses with `carried_from: <previous review_id>`.
 8. **Verdict is computed:** write the Review Result JSON (keys in `references/contracts.md`) to

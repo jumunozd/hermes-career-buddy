@@ -21,8 +21,9 @@ REQUIRED_OUTPUTS = {
     "verify_vigencia": ["vigencia", "verified_at", "documents_required"],
     "market_review": ["digest_for_report", "no_relevant_changes"],
     "research_dossier": ["information_level"],
-    "draft": ["version", "documents_plan", "documents", "claim_evidence_map", "requirements_coverage", "validation"],
-    "revise": ["version", "documents", "claim_evidence_map", "feedback_applied", "validation"],
+    "draft": ["version", "documents_plan", "documents", "claim_evidence_map", "requirements_coverage", "validation",
+              "voice_review"],
+    "revise": ["version", "documents", "claim_evidence_map", "feedback_applied", "validation", "voice_review"],
     "review": ["verdict", "principal_reasons", "gates", "claims", "feedback", "send_readiness"],
     "interview_docs": ["interview_preparation_brief", "voice_interview_simulation"],
     # P-2 (AP-ea17780d4846d8c90c64ab11)
@@ -60,6 +61,27 @@ def make_task(role: str, action: str, input_refs: list[str], cycle_or_version: s
     }
 
 
+VOICE_ORDER = ["generate", "soul_voice", "humanizer", "fact_verification"]
+SOUL_VOICE_FILES = {"voice-profile.md", "decisions.md", "voice.md"}
+
+
+def voice_review_problems(vr) -> list[str]:
+    """Writer voice layers (the user, 2026-11-26): generate -> Soul Voice -> Humanizer -> fact checks."""
+    if not isinstance(vr, dict):
+        return ["voice_review is not an object"]
+    p = []
+    if vr.get("order") != VOICE_ORDER:
+        p.append(f"voice_review.order must be {VOICE_ORDER}")
+    loaded = {str(x).split("/")[-1] for x in ((vr.get("soul_voice") or {}).get("loaded") or [])}
+    if not SOUL_VOICE_FILES <= loaded:
+        p.append(f"voice_review.soul_voice.loaded misses {sorted(SOUL_VOICE_FILES - loaded)}")
+    if (vr.get("humanizer") or {}).get("loaded") is not True:
+        p.append("voice_review.humanizer.loaded must be true (skill_view humanizer)")
+    if not str(vr.get("naturalness_check") or "").strip():
+        p.append("voice_review.naturalness_check missing")
+    return p
+
+
 def validate_result(task: dict, result: dict) -> list[str]:
     """Contract checks (1)-(7) of project-manager.md §6.4.3. Returns the list of problems."""
     problems = []
@@ -80,6 +102,8 @@ def validate_result(task: dict, result: dict) -> list[str]:
         for key in REQUIRED_OUTPUTS.get(task["action"], []):
             if key not in outputs:
                 problems.append(f"outputs missing {key}")
+        if task["action"] in {"draft", "revise"} and "voice_review" in outputs:
+            problems += voice_review_problems(outputs["voice_review"])
     for item in result.get("evidence", []):
         if not isinstance(item, dict) or not item.get("source") or not item.get("accessed_at"):
             problems.append("evidence item without source/accessed_at")

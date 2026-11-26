@@ -226,6 +226,8 @@ def run_pipeline(folder: Path, statement: bool = False) -> dict:
     steps.append(document_plan_check(folder))
     steps.append(always_include_check(folder))
     steps.append(style_check(folder))
+    from . import naturalness
+    steps.append(naturalness.check_folder(folder))   # after Soul Voice + Humanizer (the user, 2026-11-26)
     after = fingerprint()
     ok = all(s["exit"] == 0 for s in steps)
     result = {"folder": str(folder), "steps": steps, "all_passed": ok,
