@@ -34,6 +34,17 @@ Facts are NOT here: they are in `facts-digest.md` (generated). Never write a fac
 4. Write `targets.yaml` (`schemas.md`): ad -> capability tags with weight 1-3; then
    `bin/hcb engine select --folder <v>`. Draft ONLY from IN units of `selection.json`. A tie (EMPATE)
    is resolved with `prefer`/`exclude` plus a written reason. To use an OUT unit, add it to `prefer`.
+   **University and dLab projects (the user, 2026-11-26).** Academic units never enter on score alone
+   (academic cap 0). Read the `project_*` cards in the facts digest (objective, methodology,
+   individual_contribution, results, `select_when`, `units`): when the ad matches a card's `select_when`,
+   put 1-3 of that card's units in `prefer` with the reason, and present them as ONE entry in PROJECTS
+   (`name` from the card; `tag` and `dates` from the card's `display_tag` and `display_dates`, e.g.
+   "University project, assessed and approved by Engineers Australia", "Aug 2024"; dLab: "dLab innovation
+   programme, UDD", 2018). Relevance is the only rule: include a project ONLY when it is relevant to the
+   position (record the reason in `selection_reason`); no quota, and none at all when no card fits. Write the
+   contribution only as the card's `individual_contribution` allows (dLab: "as part of a team of five",
+   no personal role); external figures stay "cited in the study". Engineers Australia narratives are the
+   source: the card may say "assessed by Engineers Australia" only together with the skills assessment.
 5. **Transversal pattern** (The user, 2026-10-21): find the ad sentence describing the ideal candidate;
    if a pattern repeats across several roles in the facts, it goes in the capability line, the first
    Summary sentence and the letter thesis. Count roles honestly ("in three different businesses").
