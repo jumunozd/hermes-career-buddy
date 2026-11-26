@@ -292,5 +292,7 @@ function statementHtml() {
 
 fs.writeFileSync(path.join(OUT, `${CV_STEM}.html`), cvHtml());
 if (C.statement) fs.writeFileSync(path.join(OUT, "selection-criteria.html"), statementHtml());
-fs.writeFileSync(path.join(OUT, "cover-letter.html"), letterHtml());
+// The letter exists only when the document plan asks for one (content.json `letter`); some ads forbid it.
+if (C.letter) fs.writeFileSync(path.join(OUT, "cover-letter.html"), letterHtml());
+else fs.rmSync(path.join(OUT, "cover-letter.html"), { force: true });
 console.log("HTML escrito en", OUT);

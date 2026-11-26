@@ -1,7 +1,7 @@
 ---
 name: hcb-writer
 description: Career Buddy Writer: tailored CV and cover letter
-version: 1.6.0
+version: 1.7.0
 metadata:
   hermes:
     tags: [career, cv, cover-letter, writing]
@@ -78,6 +78,10 @@ Never for a user conversation, never to send anything.
    evidence ids; titles/orgs/dates/contact copied from `facts-digest.md`. Voice: `voice.md`, plus
    `candidate-writing-voice` `references/voice-profile.md` and `references/decisions.md`, each loaded ONCE
    per task (not per document). CV bullets stay concise and factual.
+   Only the documents in the plan: put `letter` in content.json ONLY when the plan has a `cover_letter`
+   (omit it when the ad forbids one, e.g. a Tasmanian State Service Short Form Application); put `statement`
+   when the plan has `selection_criteria`. `hcb document_plan` in `bin/hcb engine run` fails any mismatch.
+   Keywords with status `letter` need a letter: with no letter, use `cv` or `demonstrated`.
 8. **Run the Engine checks:** `bin/hcb engine run --folder <folder>` (fit.py renders md/html/docx/pdf,
    then verify.py, ats_check.py, keyword_check.py). Nothing is delivered with a failure: fix the
    content and rerun. `engine_unchanged` must be true.

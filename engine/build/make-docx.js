@@ -278,7 +278,9 @@ function buildStatement() {
 }
 
 (async () => {
-  const docs = [[buildCv(), `${CV_STEM}.docx`], [buildLetter(), "cover-letter.docx"]];
+  const docs = [[buildCv(), `${CV_STEM}.docx`]];
+  if (C.letter) docs.push([buildLetter(), "cover-letter.docx"]);   // only when planned
+  else fs.rmSync(path.join(OUT, "cover-letter.docx"), { force: true });
   if (C.statement) docs.push([buildStatement(), "selection-criteria.docx"]);
   for (const [doc, name] of docs) {
     const buf = await Packer.toBuffer(doc);

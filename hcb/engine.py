@@ -88,6 +88,38 @@ def _cited(obj) -> set[str]:
     return out
 
 
+LETTER_TYPES = {"cover_letter", "letter"}
+STATEMENT_TYPES = {"selection_criteria", "statement", "short_form_application"}
+
+
+def document_plan_check(folder: Path) -> dict:
+    """The documents rendered must be exactly the plan's: a letter only when the ad asks for one (never
+    when it is forbidden), the statement when planned (the user, 2026-11-26: TSS Short Form, no letter)."""
+    pp, cp = folder / "document-plan.json", folder / "content.json"
+    if not pp.exists():
+        return {"cmd": "hcb document_plan", "exit": 0, "stdout_tail": "no document-plan.json: skipped",
+                "stderr_tail": ""}
+    try:
+        plan = json.loads(pp.read_text(encoding="utf-8"))
+        C = json.loads(cp.read_text(encoding="utf-8"))
+    except Exception as e:  # noqa: BLE001
+        return {"cmd": "hcb document_plan", "exit": 1, "stdout_tail": f"cannot check: {e}", "stderr_tail": ""}
+    types = {str(d.get("type", "")).lower() for d in plan.get("documents", [])}
+    forbidden = {str(x).lower() for x in plan.get("forbidden_documents") or []}
+    errs = []
+    if C.get("letter") and (types.isdisjoint(LETTER_TYPES) or forbidden & LETTER_TYPES):
+        errs.append("content.json has a `letter` but the plan does not ask for one"
+                    + (" (the ad forbids it)" if forbidden & LETTER_TYPES else "") + ": remove `letter`.")
+    if not C.get("letter") and types & LETTER_TYPES:
+        errs.append("the plan asks for a cover letter and content.json has no `letter`.")
+    if not C.get("statement") and types & STATEMENT_TYPES:
+        errs.append("the plan asks for a statement / Short Form Application and content.json has no `statement`.")
+    if (folder / "cover-letter.pdf").exists() and not C.get("letter"):
+        errs.append("a cover-letter.pdf is in the folder but no letter is planned.")
+    msg = "\n".join(errs) or f"documents match the plan: {sorted(types)}"
+    return {"cmd": "hcb document_plan", "exit": 1 if errs else 0, "stdout_tail": msg, "stderr_tail": ""}
+
+
 def always_include_check(folder: Path) -> dict:
     """Facts the candidate asked to appear in EVERY CV (`always_include: true` in private/facts evidence and
     credentials; the user, 2026-11-25: his AI skills differentiate him) must be in content.json: evidence cited
@@ -185,12 +217,13 @@ def run_pipeline(folder: Path, statement: bool = False) -> dict:
     docs = [str(folder / f"{cv_stem()}.md")]
     if (folder / "cover-letter.md").exists():
         docs.append(str(folder / "cover-letter.md"))
-    if statement and (folder / "selection-criteria.md").exists():
+    if (folder / "selection-criteria.md").exists():   # rendered only when content.json has `statement`
         docs.append(str(folder / "selection-criteria.md"))
     steps.append(_run([ENGINE_PY, str(b / "verify.py"), *docs], root))
     steps.append(_run([ENGINE_PY, str(b / "ats_check.py"), str(folder)], root))
     if (folder / "targets.yaml").exists():
         steps.append(_run([ENGINE_PY, str(b / "keyword_check.py"), str(folder)], root))
+    steps.append(document_plan_check(folder))
     steps.append(always_include_check(folder))
     steps.append(style_check(folder))
     after = fingerprint()

@@ -209,6 +209,7 @@ def print_pdf(folder):
     for name in (CV_STEM, "cover-letter", "selection-criteria"):
         html = folder / f"{name}.html"
         if not html.exists():
+            (folder / f"{name}.pdf").unlink(missing_ok=True)   # no stale PDF of a document not in the plan
             continue
         subprocess.run([CHROME, "--headless", "--disable-gpu", "--no-pdf-header-footer",
                         f"--print-to-pdf={folder / (name + '.pdf')}", f"file://{html}"],
@@ -433,7 +434,7 @@ def main():
     counts = print_pdf(folder)
     for p in pages:
         print(f"CV pagina {p['page']}: ocupa {p['used']} de {p['limit']} px, libre {p['limit'] - p['used']} px")
-    print(f"PDF: CV {counts.get(CV_STEM)} paginas, carta {counts.get('cover-letter')} pagina(s)"
+    print(f"PDF: CV {counts.get(CV_STEM)} paginas, carta {counts.get('cover-letter', 'sin carta')} pagina(s)"
           + (f", selection criteria {counts['selection-criteria']} pagina(s)" if "selection-criteria" in counts else ""))
     if counts.get(CV_STEM, 0) > 2 or counts.get("cover-letter", 0) > 1:
         sys.exit("[FAIL FIT] El PDF excede el limite de paginas.")

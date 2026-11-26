@@ -152,7 +152,8 @@ def check(keywords, cv, letter, facts, selected, banned, bolds=()):
         elif st == "letter":
             where = "carta" if any(appears(f, letter) for f in forms) else ""
             if not where:
-                fails.append(("MISSING", f"'{kw}' esta marcada `letter` y no aparece literal en la carta."))
+                fails.append(("MISSING", f"'{kw}' esta marcada `letter` y no aparece literal en la carta."
+                              if letter else f"'{kw}' esta marcada `letter` pero el plan no tiene carta: usa `cv` o `demonstrated`."))
             if k.get("weight", 1) >= 3:
                 warns.append(f"'{kw}' es criterio central y solo va en la carta.")
         else:

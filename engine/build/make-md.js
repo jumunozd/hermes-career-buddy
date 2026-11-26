@@ -84,5 +84,6 @@ function statementMd() {
 
 fs.writeFileSync(path.join(OUT, `${CV_STEM}.md`), cvMd());
 if (C.statement) fs.writeFileSync(path.join(OUT, "selection-criteria.md"), statementMd());
-fs.writeFileSync(path.join(OUT, "cover-letter.md"), letterMd());
+if (C.letter) fs.writeFileSync(path.join(OUT, "cover-letter.md"), letterMd());   // only when planned
+else fs.rmSync(path.join(OUT, "cover-letter.md"), { force: true });
 console.log("Markdown escrito en", OUT);
