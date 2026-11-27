@@ -229,7 +229,9 @@ class AlignmentRanking(unittest.TestCase):
         self.assertEqual(rules.classify(d)["destination"], "seen_log:generic_admin_without_strategic_entry")
         d["entry_signal"] = "Strategic Entry"
         self.assertEqual(rules.classify(d)["ranking_category"], "exploratoria")
-        self.assertEqual(rules.classify(self.rec(5, None, "none", "needs_review"))["ranking_category"], "pendiente_revision")
+        nr = self.rec(5, None, "none", "needs_review")       # a real needs_review: duties read (2026-11-27)
+        nr["target_match"]["bridge_categories"] = ["improvement", "planning", "operations_technical"]
+        self.assertEqual(rules.classify(nr)["ranking_category"], "pendiente_revision")
         out = self.rec(6, "B"); out["in_zone"] = False
         self.assertEqual(rules.classify(out)["rule"], "C1")       # zone and legal gates still first
 

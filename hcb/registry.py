@@ -78,7 +78,7 @@ def kept(o: dict, today: str, exclude_titles: set[str] = frozenset()) -> bool:
         return False
     if targets.excluded_by_title(t):
         return False
-    if any(targets._stem_rx(w).search(fold(t)) for w in targets.catalogue().get("out_of_field_titles", [])):
+    if targets.out_of_field(t):
         return False
     portal = daily.portal_card(o)
     if "revisar funciones" in (daily._review_reason(o) or "") and not portal:

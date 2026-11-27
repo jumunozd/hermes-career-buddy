@@ -155,6 +155,18 @@ out_of_field_titles: [nurse, midwife, teacher, teaching, educator, doctor, physi
   trades assistant, materials tester,   # the user, 2026-11-17: Trades Assistant and Construction Materials Tester do not fit
   maintainer, dispatcher, customer service]   # the user, 2026-11-17: Mechanical Maintainer, Emergency Medical Dispatcher, Customer Service out
 
+# The user, 2026-11-27 (Structural / Geotechnical Engineer at Pitt & Sherry reached the digest): other engineering
+# branches. A title with one of these words and no catalogue match is another profession (never read, never shown).
+# A catalogue title (Process, Project, Production, Quality, Reliability Engineer, ...) is never excluded by this list.
+# mechanical, chemical and environmental are left out on purpose: they are sometimes plant or maintenance roles.
+# Applied only to titles that also say engineer/engineering ("Transport and Logistics Officer" is not excluded) and
+# share no other target word ("Project Management & Civil Engineering" is still read);
+# geologist and surveyor are professions on their own.
+other_engineering_disciplines: [structural, geotechnical, civil, hydraulic, electrical, electronic, electronics,
+  software, telecommunication, telecommunications, mining, petroleum, building services, fire, traffic, transport,
+  pavement, bridge, acoustic]
+other_engineering_professions: [geologist, surveyor]
+
 # RT-14: a catalogue title with clinical / laboratory / classroom duties goes to "revisar funciones".
 field_mismatch_signals: [patholog, specimen, laborator, clinical, patient, nursing, medical scientist,
   phlebotom, ward, theatre, classroom, curriculum, students]

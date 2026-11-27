@@ -143,9 +143,8 @@ _ORDER = {"principal": 0, "exploratoria": 1, "pendiente_revision": 2}
 def _discarded_field(o: dict) -> bool:
     """Same discard rules as the Baserow registration (registry.kept): another profession in the title, or a
     catalogue title whose duties belong to another field ("revisar funciones")."""
-    from .targets import _stem_rx, catalogue
-    t = fold(o.get("title", ""))
-    if any(_stem_rx(w).search(t) for w in catalogue().get("out_of_field_titles", [])):
+    from .targets import out_of_field
+    if out_of_field(o.get("title", "")):
         return True
     return "revisar funciones" in (_review_reason(o) or "") and not portal_card(o)
 
@@ -191,8 +190,8 @@ def _fallback_items(now: datetime, already_notified: set) -> tuple[list, dict | 
             continue
         if "revisar funciones" in (_review_reason(o) or ""):   # duties from another field: never a "best" offer
             continue
-        from .targets import catalogue, _stem_rx
-        if any(_stem_rx(w).search(fold(o["title"])) for w in catalogue().get("out_of_field_titles", [])):
+        from .targets import out_of_field
+        if out_of_field(o["title"]):
             continue
         pool.append(o)
     pool.sort(key=alignment_key)

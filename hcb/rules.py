@@ -57,6 +57,13 @@ def _classify_by_alignment(o: dict, out) -> dict:
     hint = tm.get("category_hint")
     if hint == "out_of_catalogue" or (tm.get("match") == "none" and hint != "needs_review"):
         return out("A0", "seen_log:out_of_catalogue")          # never shown in the digest (P-4 §4)
+    if tm.get("match") == "none":
+        # The user, 2026-11-27: an agent's "needs_review" never keeps a title outside the catalogue when the title
+        # is another profession, or when nothing ties it to the targets: no aligned word and no duties read.
+        from . import targets
+        title = o.get("title") or o.get("job_title") or tm.get("title") or ""
+        if targets.out_of_field(title) or (not targets.aligned_tokens(title) and not tm.get("bridge_categories")):
+            return out("A0", "seen_log:out_of_catalogue")
     if o.get("ah_recommendation") == "DO_NOT_RECOMMEND" and not o.get("ah_override"):
         return out("A1", "baserow", "fuera_de_ranking")        # known knockout (only after a preparation A-H)
     if hint == "needs_review":

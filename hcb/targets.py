@@ -109,6 +109,9 @@ _GENERIC_TOKENS = {"officer", "assistant", "coordinator", "administrator", "supp
                    "manager", "work", "site", "administration", "admin", "junior", "senior", "graduate", "trainee", "lead", "and", "of"}
 
 
+_BARE_ENGINEER = {"engineer", "engineering", "engineers"}
+
+
 def aligned_tokens(title: str) -> list[str]:
     """Distinctive words shared with the catalogue titles (analyst, project, maintenance, ...)."""
     vocab = set()
@@ -119,7 +122,24 @@ def aligned_tokens(title: str) -> list[str]:
     vocab -= _GENERIC_TOKENS
     vocab |= {"analysis", "analytics", "improvement", "engineering", "planning", "scheduling", "procurement",
               "logistics", "reliability", "projects"}
-    return sorted(set(re.findall(r"[a-z]+", fold(title or ""))) & vocab)
+    hits = set(re.findall(r"[a-z]+", fold(title or ""))) & vocab
+    # "Structural Engineer" shares only "engineer" with the catalogue: like a single-word catalogue title
+    # (match_title, RT-13), the bare word never counts as alignment (the user, 2026-11-27).
+    return [] if hits <= _BARE_ENGINEER else sorted(hits)
+
+
+def out_of_field(title: str) -> list[str]:
+    """Words that make the title another profession: `out_of_field_titles` always, and
+    `other_engineering_disciplines` (structural, geotechnical, civil, ...) when the title is not in the catalogue
+    (the user, 2026-11-27)."""
+    ft = fold(title or "")
+    hits = [w for w in catalogue().get("out_of_field_titles", []) if _stem_rx(w).search(ft)]
+    if match_title(title or "")["group"] is None:
+        # a title that also shares a target word ("Project Management & Civil Engineering") is read, not dropped
+        if re.search(r"\bengineer(s|ing)?\b", ft) and not aligned_tokens(title):
+            hits += [w for w in catalogue().get("other_engineering_disciplines", []) if _stem_rx(w).search(ft)]
+        hits += [w for w in catalogue().get("other_engineering_professions", []) if _stem_rx(w).search(ft)]
+    return hits
 
 
 def excluded_by_title(title: str) -> list[str]:
@@ -137,7 +157,7 @@ def triage(title: str, location: str, strict: bool = False) -> dict:
     z = zone_status(location)
     m = match_title(title)
     ft = fold(title or "")
-    out_field = [w for w in catalogue().get("out_of_field_titles", []) if _stem_rx(w).search(ft)]
+    out_field = out_of_field(title)
     excl = excluded_by_title(title)
     if z["status"] == "out_of_zone":
         read, why, dest = False, "out of zone (C1)", "seen_log:out_of_scope_zone"
@@ -163,7 +183,10 @@ def assess(title: str, ad_text: str) -> dict:
     technical = "operations_technical" in s["bridge_categories"]
     admin_heavy = n_admin >= 3 and n_admin > sum(len(v) for k, v in s["bridge"].items() if k in ("improvement", "planning"))
     g = m["group"]
-    if g is None:
+    other = out_of_field(title) if g is None else []
+    if other:
+        hint, why = "out_of_catalogue", f"title is another profession ({', '.join(other)})"
+    elif g is None:
         hint, why = ("needs_review" if n_bridge >= 3 and improvement else "out_of_catalogue",
                      "title not in catalogue; decide from duties" if n_bridge >= 3 and improvement else "title and duties outside the catalogue")
     elif g == "E":
