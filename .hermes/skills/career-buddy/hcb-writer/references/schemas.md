@@ -103,7 +103,10 @@ competitive-selection warehousing working-under-pressure rapid-adaptation system
     "signature": "The user"
   },
   "statement": {"date": "...", "title": ["Selection Criteria Statement", "<role>, <team>, <employer>"],
-                "criteria": [{"heading": "<literal criterion>", "text": "120-180 words"}]}
+                "criteria": [{"heading": "<literal criterion>", "text": "220-300 words, STAR order",
+                              "star": {"situation": "<excerpt of text>", "task": "<excerpt>",
+                                       "action": "<excerpt>", "result": "<excerpt>"}},
+                             {"heading": "Highly regarded", "block": "highly_regarded", "text": "short"}]}
 }
 ```
 `statement` only when the portal asks. Experience order is imposed by the Engine (`order.js`), but

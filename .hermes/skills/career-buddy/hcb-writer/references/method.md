@@ -104,7 +104,7 @@ The page 2 running header and footer repeat header line 2.
   Improvement Experience (origin), Australian Site & Operations Experience, Additional International
   Experience. Leave `experience_headings` and each role `context` unset: the renderer fills them from facts.
 - Numbers first: prefer units with magnitudes (e.g. `ecyt_keepa_buildvsbuy` + `ecyt_keepa_operating_cost`:
-  A$10,000 avoided, A$300 to A$75 monthly). A derived percentage always carries its base in the same
+  A$10,000 saved, A$300 to A$75 monthly). A derived percentage always carries its base in the same
   sentence (D-P9-4), e.g. "about 96% (from around 120 to 5 minutes)". Never repeat "approximately" in one
   bullet; never reuse the Summary sentence word for word in a bullet.
 - Reductions read as percentages first, in the CV AND the letter (the user, 2026-11-25): "cut monthly server
@@ -169,11 +169,24 @@ Five layers, max one page, first sentence short, no sentence over ~35 words:
 - Letter and CV never contradict any fact, figure or phrase. The letter compresses, never stretches.
 
 ## 6. Selection criteria statement (only when the portal asks)
-`statement` block in content.json. Without portal format: separate doc, max 2 pages, one heading per
-criterion with the LITERAL ad wording, 120-180 words per criterion, a short final block for
-"highly regarded". Each criterion = one concrete case (situation, action, result), first person,
-Chile first, may use evidence the CV left out. Degree criterion: the Engineers Australia skills
+`statement` block in content.json. Without portal format: separate doc, **two pages recommended** (the user,
+2026-11-27: the space shows competence in detail; max 2, or the plan's `max_pages`). Aim for about
+900-1,100 words in total (~535 words fill one page); one heading per criterion with the LITERAL ad wording,
+about 220-300 words per criterion, and a short final block for "highly regarded" (`block: highly_regarded`).
+Fill the space with more real detail from facts (context, what you did, how, the measured result), never
+with padding or repetition.
+**STAR, always** (the user, 2026-11-27). Each criterion = one concrete case written in this order:
+- **Situation**: where, when, the context and the problem (one or two sentences).
+- **Task**: what was yours to solve or deliver.
+- **Action**: what YOU did, step by step, first person (the longest part; "I", team work named as team work).
+- **Result**: the outcome with its magnitude from facts, and, in one sentence, what it means for this role.
+Write it as prose without the labels "Situation:" etc. In content.json each criterion also carries
+`"star": {"situation": "...", "task": "...", "action": "...", "result": "..."}`, each value an excerpt copied
+word for word from its `text`, in that order; `hcb statement` in `bin/hcb engine run` fails a criterion
+without it. Chile first, may use evidence the CV left out. Degree criterion: the Engineers Australia skills
 assessment project (`ea_skills_assessment`), always as team work. Gaps once, in the desirables block.
+When the portal sets a different structure (e.g. a Short Form Application with integrated HOW/WHY), keep its
+headings and still tell every example in STAR order.
 
 ## 7. Verification
 Automatic (must be green before judgement): `bin/hcb engine run --folder <v>` = fit.py + verify.py +

@@ -181,11 +181,14 @@ lo generan los mismos scripts que el CV y la carta (`selection-criteria.md`,
 ```
 
 - **Si el portal no da formato**: documento aparte, maximo 2 paginas (lo hace
-  cumplir `build/fit.py`), un titulo por criterio con las palabras LITERALES del
-  aviso, 120 a 180 palabras por criterio, y un bloque final corto para los
-  "highly regarded".
-- **Cada criterio, un caso concreto con resultado** (situacion, accion,
-  resultado), en primera persona. Mismas reglas de hechos que la carta: todo de
+  cumplir `build/fit.py`) y **se recomiendan las 2** (usuario, 2026-11-27: el
+  espacio muestra la competencia con detalle): unas 900 a 1.100 palabras, un
+  titulo por criterio con las palabras LITERALES del aviso, 220 a 300 palabras
+  por criterio, y un bloque final corto para los "highly regarded".
+- **Cada criterio, un caso STAR** (usuario, 2026-11-27): Situation, Task, Action,
+  Result, en ese orden, en prosa y en primera persona. Cada criterio lleva
+  `star` con los cuatro fragmentos copiados del texto; `hcb statement` falla sin
+  eso y avisa si el statement no usa sus dos paginas. Mismas reglas de hechos que la carta: todo de
   `facts/`, sin contradecir ninguna cifra del CV ni de la carta.
 - **Chile primero**, Australia como prueba de que se transfirio. Igual que el CV.
 - **Usar la evidencia que el CV dejo fuera** por la regla de los 7 segundos: el

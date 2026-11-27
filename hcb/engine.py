@@ -120,6 +120,72 @@ def document_plan_check(folder: Path) -> dict:
     return {"cmd": "hcb document_plan", "exit": 1 if errs else 0, "stdout_tail": msg, "stderr_tail": ""}
 
 
+STAR_PARTS = ("situation", "task", "action", "result")
+STATEMENT_MIN_WORDS = 800      # ~535 words fill one page; two pages hold ~1,000-1,100 (o-28ef02 v3)
+STAR_EXEMPT_BLOCKS = {"highly_regarded", "desirables"}
+
+
+def _norm(s: str) -> str:
+    return re.sub(r"\s+", " ", str(s or "").replace("**", "")).strip().lower()
+
+
+def statement_check(folder: Path) -> dict:
+    """Selection criteria (the user, 2026-11-27): every criterion follows STAR and the statement uses its two
+    pages. Each criterion carries `star: {situation, task, action, result}`, each part an excerpt copied word for
+    word from its `text`, in that order (FAIL otherwise). A short highly-regarded block (`block:
+    highly_regarded`) is exempt. Under STATEMENT_MIN_WORDS, or under the plan's max_pages, is a WARN."""
+    cp = folder / "content.json"
+    try:
+        C = json.loads(cp.read_text(encoding="utf-8"))
+    except Exception as e:  # noqa: BLE001
+        return {"cmd": "hcb statement", "exit": 1, "stdout_tail": f"cannot check: {e}", "stderr_tail": ""}
+    S = C.get("statement")
+    if not S:
+        return {"cmd": "hcb statement", "exit": 0, "stdout_tail": "no statement: skipped", "stderr_tail": ""}
+    fails, warns, words = [], [], 0
+    for i, c in enumerate(S.get("criteria") or [], 1):
+        text, head = _norm(c.get("text")), str(c.get("heading", ""))[:60]
+        words += len(text.split())
+        if str(c.get("block", "")).lower() in STAR_EXEMPT_BLOCKS:
+            continue
+        star = c.get("star")
+        if not isinstance(star, dict):
+            fails.append(f"criterion {i} '{head}': missing `star` {{situation, task, action, result}} (STAR).")
+            continue
+        pos = 0
+        for part in STAR_PARTS:
+            frag = _norm(star.get(part))
+            if not frag:
+                fails.append(f"criterion {i} '{head}': STAR `{part}` is empty.")
+                continue
+            at = text.find(frag, pos)
+            if at < 0:
+                where = "is not in the text" if frag not in text else "is out of STAR order"
+                fails.append(f"criterion {i} '{head}': STAR `{part}` {where} (copy it word for word from `text`).")
+                continue
+            pos = at + len(frag)
+    if words < STATEMENT_MIN_WORDS:
+        warns.append(f"statement has {words} words: two pages are recommended (~{STATEMENT_MIN_WORDS}-1,100 words);"
+                     " add detail to each STAR case from facts, never padding.")
+    pdf = folder / "selection-criteria.pdf"
+    plan_max = None
+    if (folder / "document-plan.json").exists():
+        try:
+            for d in json.loads((folder / "document-plan.json").read_text(encoding="utf-8")).get("documents", []):
+                if str(d.get("type", "")).lower() in STATEMENT_TYPES:
+                    plan_max = (d.get("limits") or {}).get("max_pages")
+        except ValueError:
+            pass
+    if pdf.exists():
+        n = len(re.findall(rb"/Type\s*/Page[^s]", pdf.read_bytes()))
+        if n < (plan_max or 2):
+            warns.append(f"statement PDF is {n} page(s); {plan_max or 2} are allowed and recommended.")
+    lines = [f"[FAIL STATEMENT] {f}" for f in fails] + [f"[WARN STATEMENT] {w}" for w in warns]
+    lines.append(f"STATEMENT: {len(fails)} fallos, {len(warns)} avisos, {words} words.")
+    return {"cmd": "hcb statement", "exit": 1 if fails else 0, "stdout_tail": "\n".join(lines)[-3000:],
+            "stderr_tail": ""}
+
+
 def always_include_check(folder: Path) -> dict:
     """Facts the candidate asked to appear in EVERY CV (`always_include: true` in private/facts evidence and
     credentials; the user, 2026-11-25: his AI skills differentiate him) must be in content.json: evidence cited
@@ -224,6 +290,7 @@ def run_pipeline(folder: Path, statement: bool = False) -> dict:
     if (folder / "targets.yaml").exists():
         steps.append(_run([ENGINE_PY, str(b / "keyword_check.py"), str(folder)], root))
     steps.append(document_plan_check(folder))
+    steps.append(statement_check(folder))
     steps.append(always_include_check(folder))
     steps.append(style_check(folder))
     from . import naturalness

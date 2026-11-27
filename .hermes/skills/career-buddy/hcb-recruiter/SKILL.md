@@ -56,7 +56,8 @@ or `interview_docs` (Flow B, after a confirmed interview).
    bridge in the document, and not a legal gate.
 6. **Quality rubric `rc_rubric` v1** (blocking only where marked):
    Q1 essentials visible in under a minute (blocking) · Q2 each selection criterion answered with a
-   concrete example (blocking if the ad requires criteria) · Q3 specific to this role/company (blocking for
+   concrete example in STAR order, Situation, Task, Action, Result, using the two pages the statement allows
+   (the user, 2026-11-27; blocking if the ad requires criteria) · Q3 specific to this role/company (blocking for
    the letter) · Q4 Chile experience explained in the panel's terms · Q5 Australian CV structure ·
    Q6 clear en-AU C1 (blocking only if errors hide essential evidence) · Q7 concrete results when the Engine
    has them · Q8 company alignment (`undeterminable` without company sources) · Q9 no text aimed at

@@ -1,7 +1,7 @@
 ---
 name: hcb-writer
 description: Career Buddy Writer: tailored CV and cover letter
-version: 1.9.0
+version: 1.10.0
 metadata:
   hermes:
     tags: [career, cv, cover-letter, writing]
@@ -84,6 +84,8 @@ Never for a user conversation, never to send anything.
    Only the documents in the plan: put `letter` in content.json ONLY when the plan has a `cover_letter`
    (omit it when the ad forbids one, e.g. a Tasmanian State Service Short Form Application); put `statement`
    when the plan has `selection_criteria`. `hcb document_plan` in `bin/hcb engine run` fails any mismatch.
+   The statement uses its two pages and tells every criterion in STAR order with a `star` map
+   (method.md §6; `hcb statement` fails without it). Money kept is "saved", never "avoided/avoiding".
    Keywords with status `letter` need a letter: with no letter, use `cv` or `demonstrated`.
 7a. **Soul Voice pass (mandatory, `voice-layers.md` pass 2).** Rewrite the draft against the user's
    approved voice (`candidate-writing-voice` profile, decisions, examples; `voice.md` sector rules). One final

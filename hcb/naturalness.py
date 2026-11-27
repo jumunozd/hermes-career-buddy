@@ -35,6 +35,8 @@ BANNED_PHRASES = [
     "it is worth noting", "it's worth noting", "let me be clear", "make no mistake",
     "not only", "a true testament", "plays a crucial role", "plays a pivotal role",
 ]
+# the user, 2026-11-27: "Avoiding A$10,000" reads unprofessional; money kept is "saved", never "avoided".
+AVOIDED_MONEY = re.compile(r"\bavoid(?:ed|ing|s)?\b[^.]{0,60}?(?:(?:a\$|aud|\$)\s?\d|\d[\d.,]*\s?(?:aud|dollars))", re.I)
 STACKED_OPENERS = ("additionally", "furthermore", "moreover", "in addition", "notably", "importantly")
 HUMAN_MARKERS = ("i noticed", "i found", "i had to", "i worked out", "i learnt", "i learned",
                  "the practical risk", "that taught me", "that mattered", "i realised", "i saw")
@@ -80,6 +82,9 @@ def analyse(C: dict) -> dict:
                 if p in low:
                     counts["banned_phrases"] += 1
                     fails.append(f"{doc}: '{p}' (banned phrase) in: {text[:90]}")
+            if AVOIDED_MONEY.search(text):
+                counts["banned_phrases"] += 1
+                fails.append(f"{doc}: 'avoided/avoiding' with a money figure: write 'saved' instead: {text[:90]}")
             for s in _sentences(text):
                 if s.lower().startswith(STACKED_OPENERS):
                     counts["stacked_connectors"] += 1
