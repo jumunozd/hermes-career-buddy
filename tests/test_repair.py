@@ -174,6 +174,11 @@ class Guard(unittest.TestCase):
         self.assertFalse(self.blocked("execute_code", code="import json; print(json.load(open('hcb/x.json')))"))
         self.assertFalse(self.blocked("read_file", path="hcb/engine.py"))
 
+    def test_guard_code_running_from_a_worktree_still_blocks(self):
+        wt = "/x/private/repairs/R-abc123/worktree"
+        with mock.patch.object(R, "root", lambda: Path(wt)):
+            self.assertTrue(self.blocked("terminal", command="sed -i s/a/b/ hcb/engine.py"))
+
     def test_relative_path_from_another_cwd_is_still_protected(self):
         self.assertIsNotNone(R.guard({"tool_name": "write_file", "cwd": "/tmp",
                                       "tool_input": {"path": "hcb/engine.py"}}))

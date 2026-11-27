@@ -551,7 +551,7 @@ def guard(payload: dict) -> dict | None:
             return _block("Hermes does not launch other coding agents (D-P14-4)")
         if _RESERVED.search(text):
             return _block("only the user approves or seals a repair")
-        if tool == "terminal" and _runs_in_worktree(text, cwd):
+        if tool == "terminal" and _runs_in_worktree(text, payload.get("cwd") or ""):   # the caller's cwd only
             return None
         if _GIT_WRITE.search(text):
             return _block("git changes on the live tree go only through `bin/hcb repair apply`")
