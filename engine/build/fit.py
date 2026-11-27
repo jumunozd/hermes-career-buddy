@@ -264,7 +264,12 @@ def check_v2(C, folder):
     for n in NUM_RX.findall(C.get("professional_summary", "").replace("**", "")):
         if len(re.sub(r"\D", "", n)) >= 2 and n not in body:
             errors.append(f"Summary: la cifra {n} no aparece mas abajo con su base.")
-    # D-P9-4: derived percentages always with base, recomputed when the base is numeric
+    # D-P9-4: derived percentages always with base, recomputed when the base is numeric.
+    # A percentage with no from/to pair is grounded only by a metric phrase of a CITED verified unit, copied
+    # word for word with its qualifier (e.g. "reducing estimated manual processing time by 74%"); the user,
+    # 2026-11-27, AP-742ae1c258af5630b6ceaac4. A dropped qualifier or a changed value still fails.
+    grounded = [str(m).lower() for i in cited if ev.get(i, {}).get("status") == "verified"
+                for m in ev[i].get("metrics") or [] if "%" in str(m)]
     for t in [C.get("professional_summary", "")] + body_texts:
         t = t.replace("**", "")
         for sent in re.split(r"(?<=[.;])\s", t):
@@ -272,7 +277,8 @@ def check_v2(C, folder):
                 pct = float(m.group(1))
                 base = re.search(r"(?:from|\()\s*(?:approximately\s+|around\s+)?(A\$|\$)?([\d,.]+)\s*(?:to|-)\s*(?:approximately\s+|around\s+)?(?:A\$|\$)?([\d,.]+)", sent)
                 in_body_with_base = re.search(re.escape(m.group(0)) + r".{0,80}?(from|\()", body)
-                if not base and not in_body_with_base:
+                phrase_ok = any(m.group(0) in g and g in sent.lower() for g in grounded)
+                if not base and not in_body_with_base and not phrase_ok:
                     errors.append(f"Porcentaje sin su base: '{sent[:70]}'.")
                 elif base:
                     a, b = _num(base.group(2)), _num(base.group(3))
