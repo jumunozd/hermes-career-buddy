@@ -245,8 +245,42 @@ def cmd_prepare_request(a):
     _out(prepare_request.request(a.ref, a.user or ""))
 
 
+def cmd_repair(a):
+    """P-14 self-repair. approve / seal refuse a Hermes tool caller (and the guard hook blocks them)."""
+    from . import repair as R
+    op = a.op
+    if op == "guard":
+        raise SystemExit(R.guard_main())
+    if op == "open":
+        _out(R.open_repair(a.reason or "", a.evidence)); return
+    if op == "seal":
+        _out(R.seal(a.by or "user session")); return
+    if op == "verify":
+        _out(R.verify_seal()); return
+    if op == "list":
+        out = []
+        for d in sorted(R.repairs_dir().glob("R-*")):
+            try:
+                r = R.load(d.name)
+                out.append({k: r.get(k) for k in ("repair_id", "status", "reason", "attempts", "created_at")})
+            except (OSError, ValueError):
+                pass
+        _out(out); return
+    if not a.rid:
+        raise SystemExit("--rid / repair id required")
+    fn = {"status": R.load, "classify": R.classify, "check": R.check, "propose": R.propose, "reject": R.reject,
+          "apply": R.apply, "revert": R.revert}.get(op)
+    if op == "approve":
+        _out(R.approve(a.rid, a.via or "cli", a.user or "user", a.phrase)); return
+    if op == "card":
+        text, kb = R.card(a.rid); _out({"text": text, "keyboard": kb}); return
+    _out(fn(a.rid))
+
+
 def cmd_approval(a):
     from . import state
+    if a.op == "record" and a.action.startswith("repair_"):
+        raise SystemExit("repair approvals are recorded only by `bin/hcb repair approve` (P-14)")
     if a.op == "record":
         _out(state.record_approval("user", a.action, a.objects, a.channel, a.scope, a.source))
     else:
@@ -488,6 +522,13 @@ def main(argv=None):
     x.add_argument("--ref", required=True); x.add_argument("--user"); x.set_defaults(f=cmd_prepare_request)
     x = s.add_parser("report-send", help="send a built weekly report PDF to Telegram (hermes send, no LLM)")
     x.add_argument("--report-id", required=True); x.set_defaults(f=cmd_report_send)
+    x = s.add_parser("repair", help="P-14 self-repair: Hermes proposes, the user approves")
+    x.add_argument("op", choices=["open", "check", "classify", "card", "propose", "approve", "reject", "apply",
+                                  "revert", "status", "list", "seal", "verify", "guard"])
+    x.add_argument("rid", nargs="?"); x.add_argument("--reason"); x.add_argument("--evidence")
+    x.add_argument("--via", choices=["telegram_button", "telegram_phrase", "cli", "claude_code"])
+    x.add_argument("--user"); x.add_argument("--phrase"); x.add_argument("--by")
+    x.set_defaults(f=cmd_repair)
     x = s.add_parser("approval"); x.add_argument("op", choices=["record", "check"]); x.add_argument("--action", required=True)
     x.add_argument("--objects", nargs="*", default=[]); x.add_argument("--channel", default="cli")
     x.add_argument("--scope", default=""); x.add_argument("--source", default="manual"); x.set_defaults(f=cmd_approval)

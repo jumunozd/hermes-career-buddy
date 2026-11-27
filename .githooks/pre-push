@@ -1,0 +1,8 @@
+#!/bin/bash
+# P-14 (2026-11-27): Hermes never pushes. A git process started from a Hermes tool carries HERMES_HOME /
+# HERMES_SESSION_KEY; the user's own terminal and Claude Code do not.
+if [[ -n "${HERMES_SESSION_KEY:-}" || -n "${HERMES_HOME:-}" ]]; then
+  echo "pre-push: Hermes never pushes (P-14). The user pushes from Claude Code or their own terminal." >&2
+  exit 1
+fi
+exit 0

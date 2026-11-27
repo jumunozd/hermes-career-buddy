@@ -170,6 +170,18 @@ def _total_pages(text: str) -> int | None:
     return None
 
 
+def _seal_alert() -> dict | None:
+    """P-14: the search filters are protected code; a change without approval is reported, not hidden."""
+    try:
+        from . import repair
+        if repair.under_test():
+            return None
+        v = repair.verify_seal()
+        return None if v["ok"] else {"changed": v["changed"][:20], "sealed_by": v.get("sealed_by")}
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def sweep(now: datetime, read=None, search=None, mail_messages=None) -> dict:
     """Run the deterministic part of a search. `read(source_id, url)` defaults to `sources.read`;
     `search(query, limit)` is the discovery search (P-12), run only when config discovery.enabled is true."""
@@ -259,6 +271,7 @@ def sweep(now: datetime, read=None, search=None, mail_messages=None) -> dict:
            "needs_agent": needs_agent, "skipped_sources": due.get("skipped", []),
            "next": "Job Hunter: read ONLY the shortlist detail pages (bin/hcb sources read --id --url), "
                    "then targets match / classify / seen add; read needs_agent sources the old way."}
+    out["seal"] = _seal_alert()
     d = project_path("state") / "sweeps"
     d.mkdir(parents=True, exist_ok=True)
     (d / f"sweep-{now:%Y%m%d-%H%M}.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -273,7 +273,8 @@ def run_pipeline(folder: Path, statement: bool = False) -> dict:
     if root in folder.parents or folder == root:
         raise PermissionError("Work folder inside engine/ is not allowed (read-only method).")
     before = fingerprint()
-    steps = []
+    from . import repair
+    steps = [repair.seal_step()]      # P-14: protected files changed without approval stop the run
     b = root / "build"
     if (folder / "targets.yaml").exists() and not (folder / "selection.json").exists():
         steps.append(_run([ENGINE_PY, str(b / "select_evidence.py"), str(folder / "targets.yaml")], root))

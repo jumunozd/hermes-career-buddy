@@ -128,13 +128,29 @@ def build_digest(snapshot: dict, now: datetime, since_hours: int | None = None,
     # One ordering for the digest and the Top 5 (P-4 B): category first, then rules.alignment_key.
     items.sort(key=lambda i: i.pop("_order"))
     out = {"digest_id": f"D-{now.date().isoformat()}", "generated_at": now.isoformat(timespec="seconds"),
-           "window_hours": since_hours, "items": items, "message": render_message(items, now, fallback),
+           "window_hours": since_hours, "items": items, "message": _seal_line() + render_message(items, now, fallback),
            "contact_performed": False, "authorises": "nothing"}
     if items and not fallback and config()["daily_alert"].get("layout") == "top3":
         out["keyboard"] = keyboard_for(items)
     if fallback:
         out["fallback_once"] = fallback
     return out
+
+
+def _seal_line() -> str:
+    """P-14: protected files changed without an approved repair or the user's seal: say so first."""
+    try:
+        from . import repair
+        if repair.under_test():
+            return ""
+        v = repair.verify_seal()
+    except Exception:  # noqa: BLE001
+        return ""
+    if v["ok"]:
+        return ""
+    files = ", ".join(v["changed"][:5]) + (" …" if len(v["changed"]) > 5 else "")
+    return (f"⚠️ Archivos protegidos cambiados sin reparación aprobada: {files}. "
+            "No se preparan documentos hasta que los revises en Claude Code.\n\n")
 
 
 _ORDER = {"principal": 0, "exploratoria": 1, "pendiente_revision": 2}

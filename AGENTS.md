@@ -46,6 +46,10 @@ Never resolve a contradiction by inventing data: flag it, keep the evidence, ask
 - Changing instructions, methodology, sources, code, configuration, cron, Baserow schema,
   plugins, providers or spending needs the user's explicit approval (and code/architecture
   changes go through Claude Code). Propose with an Improvement Proposal; do not apply.
+- Self-repair (P-14): a failing step may be fixed only through `bin/hcb repair` (isolated worktree,
+  test first, the user's approval by button or typed phrase, handled in code). Hermes never writes the
+  live tree, never pushes, never launches another coding agent, never touches the core guards; a
+  `pre_tool_call` hook enforces it and a seal of the protected files detects anything else.
 - Record every user approval with `bin/hcb approval record` before acting on it. Only the PM records
   approvals, from the user's own message; specialists (Job Hunter, Research, Writer, Recruiter) never do,
   and `bin/hcb task validate` rejects a result that did.
