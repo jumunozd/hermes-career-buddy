@@ -1,7 +1,7 @@
 ---
 name: hcb-writer
 description: Career Buddy Writer: tailored CV and cover letter
-version: 1.13.0
+version: 1.14.0
 metadata:
   hermes:
     tags: [career, cv, cover-letter, writing]
@@ -99,6 +99,9 @@ Never for a user conversation, never to send anything.
    when the plan has `selection_criteria`. `hcb document_plan` in `bin/hcb engine run` fails any mismatch.
    The statement uses its two pages and tells every criterion in STAR order with a `star` map
    (method.md §6; `hcb statement` fails without it). Money kept is "saved", never "avoided/avoiding".
+   Missing requirements (2026-11-28): never listed, never apologised for; at most one readiness-to-learn
+   sentence plus one proof of fast learning (`identity.learning_disposition`, method.md §5). `hcb naturalness`
+   fails deficit wording ("remain gaps", "not equivalent", "I lack", "no experience in").
    Keywords with status `letter` need a letter: with no letter, use `cv` or `demonstrated`.
 7a. **Voice pass: Soul Voice + Humanizer in ONE rewrite (mandatory, `voice-layers.md`; P-16).** Rewrite the draft
    once against the combined checklist: the user's approved voice (`candidate-writing-voice`, `voice.md`) and the

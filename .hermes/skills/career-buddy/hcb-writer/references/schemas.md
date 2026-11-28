@@ -99,7 +99,7 @@ competitive-selection warehousing working-under-pressure rapid-adaptation system
       {"text": "Thesis paragraph..."},
       {"text": "Role understanding..."},
       {"heading": "<criterion theme from the ad>", "text": "Explicit claim + proof..."},
-      {"text": "Gap once + closing evidence (max two sentences)..."},
+      {"text": "Optional: readiness to learn one central missing item + proof of fast learning (max two sentences, never a list)..."},
       {"text": "Personal anchor + thanks + availability."}
     ],
     "signoff": "Kind regards,",

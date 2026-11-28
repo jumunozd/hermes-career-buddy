@@ -35,6 +35,11 @@ BANNED_PHRASES = [
     "it is worth noting", "it's worth noting", "let me be clear", "make no mistake",
     "not only", "a true testament", "plays a crucial role", "plays a pivotal role",
 ]
+# the user, 2026-11-28: a letter never lists what is missing or apologises for it ("no existe candidato perfecto").
+DEFICIT = re.compile(r"(?i)\b(remain(?:s)?\s+(?:a\s+)?gaps?|(?:is|are)\s+not\s+equivalent|outside\s+(?:of\s+)?heavy\s+industry|"
+                     r"i\s+lack|my\s+(?:main\s+)?gaps?|i\s+(?:do\s+not|don't)\s+have\s+(?:direct\s+|formal\s+)?experience|"
+                     r"i\s+have\s+(?:not|never)\s+(?:worked|used|led|run|held)|no\s+(?:direct\s+|formal\s+)?experience\s+(?:in|with)|"
+                     r"(?:are|is)\s+(?:still\s+)?(?:a\s+)?gaps?\b|lack\s+of\s+(?:direct\s+)?experience)")
 # the user, 2026-11-27: "Avoiding A$10,000" reads unprofessional; money kept is "saved", never "avoided".
 AVOIDED_MONEY = re.compile(r"\bavoid(?:ed|ing|s)?\b[^.]{0,60}?(?:(?:a\$|aud|\$)\s?\d|\d[\d.,]*\s?(?:aud|dollars))", re.I)
 STACKED_OPENERS = ("additionally", "furthermore", "moreover", "in addition", "notably", "importantly")
@@ -82,6 +87,10 @@ def analyse(C: dict) -> dict:
                 if p in low:
                     counts["banned_phrases"] += 1
                     fails.append(f"{doc}: '{p}' (banned phrase) in: {text[:90]}")
+            if doc in ("letter", "statement") and DEFICIT.search(text):
+                counts["banned_phrases"] += 1
+                fails.append(f"{doc}: lists or apologises for a missing requirement ('{DEFICIT.search(text).group(0)}'): "
+                             f"write readiness to learn + proof of fast learning (method.md §5): {text[:70]}")
             if AVOIDED_MONEY.search(text):
                 counts["banned_phrases"] += 1
                 fails.append(f"{doc}: 'avoided/avoiding' with a money figure: write 'saved' instead: {text[:90]}")

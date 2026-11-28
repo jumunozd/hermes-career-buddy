@@ -53,7 +53,8 @@ Facts are NOT here: they are in `facts-digest.md` (generated). Never write a fac
    b. For each `block: australia` role: one line naming the ad skill it proves; that skill titles its bullets.
    c. One sentence: "<role and scope in Chile> plus <transferable skills proven in Australia> fit
       <ad role> because <main criterion>." Summary and letter thesis are written from it.
-   d. Gaps: criterion with no evidence anywhere = gap; named once, end of the letter, max two sentences.
+   d. Gaps: criterion with no evidence anywhere = gap (keyword status `gap`, internal only); in the letter it
+      becomes at most one learning sentence, §5 "Missing requirements"; never a list.
 7. Professional Title branch (§3) and why. 8. All questions for the user together, in one message (to the PM).
 
 Ad vs Position Description: the ad is the main grid; the PD gives literal vocabulary and "Challenges"
@@ -175,9 +176,16 @@ Five layers, max one page, first sentence short, no sentence over ~35 words:
 4. **Quantified evidence**: magnitudes, not adjectives; same number rules as the CV.
 5. **Non-replicable close**: one real personal anchor (local presence in Tasmania, life decision,
    long-term commitment), professional, linked back to the work; brief thanks and availability.
-- Gap: named ONCE, after the body, before the close, max two sentences: the gap + real gap-closing
-  evidence (a case where the user entered a domain cold and became reliable). Include ALL critical missing
-  domains; never in the first paragraph; no own heading.
+- **Missing requirements: learning, never deficit (the user, 2026-11-28: "no existe candidato perfecto").**
+  Never list what is missing, never apologise, never compare down ("not equivalent", "outside heavy industry",
+  "remain gaps", "I lack", "I have not", "no experience in"). When an essential requirement has no evidence,
+  write at most TWO sentences after the body, before the close: (1) a forward-looking line of total readiness to
+  learn it, naming at most ONE item and only if the ad makes it central; (2) the proof that the user learns fast
+  and adapts, from facts (`identity.learning_disposition`: e.g. self-taught sole custodian of the hotel's
+  management system; rebuilding a career in a new country). Example shape: "Where the role relies on formal
+  requirements workshops, I would bring the same quick learning I showed when I taught myself Panorama's
+  management system and became its sole custodian." Optional: no sentence at all when nothing essential is
+  missing. Never in the first paragraph; no own heading. The CV never mentions missing items.
 - Values: demonstrated with facts; at most ONE literal employer value, anchored to a fact (record it).
 - Addressed to a name or team; never "To Whom It May Concern". Date = generation date.
 - Letter and CV never contradict any fact, figure or phrase. The letter compresses, never stretches.
@@ -198,7 +206,8 @@ Write it as prose without the labels "Situation:" etc. In content.json each crit
 `"star": {"situation": "...", "task": "...", "action": "...", "result": "..."}`, each value an excerpt copied
 word for word from its `text`, in that order; `hcb statement` in `bin/hcb engine run` fails a criterion
 without it. Chile first, may use evidence the CV left out. Degree criterion: the Engineers Australia skills
-assessment project (`ea_skills_assessment`), always as team work. Gaps once, in the desirables block.
+assessment project (`ea_skills_assessment`), always as team work. Missing requirements: at most one learning
+sentence in the desirables block, same rule as the letter (§5), never a list or an apology.
 When the portal sets a different structure (e.g. a Short Form Application with integrated HOW/WHY), keep its
 headings and still tell every example in STAR order.
 
@@ -212,7 +221,8 @@ Judgement, only these five:
 4. No Transferable written as Direct.
 5. Nothing would fail an interview defensibility test.
 Letter extras: every essential criterion has a paragraph; each paragraph has a verifiable fact with a
-magnitude; the gap is named once with closing evidence; the close says something only the user could say.
+magnitude; no list of missing items, no apology (at most one learning sentence with proof of fast learning);
+the close says something only the user could say.
 
 ## 8. Delivery notes for the PM (the user's instructions)
 - If the ad names a hiring manager with a contact, recommend the user calls before applying and suggest

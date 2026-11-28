@@ -81,30 +81,24 @@ afirma un cargo no ocupado, y cada afirmacion se respalda con un hecho de
 hacer el trabajo, y la confianza viene de afirmar con claridad Y probar en la
 frase siguiente.
 
-## Gaps honestos
+## Requisitos que faltan: aprendizaje, nunca deficit
 
-Cuando el aviso invita a postular sin cumplir el 100 por ciento, la carta nombra
-el gap directamente, en una frase, sin disculparse.
+Actualizado por el usuario 2026-11-28 ("no existe candidato perfecto"): la carta
+nunca enumera lo que falta ni pide disculpas. Prohibido: "not equivalent",
+"outside heavy industry", "remain gaps", "I lack", "I have not", "no experience in".
 
-La declaracion del gap solo funciona seguida de **evidencia de cierre de gap**:
-un caso real y verificable donde el usuario entro en frio a un dominio y se volvio
-fiable en el. Los casos en curso pesan mas que los pasados, porque prueban que la
-conducta es actual.
+Si un requisito esencial no tiene evidencia, maximo dos frases despues del
+cuerpo y antes del cierre:
 
-Nunca simular conocimiento de dominio para suavizar un gap. Un gap nombrado mas
-prueba de aprendizaje le gana siempre a un gap difuminado.
+1. Disposicion total a aprenderlo, mirando hacia adelante; nombra como mucho UN
+   requisito y solo si el aviso lo pone en el centro.
+2. La prueba de que aprende rapido y se adapta, desde los hechos
+   (`identity.learning_disposition`): por ejemplo, custodio autodidacta del
+   sistema del hotel; rehacer su carrera en otro pais.
 
-El parrafo de gap incluye TODOS los dominios criticos que faltan. Dejar uno fuera
-en silencio viola la regla de gap de keywords criticos, que aplica igual a la
-carta que al CV (ver `rules/cv.md`).
-
-**Posicion y tamano del gap** (agregado 2026-10-25, "venderse"):
-
-- Se declara **una sola vez**. Prohibido nombrarlo en la tesis y repetirlo al final.
-- Va **despues del cuerpo**, antes del cierre. Nunca en el primer parrafo: la
-  tesis es la posicion de mas atencion de la carta y se usa para la fortaleza.
-- **Maximo dos frases**: una que nombra el gap, otra con la prueba de cierre.
-- Sin encabezado propio. Los encabezados son para los criterios del empleador.
+Si no falta nada esencial, no se escribe ninguna frase. Nunca en el primer
+parrafo, sin encabezado propio. El CV nunca menciona lo que falta.
+`hcb naturalness` falla las frases de deficit en carta y statement.
 
 ## Orden de la evidencia en la carta
 
@@ -160,7 +154,7 @@ Despues:
 - Cada criterio del aviso tiene su parrafo?
 - Cada parrafo tiene al menos un hecho verificable con magnitud?
 - Se demuestra que entiende lo que esta en juego?
-- El gap, si existe, esta nombrado una vez, honestamente, y respondido con
+- Si falta un requisito esencial, hay como mucho una frase de disposicion a aprender, respondida con
   evidencia de cierre?
 - El cierre dice algo que solo el usuario podria decir?
 - Cada frase sobrevive ser leida en voz alta en la entrevista?
@@ -196,7 +190,7 @@ lo generan los mismos scripts que el CV y la carta (`selection-criteria.md`,
 - **Proyectos de la carrera**: el criterio de titulacion se respalda con un
   proyecto presentado al skills assessment de Engineers Australia
   (`ea_skills_assessment` en evidence.yaml), siempre como trabajo en equipo.
-- **Gaps**: una sola vez, en el bloque de deseables, en una frase y sin disculpa.
+- **Requisitos que faltan**: como mucho una frase de aprendizaje en el bloque de deseables, nunca una lista ni una disculpa.
 - **Maquetacion**: margen de 16 mm en CADA pagina y cada titulo pegado a su
   parrafo. La carta solo tiene margen al inicio y al final: con ese estilo el
   statement se veia cortado en el salto de pagina.
