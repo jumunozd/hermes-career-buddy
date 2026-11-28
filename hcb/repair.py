@@ -527,10 +527,35 @@ def _write_segments(text: str) -> list[str]:
     return out
 
 
+# P-15 (2026-11-28, D-P15-1): job pages of portals whose terms forbid automated reading. Searching them is free
+# (titles, snippets and links come back as results); opening one is never done, by any tool.
+PORTAL_JOB_PAGE = re.compile(
+    r"(?i)(?:seek\.com(?:\.au)?/job/\d+|linkedin\.com/(?:jobs/view|jobs/collections|comm/jobs)|"
+    r"indeed\.com(?:\.au)?/(?:viewjob|rc/clk|pagead|m/viewjob|.*[?&]jk=)|jora\.com/(?:job|view-job|job/rd)/)")
+_FETCHING_TOOLS = re.compile(r"^(web_extract|browser\w*|computer_use|terminal|execute_code)$")
+
+
+def _portal_block(tool: str, args: dict) -> dict | None:
+    if not _FETCHING_TOOLS.match(tool):
+        return None
+    blob = json.dumps(args, ensure_ascii=False)
+    m = PORTAL_JOB_PAGE.search(blob)
+    if not m:
+        return None
+    if tool in ("terminal", "execute_code") and not re.search(r"\b(curl|wget|http|requests|urllib|fetch|open|lynx|w3m)\b", blob):
+        return None
+    return {"action": "block", "message": f"P-15 guard: {m.group(0)} is a job page of a portal whose terms forbid "
+                                          "automated reading. Use the search result (title, snippet, link) only; "
+                                          "the user opens the page."}
+
+
 def guard(payload: dict) -> dict | None:
     tool = payload.get("tool_name") or ""
     args = payload.get("tool_input") or payload.get("args") or {}
     cwd = payload.get("cwd") or str(root())
+    portal = _portal_block(tool, args if isinstance(args, dict) else {"v": args})
+    if portal:
+        return portal
     if tool in ("write_file", "patch"):
         path = args.get("path") or args.get("file_path") or ""
         # a relative path is judged against both the hook's cwd and the project (Hermes's working folder)

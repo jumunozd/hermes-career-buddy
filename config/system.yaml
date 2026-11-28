@@ -53,9 +53,14 @@ daily_alert:                              # D-USR-01 (2026-11-13) + D-USR-02 (20
 
 discovery:                               # P-12 D-P12-4 (AP-634145ead1b69bc58ae5ba17): search safety net, run inside bin/hcb sweep
   enabled: true                          # also needs features.web_discovery
-  max_queries_per_run: 4                 # rotating, least recently searched first; only the 12:30 and 16:30 runs
-                                         # (the 07:30 run reads the weekly listings): 24 sources every 3 days
+  max_queries_per_run: 6                 # rotating, least recently searched first; only the 12:30 and 16:30 runs
+                                         # (the 07:30 run reads the weekly listings). P-15 (AP-2f90ef34afdfdbc450403293):
+                                         # 4 -> 6 to fit the employer + agency queries (employers.yaml `agencies`)
   results_per_query: 10
+  native:                                # P-15 D-P15-2: OpenAI native web search as an alarm, in the 12:30 Job Hunter turn
+    enabled: true                        # needs web.search_backend: openai-native in the career-buddy profile
+    per_day: 2                           # fixed queries from `bin/hcb discovery native-queries`
+    trial_until: "2026-12-05"            # one-week trial; after it native-queries returns none until the user decides
 
 features:                              # Everything external starts OFF (Master §13.1, §15 Fase 4).
   baserow_live_writes: true               # user approved 2026-11-19 (AP-e35b03aa24aa888279e4d02e, P-6): create/update only, never delete

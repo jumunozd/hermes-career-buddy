@@ -1,7 +1,7 @@
 ---
 name: hcb-job-hunter
 description: Career Buddy Job Hunter: discover, verify, A-H, register
-version: 1.11.0
+version: 1.12.0
 metadata:
   hermes:
     tags: [career, job-search, tasmania]
@@ -53,6 +53,17 @@ Only for a PM Task Envelope with `role: job_hunter`: `search` (daily cycle, D-US
      saved listing `file` it gives you (no new fetch), then treat each job there with steps 3-6.
    - `per_source`: counts for the report (cards, known_unchanged, logged_by_title, out_of_zone).
    Empty shortlist and no needs_agent -> the search is done: report the counts, nothing else.
+1b. **Native search alarm (P-15 D-P15-2, only in the 12:30 run).** Run `bin/hcb discover native-queries`; if it
+   returns queries (none after the trial ends), run ONE `web_search` per query, exactly as written. Save the
+   results as JSON to `private/state/native/<YYYYMMDD-HHMM>.json` in this shape:
+   `{"searches":[{"query":"...","results":[{"title":"...","url":"...","date_shown":"... or null","snippet":"...",
+   "role_title":"...","place":"..."}]}]}`. Copy title, url, date_shown and snippet from the tool output, never
+   invent one. Add `role_title` and `place` ONLY for SEEK / Jora / Indeed listing pages whose snippet names a role
+   and a Tasmanian place, both copied word for word from that snippet (code rejects anything else). Then run
+   `bin/hcb discover ingest --file <that file>` and add its `shortlist` to this run's cards (same steps 2-6 as
+   `read_detail_allowed: false` cards; keep their `review_reason`). Exa (`bin/hcb sweep`) and this native search
+   complement each other: the sweep finds the ad pages, the native search sees SEEK and Jora listing pages. Never
+   open a SEEK, LinkedIn, Indeed or Jora job page (the P-15 guard blocks it).
    Never re-read a listing the sweep already read. Never read a disabled source, a SEEK `/job/` page,
    LinkedIn, Indeed, UTAS or Incat; never log in; never change the client identity; no `sleep`,
    web_extract or browser. A failed read -> reduced coverage, not an error. A job you could not read

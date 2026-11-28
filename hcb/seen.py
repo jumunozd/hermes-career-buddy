@@ -18,6 +18,9 @@ from . import state
 from .util import fold, now_iso, sha256_bytes
 
 _JOB_ID = [
+    # P-15 (2026-11-28): one ad syndicated to several aggregators keeps its id (Regional Jobs and ViewJobs both
+    # carried 00d57e33-...). A UUID in the URL is the ad's identity, whatever the host.
+    ("ad", re.compile(r"(?i)\b([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b")),
     ("seek", re.compile(r"seek\.com(?:\.au)?/job/(\d+)")),
     ("linkedin", re.compile(r"linkedin\.com/jobs/view/(?:[^/?]*-)?(\d+)")),
     ("indeed", re.compile(r"[?&]jk=([0-9a-f]+)")),
@@ -54,8 +57,26 @@ def content_hash(ad_text: str) -> str:
     return sha256_bytes(norm.encode("utf-8"))[:16]
 
 
+_PLACE_NOISE = re.compile(r"\b(tas|tasmania|australia|au|on site|onsite|remote|hybrid|region|\d{4})\b")
+
+
+def norm_location(location: str) -> str:
+    """P-15: 'Bell Bay', 'Bell Bay, TAS', 'Bell Bay Tasmania', 'Bell Bay, Australia (On-site)' are one place."""
+    t = re.sub(r"[^a-z0-9]+", " ", fold(location or ""))
+    return re.sub(r"\s+", " ", _PLACE_NOISE.sub(" ", t)).strip()
+
+
 def job_key(company: str, title: str, location: str) -> str:
-    return "|".join(re.sub(r"[^a-z0-9]+", " ", fold(x or "")).strip() for x in (company, title, location))
+    return "|".join([re.sub(r"[^a-z0-9]+", " ", fold(x or "")).strip() for x in (company, title)]
+                    + [norm_location(location)])
+
+
+def _norm_key(k: str) -> str:
+    """Older seen entries kept the raw place ('bell bay tasmania'): compare on the normalised form."""
+    parts = (k or "").split("|")
+    if len(parts) == 3:
+        parts[2] = norm_location(parts[2])
+    return "|".join(parts)
 
 
 def _entries() -> list[dict]:
@@ -75,7 +96,23 @@ def _unique_key(key: str) -> bool:
 
 
 def _same_job(e: dict, jk: str) -> bool:
-    return bool(jk.strip("|")) and e.get("job_key") == jk
+    """Same company+title+place. With no company on one side (a native-search alarm, an aggregator that hides the
+    employer) title+place decide (P-15)."""
+    if not jk.strip("|"):
+        return False
+    a, b = _norm_key(e.get("job_key", "")).split("|"), _norm_key(jk).split("|")
+    if len(a) != 3 or len(b) != 3:
+        return a == b
+    if a[1] != b[1] or not a[1]:
+        return False
+    same_co = bool(a[0] and b[0]) and a[0] == b[0]
+    same_place = bool(a[2] and b[2]) and a[2] == b[2]
+    if a[0] and b[0] and not same_co:
+        return False
+    if a[2] and b[2] and not same_place:
+        return False
+    # one side lacks a field: the other two must both be known and equal (never title alone)
+    return (same_co and same_place) or (same_co and not (a[2] and b[2])) or (same_place and not (a[0] and b[0]))
 
 
 def check(url: str, ad_text: str, company: str = "", title: str = "", location: str = "",

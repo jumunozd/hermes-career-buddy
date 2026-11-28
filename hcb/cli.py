@@ -434,6 +434,13 @@ def cmd_discover(a):
     from zoneinfo import ZoneInfo
     from . import discovery
     now = datetime.fromisoformat(a.now) if a.now else datetime.now(ZoneInfo(config()["timezone"]))
+    if a.op == "native-queries":
+        _out(discovery.native_queries(now)); return
+    if a.op == "ingest":
+        import json as _json
+        if not a.file:
+            raise SystemExit("--file <results.json> required")
+        _out(discovery.ingest(_json.loads(Path(a.file).read_text(encoding="utf-8")), now)); return
     _out(discovery.run(now, max_queries=a.max))
 
 
@@ -583,7 +590,9 @@ def main(argv=None):
     x = s.add_parser("dashboard", help="status page + read-only pipeline board (P-13), private/reports/dashboard/")
     x.add_argument("--open", action="store_true"); x.add_argument("--summary", action="store_true"); x.set_defaults(f=cmd_dashboard)
     x = s.add_parser("discover", help="search discovery for search_discovery sources (P-12; no LLM, results are data)")
-    x.add_argument("--now"); x.add_argument("--max", type=int); x.set_defaults(f=cmd_discover)
+    x.add_argument("op", nargs="?", default="run", choices=["run", "native-queries", "ingest"],
+                   help="P-15: native-queries = the day's 2 OpenAI native searches; ingest --file = their results -> cards")
+    x.add_argument("--file"); x.add_argument("--now"); x.add_argument("--max", type=int); x.set_defaults(f=cmd_discover)
     x = s.add_parser("triage", help="listing-card triage: zone + title, read the detail page or not (RT-14)")
     x.add_argument("--title", required=True); x.add_argument("--location", default="")
     x.set_defaults(f=cmd_triage)

@@ -10,7 +10,9 @@ checked: "2026-11-21 first pass (private/state/source-check/p12-first-pass-2026-
 
 employers:
   # ---- already read directly (sources.yaml group A) ----
-  - {id: bellbay, name: "Bell Bay Aluminium (Rio Tinto)", sector: manufacturing, tier: 1, sites: [Bell Bay], channel: [page_read, email_alert], source: EMP-BELLBAY}
+  - {id: bellbay, name: "Bell Bay Aluminium (Rio Tinto)", sector: manufacturing, tier: 1, sites: [Bell Bay], channel: [page_read, email_alert], source: EMP-BELLBAY,
+     # P-15 D-P15-3 (2026-11-28): Chandler Macleod is Rio Tinto's contract-role provider; its roles are not on the careers page
+     agencies: [{name: "Chandler Macleod", query: '"Chandler Macleod" "Rio Tinto" Bell Bay job'}]}
   - {id: nyrstar, name: "Nyrstar Hobart", sector: manufacturing, tier: 1, sites: [Lutana], channel: [page_read], source: EMP-NYRSTAR}
   - {id: huon, name: "Huon Aquaculture", sector: food_aquaculture, tier: 2, sites: [Hobart, Parramatta Creek], channel: [page_read], source: EMP-HUON}
   - {id: tasrail, name: TasRail, sector: infrastructure, tier: 2, sites: [Launceston, Burnie], channel: [page_read], source: EMP-TASRAIL}

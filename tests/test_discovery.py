@@ -41,7 +41,8 @@ class Discovery(unittest.TestCase):
         from hcb import discovery
         queries = []
         out = discovery.run(NOW, search=lambda q, n: (queries.append(q), RESULTS)[1])
-        self.assertEqual(queries, ['"GHD" job Tasmania'])            # enabled search_discovery sources only
+        # enabled search_discovery sources + the P-15 employer + agency queries (employers.yaml `agencies`)
+        self.assertEqual(queries, ['"GHD" job Tasmania', '"Chandler Macleod" "Rio Tinto" Bell Bay job'])
         st = out["per_source"][0]
         self.assertEqual((st["results"], st["job_urls"]), (4, 3))     # the About page is not a job ad
         titles = {s["title"]: s for s in out["shortlist"]}
