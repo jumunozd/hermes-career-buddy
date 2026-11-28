@@ -495,6 +495,9 @@ _GIT_WRITE = re.compile(r"\bgit\b(\s+-C\s+\S+)?\s+(commit|reset|checkout|restore
 _RESERVED = re.compile(r"\brepair\s+(approve|seal)\b|\brepair_apply\b|\bapproval\s+record\b.*\brepair")
 
 
+PATCH_PATHS = re.compile(r"(?m)^\*\*\* (?:Update|Add|Delete) File:\s*(.+?)\s*$|^\*\*\* Move to:\s*(.+?)\s*$")
+
+
 def _block(msg: str) -> dict:
     return {"action": "block", "message": f"P-14 guard: {msg}. Open a repair (`bin/hcb repair open`) and work in "
                                           "private/repairs/R-*/worktree; the user approves the change."}
@@ -557,11 +560,17 @@ def guard(payload: dict) -> dict | None:
     if portal:
         return portal
     if tool in ("write_file", "patch"):
-        path = args.get("path") or args.get("file_path") or ""
-        # a relative path is judged against both the hook's cwd and the project (Hermes's working folder)
-        z = max(zone_of(path, cwd), zone_of(path, root()))
-        if z >= 2:
-            return _block(f"{path} is a protected file (zone {z})")
+        paths = [args.get("path") or args.get("file_path") or ""]
+        if tool == "patch" and (args.get("mode") == "patch" or args.get("patch")):
+            # multi-file patch (2026-11-28 false positive, R-937888): the paths live inside the patch text
+            paths = [a or b for a, b in PATCH_PATHS.findall(str(args.get("patch") or ""))] or [""]
+        for path in paths:
+            if not str(path).strip():
+                return _block("a write with no readable target path; give the file path explicitly")
+            # a relative path is judged against both the hook's cwd and the project (Hermes's working folder)
+            z = max(zone_of(path, cwd), zone_of(path, root()))
+            if z >= 2:
+                return _block(f"{path} is a protected file (zone {z})")
         return None
     if tool == "skill_manage":
         acts = [str(args.get("action") or "")] if args.get("action") else []

@@ -187,6 +187,15 @@ class Guard(unittest.TestCase):
         self.assertTrue(self.blocked("execute_code", code="open('bin/hcb','w').write('x')"))
         self.assertTrue(self.blocked("execute_code", code="pathlib.Path('hcb/engine.py').write_text('x')"))
 
+    def test_multi_file_patch_paths_are_read(self):
+        ok = "*** Begin Patch\n*** Update File: private/applications/x/prep-001/v6/content.json\n@@\n-a\n+b\n*** End Patch"
+        self.assertFalse(self.blocked("patch", mode="patch", patch=ok))
+        bad = ok + "\n*** Begin Patch\n*** Update File: hcb/engine.py\n@@\n-a\n+b\n*** End Patch"
+        self.assertTrue(self.blocked("patch", mode="patch", patch=bad))
+        mv = "*** Begin Patch\n*** Update File: private/a.json\n*** Move to: config/system.yaml\n*** End Patch"
+        self.assertTrue(self.blocked("patch", mode="patch", patch=mv))
+        self.assertTrue(self.blocked("patch", mode="patch", patch="no paths here"))
+
     def test_skill_manage_operations(self):
         self.assertTrue(self.blocked("skill_manage", operations=[{"action": "patch", "name": "hcb-writer"}]))
         self.assertFalse(self.blocked("skill_manage", operations=[{"action": "view", "name": "hcb-writer"}]))
