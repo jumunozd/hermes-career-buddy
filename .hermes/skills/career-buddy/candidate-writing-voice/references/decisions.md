@@ -5,7 +5,7 @@ Version 1.0.0 — 2026-11-08. Source: current interview. Dates of individual ear
 | ID | Scope | Decision / evidence |
 | --- | --- | --- |
 | D01 | Recruiter contact | Selected B: friendly, direct, less ceremonial. |
-| D02 | Experience gap | Selected B: contribution first; a missing requirement becomes readiness to learn plus proof of fast learning, never a list or an apology (the user, 2026-11-28). |
+| D02 | Experience gap | Selected B: contribution first; a missing requirement becomes a "practical foundation" sentence from real experience, never a list, an apology or "ready to learn" (the user, 2026-11-28). |
 | D03 | Follow-up | Selected B: warm, brief update request. |
 | D04 | General | Explicit golden rule: offer help; orient to the reader. |
 | D05 | Unknown team need | Selected B: ask what help the team needs. |

@@ -97,3 +97,5 @@ cv:                                       # style v3 (the user, 2026-11-25); che
   ai_emphasis_required: true              # 2026-11-28 (AP-41ff0590850fd9f53c4a532d): targets.yaml ai_emphasis high|medium|low;
                                           #   low -> no AI in the Summary, no AI tools Skills group (floor stays: Hermes + AI credentials)
   never_ai_developer: true                # never "AI Engineer / AI Developer / software developer" as self-description
+  summary_breadth_first: true             # 2026-11-28 (AP-3fde3dcb5320a81867abb7b1): Summary sentence 1 = breadth, no single
+                                          #   employer or country; at most one number in the Summary

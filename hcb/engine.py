@@ -247,6 +247,29 @@ def positioning_problems(C: dict, T: dict, rule: dict) -> list[str]:
             for g in C.get("skills") or []:
                 if AI_TERMS.search(str(g.get("label", ""))):
                     errs.append(f"ai_emphasis low: sin grupo de herramientas de IA en Skills ('{g.get('label')}')")
+    if rule.get("summary_breadth_first"):
+        # 2026-11-28 recruiter feedback: Summary sentence 1 shows breadth, never one employer or country;
+        # at most one number in the Summary (results live in the bullets)
+        summ = str(C.get("professional_summary", "")).replace("**", "")
+        first = re.split(r"(?<=[.!?])\s", summ, 1)[0]
+        names = set()
+        try:
+            from .util import load_yaml
+            for r in (load_yaml(facts_root() / "facts" / "roles.yaml") or {}).get("roles", []):
+                for k in ("employer_display", "employer_on_forms", "short_name"):
+                    v = str(r.get(k) or "").strip()
+                    if len(v) > 3:
+                        names.add(v.split(",")[0].split("(")[0].strip())
+        except Exception:  # noqa: BLE001
+            pass
+        hit = next((n for n in sorted(names) if n.lower() in first.lower()), None)
+        if hit or re.search(r"(?i)\bstart-?up\b|\bchilean\b", first):
+            errs.append(f"Summary: la primera frase muestra amplitud (capacidades y sectores), no un empleador ni un pais "
+                        f"('{hit or re.search(r'(?i)start-?up|chilean', first).group(0)}'), method.md §4")
+        nums = [n for n in re.findall(r"A\$\s?[\d,.]+|\d+(?:[.,]\d+)?\s?%|\b\d[\d,.]*\b", summ)
+                if not re.fullmatch(r"(?:19|20)\d\d", n)]
+        if len(nums) > 1:
+            errs.append(f"Summary: como maximo una cifra (tiene {len(nums)}: {', '.join(nums[:4])}); los resultados van en las vinetas")
     if rule.get("never_ai_developer"):
         head = [str(C.get("identity_line", "")), str(C.get("professional_summary", ""))]
         for t in head:

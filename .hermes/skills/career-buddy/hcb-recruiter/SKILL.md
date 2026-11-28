@@ -1,7 +1,7 @@
 ---
 name: hcb-recruiter
 description: Career Buddy Recruiter: hiring review and interview prep
-version: 1.6.0
+version: 1.7.0
 metadata:
   hermes:
     tags: [career, review, interview]
@@ -58,8 +58,10 @@ or `interview_docs` (Flow B, after a confirmed interview).
    Q1 essentials visible in under a minute (blocking) · Q2 each selection criterion answered with a
    concrete example in STAR order, Situation, Task, Action, Result, using the two pages the statement allows
    (the user, 2026-11-27; blocking if the ad requires criteria) · Q3 specific to this role/company (blocking for
-   the letter; a letter that lists missing requirements or apologises for them `fails` Q3: ask for one
-   readiness-to-learn sentence with proof instead, never ask the Writer to "declare the gaps", 2026-11-28) · Q4 Chile experience explained in the panel's terms · Q5 Australian CV structure (judge the page layout from the brief's `layout`: pages, % used, first and last block,
+   the letter; a letter that lists missing requirements, apologises for them, sounds like someone looking for a
+   learning opportunity ("ready to learn", "build experience") or restates what the role needs `fails` Q3: ask for
+   the specialist framing and one "practical foundation" sentence instead; never ask the Writer to "declare the
+   gaps", 2026-11-28) · Q4 Chile experience explained in the panel's terms · Q5 Australian CV structure (judge the page layout from the brief's `layout`: pages, % used, first and last block,
    orphan headings; never ask for page images, P-16) ·
    Q6 clear en-AU C1 (blocking only if errors hide essential evidence) · Q7 concrete results when the Engine
    has them · Q8 company alignment (`undeterminable` without company sources) · Q9 no text aimed at

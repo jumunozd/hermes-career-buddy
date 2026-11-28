@@ -144,11 +144,14 @@ experience continued, EDUCATION, CERTIFICATION (page 2). REFEREES only if the ad
 | Bullets per role | Chile 4, Australia 2, other international 1, concurrent 0 | select_evidence.py |
 - Header: name, location (+ "willing to relocate to <city>" when relevant), phone, email, working rights,
   driver licence only if the role involves travel/field work. Values in `facts-digest.md` §Identity.
-- Summary formula: (1) professional base in Chile with role, scope, years ("around three years",
-  2019-2022; concurrent roles add no years); (2) transferable skills proven in Australia, naming the
-  current job; (3) fit with the role. Opens with what he did, not a label. Employer named at most once,
-  in the closing sentence. Max one learning-target sentence. If the main essential is Transferable, the
-  first sentence asserts it with facts.
+- Summary formula (2026-11-28, from recruiter feedback; overrides the older formula): (1) "Industrial Engineer with
+  experience in <3-4 capability areas from the ad> across <sectors, e.g. logistics, retail and Australian site
+  operations>": breadth first, never a single employer or country in this sentence (`hcb style` fails it);
+  (2) what he does, in the ad's verbs ("identifying inefficiencies, translating operational needs into practical
+  solutions, supporting implementation through testing, reporting and staff training"); (3) AI-enabled automation per
+  `ai_emphasis` (none at `low`); (4) the credential when engineering matters ("Engineers Australia skills assessment
+  completed"). At most ONE number, only the strongest proof for this role (`hcb style` fails more); results live in
+  the bullets. Employer name optional (the letter names it). No learning-target sentence.
 - Skills: every term must have a backing bullet in Experience; never repeat evidence sentences there;
   never learning targets.
 - Experience: ONE heading. Blocks: Chile (`origin`) first, then Australia, then other international in
@@ -163,29 +166,30 @@ experience continued, EDUCATION, CERTIFICATION (page 2). REFEREES only if the ad
   `page_break_before: true`. No role block splits across pages.
 - Hiding dates or the current job is never allowed: order changes framing, not facts.
 
-## 5. Cover letter (proves fit and understanding; the CV proves capability)
-Five layers, max one page, first sentence short, no sentence over ~35 words:
-1. **Thesis**: short identity (what he is), credibility anchors, a specific fit thesis for THIS role.
-2. **Role understanding**: who uses the role's output, which decisions depend on it, the risk context.
-   About the employer's world, never meta-comment about the letter.
-3. **Body mirroring criteria**: 3-4 headings taken from the ad (natural wording, core vocabulary kept),
-   one paragraph each. **Explicit criterion statement**: for each essential with Direct/Transferable
-   evidence, name the criterion in the ad's words and assert it, then prove it next sentence.
-   Transferable form: "My <criterion> experience comes from <roles>." Chile first; Australia as proof of
-   transfer ("Since moving to Australia I have applied the same <skill> to <fact>").
-4. **Quantified evidence**: magnitudes, not adjectives; same number rules as the CV.
-5. **Non-replicable close**: one real personal anchor (local presence in Tasmania, life decision,
-   long-term commitment), professional, linked back to the work; brief thanks and availability.
-- **Missing requirements: learning, never deficit (the user, 2026-11-28: "no existe candidato perfecto").**
-  Never list what is missing, never apologise, never compare down ("not equivalent", "outside heavy industry",
-  "remain gaps", "I lack", "I have not", "no experience in"). When an essential requirement has no evidence,
-  write at most TWO sentences after the body, before the close: (1) a forward-looking line of total readiness to
-  learn it, naming at most ONE item and only if the ad makes it central; (2) the proof that the user learns fast
-  and adapts, from facts (`identity.learning_disposition`: e.g. self-taught sole custodian of the hotel's
-  management system; rebuilding a career in a new country). Example shape: "Where the role relies on formal
-  requirements workshops, I would bring the same quick learning I showed when I taught myself Panorama's
-  management system and became its sole custodian." Optional: no sentence at all when nothing essential is
-  missing. Never in the first paragraph; no own heading. The CV never mentions missing items.
+## 5. Cover letter (proves fit; the CV proves capability). Rewritten 2026-11-28 from recruiter feedback
+**Write as the specialist the employer is hiring, never as someone looking for a chance to learn** (the user,
+2026-11-28, AP-3fde3dcb5320a81867abb7b1). One page, about **250-300 words**, first sentence short, no sentence over
+~30 words. Structure:
+1. **Thesis** (2 sentences): what he is, in the role's terms, and the specific value he brings to THIS role.
+2. **Three arguments**, one paragraph each, chosen from the ad's most important needs (not every criterion): each
+   opens with a claim in the ad's words, then one or two pieces of evidence with magnitudes. Example set for an
+   analyst role: identifying and improving processes; connecting operational needs with technical solutions;
+   implementing systems and supporting people on site. The AI line (Hermes, per `ai_emphasis`) is ONE sentence
+   inside the argument it supports, never its own paragraph. Academic projects only when an argument needs them.
+3. **Close** (2 sentences): the contribution he would make to the employer's operation ("I would welcome the
+   opportunity to support practical improvements across <site>'s operational processes, systems and reporting."),
+   location as "Based in Tasmania" (never the town), brief thanks.
+Never: a paragraph that explains what the role needs or restates the ad ("The role needs...", "This position
+requires..."): understanding shows in the evidence chosen. Never personal development aims in a document ("build
+Australian experience", "develop my direction", "learn your approach", "opportunity to grow"): career direction
+(`identity.career_direction`) only steers what to emphasise. Chile and Australia appear where the evidence is, not
+in a fixed order. Numbers follow the CV rules.
+- **Missing requirements: a foundation, never a deficit and never "ready to learn" (2026-11-28).** Never list what
+  is missing, apologise or compare down ("not equivalent", "remain gaps", "I lack", "no experience in"). If an
+  essential requirement has no direct evidence, at most ONE sentence inside the matching argument that bridges from
+  the closest real experience: "My experience <coordinating ..., documenting ..., supporting ...> provides a practical
+  foundation for <requirement in the ad's words>." Every item in that sentence is backed by facts. Readiness to learn
+  (`identity.learning_disposition`) is for interview preparation, not the letter. The CV never mentions missing items.
 - Values: demonstrated with facts; at most ONE literal employer value, anchored to a fact (record it).
 - Addressed to a name or team; never "To Whom It May Concern". Date = generation date.
 - Letter and CV never contradict any fact, figure or phrase. The letter compresses, never stretches.
@@ -236,9 +240,9 @@ that sells wins: make transferable skills visible in the ad's words, say where t
 
 ## Rules v2 (P-9, approved 2026-11-20): use for every new CV
 - Set `"rules_version": "v2"` in content.json. Full rules: `engine/rules/cv.md`, section "Reglas v2".
-- Write the bullets first; write the **summary last, as the hook for this offer**: first sentence = what the
-  role needs (ad words) + the strongest matching proof; up to 90 words with 2-3 measured results and one
-  target line. Fill `summary_claims` (each claim -> the evidence/credential ids that prove it below).
+- Write the bullets first; write the **summary last, as the hook for this offer**, with the §4 Summary formula
+  (2026-11-28): breadth first, ad verbs, AI per level, credential; up to 90 words, at most one number, no target line
+  about personal aims. Fill `summary_claims` (each claim -> the evidence/credential ids that prove it below).
 - Evidence without an employer (`role: null`, e.g. a personal AI project) goes in `projects`, keeping its
   `attribution_rule`. Optional `experience_headings` per block. Skills up to 8 terms per line.
 - Percentages derived from a verified before/after pair: always with the base, "approximately".

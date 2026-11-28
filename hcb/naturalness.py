@@ -40,6 +40,14 @@ DEFICIT = re.compile(r"(?i)\b(remain(?:s)?\s+(?:a\s+)?gaps?|(?:is|are)\s+not\s+e
                      r"i\s+lack|my\s+(?:main\s+)?gaps?|i\s+(?:do\s+not|don't)\s+have\s+(?:direct\s+|formal\s+)?experience|"
                      r"i\s+have\s+(?:not|never)\s+(?:worked|used|led|run|held)|no\s+(?:direct\s+|formal\s+)?experience\s+(?:in|with)|"
                      r"(?:are|is)\s+(?:still\s+)?(?:a\s+)?gaps?\b|lack\s+of\s+(?:direct\s+)?experience)")
+# the user, 2026-11-28 (recruiter feedback): documents speak as the specialist, never as a learner, and never restate
+# what the role needs.
+LEARNER = re.compile(r"(?i)\b(?:ready|keen|eager|happy|willing)\s+to\s+learn\b|\blearn\s+your\s+(?:approach|processes|systems)\b|"
+                     r"\bbuild(?:ing)?\s+(?:my\s+)?(?:relevant\s+)?(?:local\s+|australian\s+)?(?:engineering\s+)?experience\b|"
+                     r"\bdevelop(?:ing)?\s+(?:that|my|this)\s+(?:direction|career|specialisation|specialization)\b|"
+                     r"\bopportunity\s+to\s+(?:learn|grow|develop\s+my)\b|\bgain(?:ing)?\s+(?:local|australian)\s+experience\b")
+RESTATE = re.compile(r"(?i)^\s*(?:the|this)\s+(?:role|position|assignment|job)\s+(?:needs|requires|calls\s+for|demands|is\s+about)\b")
+LETTER_MAX_WORDS = 320
 # the user, 2026-11-27: "Avoiding A$10,000" reads unprofessional; money kept is "saved", never "avoided".
 AVOIDED_MONEY = re.compile(r"\bavoid(?:ed|ing|s)?\b[^.]{0,60}?(?:(?:a\$|aud|\$)\s?\d|\d[\d.,]*\s?(?:aud|dollars))", re.I)
 STACKED_OPENERS = ("additionally", "furthermore", "moreover", "in addition", "notably", "importantly")
@@ -87,6 +95,14 @@ def analyse(C: dict) -> dict:
                 if p in low:
                     counts["banned_phrases"] += 1
                     fails.append(f"{doc}: '{p}' (banned phrase) in: {text[:90]}")
+            if doc in ("letter", "statement") and LEARNER.search(text):
+                counts["banned_phrases"] += 1
+                fails.append(f"{doc}: learner / personal-aim wording ('{LEARNER.search(text).group(0)}'): write as the "
+                             f"specialist they are hiring (method.md §5): {text[:70]}")
+            if doc == "letter" and RESTATE.search(text):
+                counts["banned_phrases"] += 1
+                fails.append(f"letter: paragraph restates what the role needs ('{RESTATE.search(text).group(0)}'): "
+                             f"show it with evidence instead: {text[:70]}")
             if doc in ("letter", "statement") and DEFICIT.search(text):
                 counts["banned_phrases"] += 1
                 fails.append(f"{doc}: lists or apologises for a missing requirement ('{DEFICIT.search(text).group(0)}'): "
@@ -101,6 +117,9 @@ def analyse(C: dict) -> dict:
             if len(re.findall(r"\w+tions?\b", low)) > TION_MAX:
                 counts["dense_tion_paragraphs"] += 1
                 warns.append(f"{doc}: more than {TION_MAX} '-tion' nouns in one paragraph: {text[:70]}")
+    letter_words = sum(len(t.split()) for t in T["letter"])
+    if letter_words > LETTER_MAX_WORDS:
+        warns.append(f"letter: {letter_words} words; aim for about 250-300 (thesis + three arguments + close, method.md §5)")
     for text in T["cv"] + T["letter"] + T["statement"]:
         for s in _sentences(text):
             if s.lower().count("approximately") > 1:

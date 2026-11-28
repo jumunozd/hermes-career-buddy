@@ -33,8 +33,8 @@ Check every letter or statement paragraph, the Summary and each bullet against t
 - Professional, warm and direct; enthusiasm shown as willingness to contribute, not excitement.
 - Familiar, precise words ("simplify the reporting process", not "streamline reporting").
 - Short sentences with one idea, varied rhythm; never every paragraph built the same way.
-- Confident when evidence supports it; no needless hedging; never a list of what is missing: at most one
-  forward-looking learning sentence with proof (method.md §5, 2026-11-28).
+- Confident when evidence supports it; no needless hedging; the specialist they are hiring, never a learner;
+  a missing requirement becomes one "practical foundation" sentence (method.md §5, 2026-11-28).
 - One or two concrete examples, not lists; verified numbers with their base.
 - Human layer (voice.md §4): one sentence that shows how he thinks or what he noticed.
 - Personal anchor in the letter close: one real anchor (the place, the move, the commitment).

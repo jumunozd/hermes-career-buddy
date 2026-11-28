@@ -81,24 +81,26 @@ afirma un cargo no ocupado, y cada afirmacion se respalda con un hecho de
 hacer el trabajo, y la confianza viene de afirmar con claridad Y probar en la
 frase siguiente.
 
-## Requisitos que faltan: aprendizaje, nunca deficit
+## Requisitos que faltan: una base, nunca deficit ni "dispuesto a aprender"
 
-Actualizado por el usuario 2026-11-28 ("no existe candidato perfecto"): la carta
-nunca enumera lo que falta ni pide disculpas. Prohibido: "not equivalent",
-"outside heavy industry", "remain gaps", "I lack", "I have not", "no experience in".
+Actualizado por el usuario 2026-11-28 (feedback de reclutador): la carta habla como
+el especialista que buscan. Nunca enumera lo que falta, nunca pide disculpas, nunca
+"ready to learn" ni metas personales ("build Australian experience").
 
-Si un requisito esencial no tiene evidencia, maximo dos frases despues del
-cuerpo y antes del cierre:
+Si un requisito esencial no tiene evidencia directa, como mucho UNA frase dentro del
+argumento que corresponde, desde la experiencia real mas cercana: "My experience
+<...> provides a practical foundation for <requisito>". Todo lo que nombra esa frase
+esta en los hechos. La disposicion a aprender queda para la entrevista. El CV nunca
+menciona lo que falta. `hcb naturalness` falla la redaccion de deficit, de aprendiz
+y los parrafos que repiten el aviso ("The role needs...").
 
-1. Disposicion total a aprenderlo, mirando hacia adelante; nombra como mucho UN
-   requisito y solo si el aviso lo pone en el centro.
-2. La prueba de que aprende rapido y se adapta, desde los hechos
-   (`identity.learning_disposition`): por ejemplo, custodio autodidacta del
-   sistema del hotel; rehacer su carrera en otro pais.
+## Estructura 2026-11-28 (reemplaza las capas anteriores donde difieran)
 
-Si no falta nada esencial, no se escribe ninguna frase. Nunca en el primer
-parrafo, sin encabezado propio. El CV nunca menciona lo que falta.
-`hcb naturalness` falla las frases de deficit en carta y statement.
+Tesis (2 frases) + TRES argumentos tomados de lo mas importante del aviso (cada uno:
+afirmacion con palabras del aviso + una o dos pruebas con magnitud) + cierre que
+ofrece aporte al empleador ("Based in Tasmania", nunca el pueblo). Unas 250-300
+palabras. Sin parrafo de "entendimiento del rol". Hermes es una frase dentro del
+argumento que apoya.
 
 ## Orden de la evidencia en la carta
 

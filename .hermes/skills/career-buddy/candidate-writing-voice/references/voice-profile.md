@@ -10,8 +10,8 @@ The user is a Chilean industrial engineer developing his career in Australia. Sp
 - Familiar precise vocabulary and concrete benefits. Prefer “simplify the reporting process” and an explanation of its benefit over “streamline reporting” when both fit equally well; these are examples, not prohibited words.
 - Generally short sentences with one main idea, with enough variation to avoid a mechanical cadence.
 - State a contribution confidently when evidence supports it. Do not add unnecessary “perhaps” or “explore whether” to a demonstrated capability.
-- In networking, present relevant strengths first. Never overstate, and never apologise for what is missing:
-  frame it as readiness to learn, backed by how quickly the user has learned before (2026-11-28).
+- In networking, present relevant strengths first. Never overstate, never apologise for what is missing and never
+  sound like a learner: bridge from the closest real experience as a practical foundation (2026-11-28).
 - Use one or two relevant examples rather than vague lists. Use verified numbers when useful; never manufacture metrics or require every achievement to have one.
 - Practical details can save the recipient time. Include only verified, relevant information, without imposing a standard list on every document.
 - Make the next step easy when the document calls for one. A ten-minute call is an option, not a default commitment.
