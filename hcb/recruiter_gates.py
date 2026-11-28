@@ -59,6 +59,8 @@ def check_review(review: dict, round_no: int) -> list[str]:
     dims = [str(q.get("dimension", "")) for q in review.get("quality_assessment", [])]
     if not any(d.upper().startswith("Q10") for d in dims):
         problems.append("quality_assessment must rate Q10 (natural and authentic language)")
+    if not any(d.upper().startswith("Q11") for d in dims):
+        problems.append("quality_assessment must rate Q11 (positioning: Industrial Engineer, AI weight per role)")
     text = " ".join(str(r.get("reason", "")) for r in review.get("principal_reasons", []))
     if BANNED_VERDICT_LANGUAGE.search(text + " " + str(review.get("verdict", ""))):
         problems.append("verdict language contains probabilities or guarantees (§7.3.3)")

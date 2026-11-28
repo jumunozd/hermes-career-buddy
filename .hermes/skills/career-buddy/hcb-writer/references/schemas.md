@@ -16,6 +16,9 @@ exclude:                 # keep a unit out, with reason
   - ecyt_uml_with_programmer     # reason
 max_per_role: {origin: 4, australia: 2, concurrent: 0}   # change only with a written reason
 bullet_budget: 12        # optional; change only with a reason
+engineering_required: false                 # style v3: true -> credential-led title (method.md §3)
+ai_emphasis: medium      # REQUIRED (2026-11-28, method.md §3c): high | medium | low
+ai_emphasis_reason: "<one line quoting the ad>"
 keywords:                # 15-25 rows, literal ad words; checked by keyword_check.py
   - keyword: "continuous improvement"
     weight: 3

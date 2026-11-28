@@ -1,7 +1,7 @@
 ---
 name: hcb-writer
 description: Career Buddy Writer: tailored CV and cover letter
-version: 1.11.0
+version: 1.12.0
 metadata:
   hermes:
     tags: [career, cv, cover-letter, writing]
@@ -48,6 +48,9 @@ Never for a user conversation, never to send anything.
     the Skills budget allows, one Skills group with the literal tools (e.g. "AI tools: Claude | Claude Code |
     Hermes Agent"). Keep it to these lines: it supports the role, it does not take it over. `bin/hcb engine run`
     fails (`hcb always_include`) if any of them is missing.
+    **AI emphasis by role (the user, 2026-11-28, method.md §3c):** set `ai_emphasis: high|medium|low` (+
+    `ai_emphasis_reason`) in targets.yaml from the ad. The floor is (a) + (b) in every CV; (c) and any AI mention in
+    the Summary only at medium/high. `hcb style` fails a missing level and an AI mention in a `low` Summary.
 15. **Style v3 (the user, 2026-11-25): method.md §3 and §4a.** Title by `engineering_required` in
     targets.yaml (credential-led "Industrial Engineer" only when the ad requires engineering; otherwise the
     role's vocabulary with the Industrial Engineering background in the Summary's first sentence), 14
@@ -57,6 +60,11 @@ Never for a user conversation, never to send anything.
     empowered by AI, not an AI Developer (never "AI Developer/Engineer"). Title, Summary and experience lead with industrial engineering or
     the role's vocabulary; AI is a supporting line that shows business impact, operational efficiency and
     human-centred innovation, never technical complexity (no models, frameworks, prompts or coding talk).
+    `identity.career_direction` (2026-11-28) adds: long-term direction (operational excellence, process
+    optimisation, AI-enabled automation) and immediate goal (local Australian experience) for the letter's
+    motivation and the statement's "why" only, never as a filter; projects told problem first (method.md §3b);
+    Hermes as a case study in Operational Process Improvement through AI. `hcb style` fails any self-description as
+    AI Engineer / AI Developer / software developer.
 
 ## Procedure (`draft`; writer.md §4.1 WR-01..WR-10)
 1. **Intake.** Check the envelope: `approval_scope` contains `prepare_only`, the payload has the

@@ -208,6 +208,43 @@ def always_include_check(folder: Path) -> dict:
     return {"cmd": "hcb always_include", "exit": 1 if missing else 0, "stdout_tail": msg, "stderr_tail": ""}
 
 
+AI_EMPHASIS = ("high", "medium", "low")
+AI_TERMS = re.compile(r"(?i)\b(AI|A\.I\.|artificial intelligence|LLMs?|machine learning|Claude|Codex|ChatGPT|Hermes|"
+                      r"multi-agent|AI-enabled|AI-powered)\b")
+SELF_AS_DEV = re.compile(r"(?i)\b(AI|A\.I\.|ML|machine learning|software|prompt|LLM)\s+(engineer|developer|programmer)s?\b")
+SELF_REF = re.compile(r"(?i)\b(i am|i'm|as an?|work(?:ing)? as an?|an? (?:experienced|skilled|qualified))\s+(?:\w+\s+){0,2}$")
+
+
+def positioning_problems(C: dict, T: dict, rule: dict) -> list[str]:
+    """identity.career_direction (the user, 2026-11-28): AI's weight follows the role (targets.yaml ai_emphasis) and the
+    candidate is never presented as an AI Engineer / AI Developer / software developer."""
+    errs = []
+    if rule.get("ai_emphasis_required"):
+        lvl = T.get("ai_emphasis")
+        if lvl not in AI_EMPHASIS:
+            errs.append("targets.yaml: falta `ai_emphasis: high|medium|low` (+ ai_emphasis_reason), method.md §3c")
+        elif lvl == "low":
+            summ = str(C.get("professional_summary", "")).replace("**", "")
+            if AI_TERMS.search(summ):
+                errs.append(f"ai_emphasis low: el Summary no menciona IA ('{AI_TERMS.search(summ).group(0)}')")
+            for g in C.get("skills") or []:
+                if AI_TERMS.search(str(g.get("label", ""))):
+                    errs.append(f"ai_emphasis low: sin grupo de herramientas de IA en Skills ('{g.get('label')}')")
+    if rule.get("never_ai_developer"):
+        head = [str(C.get("identity_line", "")), str(C.get("professional_summary", ""))]
+        for t in head:
+            m = SELF_AS_DEV.search(t.replace("**", ""))
+            if m:
+                errs.append(f"posicionamiento: nunca '{m.group(0)}' en el titulo o el Summary (Industrial Engineer)")
+        prose = [p.get("text", "") for p in (C.get("letter") or {}).get("paragraphs", [])]
+        prose += [c.get("text", "") for c in (C.get("statement") or {}).get("criteria", [])]
+        for t in prose:
+            for m in SELF_AS_DEV.finditer(t):
+                if SELF_REF.search(t[:m.start()]):
+                    errs.append(f"posicionamiento: no te presentes como '{m.group(0)}' ('{t[max(0, m.start()-30):m.end()]}')")
+    return errs
+
+
 def style_check(folder: Path) -> dict:
     """Style v3 (config `cv`, the user 2026-11-25). Title by the ad's engineering requirement: targets.yaml must
     say `engineering_required: true|false` (with `professional_title_reason`); credential-led headers use
@@ -261,6 +298,7 @@ def style_check(folder: Path) -> dict:
     want = ident.get("contact_line_2_display")
     if rule.get("contact_line_2_from_facts") and want and str(C.get("contact_line_2", "")).strip() != want:
         errs.append(f"contacto: contact_line_2 debe ser identity.contact_line_2_display: '{want}'")
+    errs += positioning_problems(C, T, rule)
     msg = "OK: estilo v3 (titulo segun el aviso, formacion en el Summary, contacto)" if not errs else "; ".join(errs)
     return {"cmd": "hcb style", "exit": 1 if errs else 0, "stdout_tail": msg, "stderr_tail": ""}
 

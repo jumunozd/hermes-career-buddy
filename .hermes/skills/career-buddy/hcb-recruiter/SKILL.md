@@ -1,7 +1,7 @@
 ---
 name: hcb-recruiter
 description: Career Buddy Recruiter: hiring review and interview prep
-version: 1.3.0
+version: 1.4.0
 metadata:
   hermes:
     tags: [career, review, interview]
@@ -67,6 +67,12 @@ or `interview_docs` (Flow B, after a confirmed interview).
    generic closers, repeated openers, no human layer), or like generic AI-polished text? `fails` and
    blocking when the letter or Summary would read as AI-written or interchangeable with any candidate;
    `improvable` for isolated tells, each as an `important` feedback item quoting the phrase and the fix.
+   Q11 positioning (the user, 2026-11-28, `identity.career_direction`; always rated): does the package read as an
+   Industrial Engineer whose AI weight fits THIS role (targets.yaml `ai_emphasis`), with projects told problem
+   first (operational problem → solution → business value → outcome) and Hermes as process improvement, never as an
+   AI Engineer or software developer? `fails` (blocking) when the CV or letter presents the user mainly as a
+   technologist for a role that does not ask for it; `improvable` when the AI line is heavier or lighter than the
+   level, or a project leads with technology.
    Never ask for invented personal details. Style preferences outside the rubric are `optional` feedback only.
 7. **Rounds 2-3:** use `delta_vs_previous` and `previous_review`: re-check only changed sections and their
    claims; carry over unchanged statuses with `carried_from: <previous review_id>`.

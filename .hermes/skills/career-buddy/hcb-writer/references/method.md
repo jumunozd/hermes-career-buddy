@@ -96,6 +96,20 @@ The page 2 running header and footer repeat header line 2.
   employer role into Selected Projects. fit.py fails a project that cites employer evidence.
 - Positioning: Industrial Engineer empowered by AI, not an AI Developer. Hermes reads as process automation
   that saves time and keeps a human in control, never as model or software development.
+- **Problem first (the user, 2026-11-28).** Every project line, letter paragraph and STAR case about a project goes:
+  operational problem → solution → business value → measurable outcome; technical implementation last, and only
+  when the role needs it. Hermes is a case study in Operational Process Improvement through AI: start from its
+  `problem` field, then "Designed and implemented ...", then the metrics exactly as written.
+
+## 3c. AI emphasis by role (the user, 2026-11-28; `identity.career_direction`)
+Set in targets.yaml `ai_emphasis` and `ai_emphasis_reason` (one line quoting the ad):
+- `high`: the ad asks for automation, digital transformation, systems, data or AI. AI tools group in Skills, the
+  Summary may name AI-enabled process improvement, Hermes may lead Selected Projects.
+- `medium` (default when unsure): improvement, analysis, project or planning roles. AI tools group if the Skills
+  budget allows; at most one Summary clause on automation.
+- `low`: site, operations, production or trades-adjacent roles. Only the floor: the Hermes line in Selected Projects
+  and the AI credentials. No AI in the Summary, no AI tools group.
+The level changes prominence, never facts or the always_include floor.
 
 ## 4a. Style v3 (the user, 2026-11-25, after comparing with his Engineer 2026 CV): overrides 4 where they differ
 - Fill two pages: `bullet_budget: 14` in targets.yaml (fit.py v2 default); the page break is placed by fit.py

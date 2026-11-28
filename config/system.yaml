@@ -94,3 +94,6 @@ cv:                                       # style v3 (the user, 2026-11-25); che
   background_in_first_sentence: true      # capability-led: the Summary's FIRST sentence names the engineering background
   reductions_as_percentage: true          # "from A$300 to A$75" always with its % in the same sentence (the user, 2026-11-25)
   contact_line_2_from_facts: true         # contact line 2 = identity.contact_line_2_display exactly (only the 491 right to work)
+  ai_emphasis_required: true              # 2026-11-28 (AP-41ff0590850fd9f53c4a532d): targets.yaml ai_emphasis high|medium|low;
+                                          #   low -> no AI in the Summary, no AI tools Skills group (floor stays: Hermes + AI credentials)
+  never_ai_developer: true                # never "AI Engineer / AI Developer / software developer" as self-description

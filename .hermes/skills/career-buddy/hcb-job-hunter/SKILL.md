@@ -1,7 +1,7 @@
 ---
 name: hcb-job-hunter
 description: Career Buddy Job Hunter: discover, verify, A-H, register
-version: 1.12.0
+version: 1.13.0
 metadata:
   hermes:
     tags: [career, job-search, tasmania]
@@ -163,6 +163,11 @@ catalogue that is another engineering branch (structural, geotechnical, civil, .
 For these cards write `review_reason: "aviso en portal: falta el aviso completo"`, never "revisar funciones"
 (that phrase means the duties belong to another field and discards the offer). Keep the card text short in
 `ad_text`; the user sends the full ad (📎, «Aviso <ID>») before any preparation.
+
+## Career direction is never a filter (the user, 2026-11-28)
+`identity.career_direction` (operational excellence, process optimisation, AI-enabled automation) guides how the Writer
+presents the user, not what you look for. Never narrow the search, change fit thresholds or drop a relevant offer
+because it is not about that direction: industries, engineering-adjacent and transferable roles stay in scope.
 
 ## Protected code (P-14, 2026-11-27)
 Never edit code, config, skills or facts, and never work around a block of the P-14 guard hook: report the
