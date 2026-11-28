@@ -154,6 +154,31 @@ def check_text(text, kind, C, ident):
     return out
 
 
+def _alnum(t):
+    return re.sub(r"[^a-z0-9]+", "", (t or "").lower().replace("**", ""))
+
+
+def check_complete(text, kind, C):
+    """P-16 (2026-11-28) TRUNC: every bullet, letter paragraph and statement criterion of content.json is in the
+    file, start and end (a block cut by the layout or lost in conversion shows here, without a page image)."""
+    if text is None or C is None:
+        return []
+    if kind == "cv":
+        blocks = [b.get("text", "") for r in C.get("experience", []) for b in r.get("bullets", [])]
+    elif kind == "letter":
+        blocks = [p.get("text", "") for p in (C.get("letter") or {}).get("paragraphs", [])]
+    else:
+        blocks = [c.get("text", "") for c in (C.get("statement") or {}).get("criteria", [])]
+    hay, out = _alnum(text), []
+    for b in blocks:
+        a = _alnum(b)
+        if len(a) < 40:
+            continue
+        if a[:30] not in hay or a[-30:] not in hay:
+            out.append(("TRUNC", f"no se lee entero: '{b[:60]}...'"))
+    return out
+
+
 def check_folder(folder):
     ident = yaml.safe_load((FACTS / "identity.yaml").read_text(encoding="utf-8"))
     cpath = folder / "content.json"
@@ -180,6 +205,8 @@ def check_folder(folder):
                     if v.lower() in low:
                         fails.append((path.name, "HEADER", f"'{v}' esta en el header/footer de Word"))
             for code, msg in check_text(text, kind, C, ident):
+                fails.append((path.name, code, msg))
+            for code, msg in check_complete(text, kind, C):
                 fails.append((path.name, code, msg))
             print(f"  leido  {path.name:28s} {len(text.split()):5d} palabras")
     return fails, seen

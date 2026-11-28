@@ -1,0 +1,47 @@
+{
+ "rules_version": "v2",
+ "capability_nouns": "Project Delivery",
+ "contact_line_1": "Launceston, Tasmania | 0400 000 000 | alex@example.com",
+ "contact_line_2": "Available to start immediately",
+ "professional_summary": "Industrial Engineer with project delivery and process improvement experience; cut a recurring cost by approximately 50% (from A$200 to A$100).",
+ "summary_claims": [
+  {
+   "text": "cut cost",
+   "proves_with": [
+    "northwind_dispatch_automation"
+   ]
+  }
+ ],
+ "skills": [
+  {
+   "label": "Tools",
+   "terms": "Excel | Planning"
+  }
+ ],
+ "experience": [
+  {
+   "title": "Project Coordinator",
+   "org": "Example Co, Launceston",
+   "dates": "2024 - 2026",
+   "bullets": [
+    {
+     "text": "cut cost by approximately 50%, from approximately A$200 to A$100.",
+     "evidence": [
+      "northwind_dispatch_automation"
+     ]
+    }
+   ]
+  }
+ ],
+ "education": [],
+ "certifications": [],
+ "projects": [
+  {
+   "name": "Demo project",
+   "line": "Did a thing that mattered.",
+   "evidence": []
+  }
+ ],
+ "name": "Alex Example",
+ "identity_line": "Industrial Engineer"
+}

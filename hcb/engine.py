@@ -120,6 +120,23 @@ def document_plan_check(folder: Path) -> dict:
     return {"cmd": "hcb document_plan", "exit": 1 if errs else 0, "stdout_tail": msg, "stderr_tail": ""}
 
 
+def layout_check(folder: Path) -> dict:
+    """P-16: fit.py's layout.json (the render as data: pages, first/last block, fonts actually used, overlaps,
+    overflow, empty pages). Agents read it instead of page images; hard render problems fail here."""
+    p = folder / "layout.json"
+    if not p.exists():
+        return {"cmd": "hcb layout", "exit": 1, "stdout_tail": "no layout.json: fit.py did not finish", "stderr_tail": ""}
+    d = json.loads(p.read_text(encoding="utf-8"))
+    lines = []
+    for doc, v in d.get("documents", {}).items():
+        pages = ", ".join(f"p{x['page']} {x['used_pct']}% (ends: {x['last'][:40]})" for x in v.get("pages", []))
+        lines.append(f"{doc}: {pages}; fonts {', '.join(v.get('fonts', []))}")
+        lines += [f"[FAIL LAYOUT] {doc}: {i}" for i in v.get("issues", [])]
+        lines += [f"[WARN LAYOUT] {doc}: {w}" for w in v.get("warnings", [])]
+    return {"cmd": "hcb layout", "exit": 0 if d.get("ok") else 1, "stdout_tail": "\n".join(lines)[-2500:],
+            "stderr_tail": ""}
+
+
 STAR_PARTS = ("situation", "task", "action", "result")
 STATEMENT_MIN_WORDS = 800      # ~535 words fill one page; two pages hold ~1,000-1,100 (o-28ef02 v3)
 STAR_EXEMPT_BLOCKS = {"highly_regarded", "desirables"}
@@ -310,6 +327,8 @@ def run_pipeline(folder: Path, statement: bool = False) -> dict:
     root = engine_root().resolve()
     if root in folder.parents or folder == root:
         raise PermissionError("Work folder inside engine/ is not allowed (read-only method).")
+    import time as _time
+    t0 = _time.time()
     before = fingerprint()
     from . import repair
     steps = [repair.seal_step()]      # P-14: protected files changed without approval stop the run
@@ -328,6 +347,7 @@ def run_pipeline(folder: Path, statement: bool = False) -> dict:
     steps.append(_run([ENGINE_PY, str(b / "ats_check.py"), str(folder)], root))
     if (folder / "targets.yaml").exists():
         steps.append(_run([ENGINE_PY, str(b / "keyword_check.py"), str(folder)], root))
+    steps.append(layout_check(folder))
     steps.append(document_plan_check(folder))
     steps.append(statement_check(folder))
     steps.append(always_include_check(folder))
@@ -337,9 +357,31 @@ def run_pipeline(folder: Path, statement: bool = False) -> dict:
     after = fingerprint()
     ok = all(s["exit"] == 0 for s in steps)
     result = {"folder": str(folder), "steps": steps, "all_passed": ok,
-              "engine_unchanged": before == after, "engine_fingerprint": after, "checked_at": now_iso()}
+              "engine_unchanged": before == after, "engine_fingerprint": after, "checked_at": now_iso(),
+              "seconds": round(_time.time() - t0, 1)}
+    try:
+        (folder / "engine-run.json").write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+    except OSError:
+        pass                                   # a published (read-only) version: the result is still returned
+    from . import timing
+    timing.record(folder.name, "engine", "run", result["seconds"], "passed" if ok else "failed")
     state.event("engine_pipeline", folder=str(folder), passed=ok, engine_unchanged=before == after)
     return result
+
+
+def brief(result: dict) -> dict:
+    """P-16 `engine run --brief`: failing steps only, their [FAIL ...] lines (max 6 each), the layout summary."""
+    out = {"all_passed": result["all_passed"], "engine_unchanged": result["engine_unchanged"],
+           "seconds": result.get("seconds"), "full": str(Path(result["folder"]) / "engine-run.json"), "fix": []}
+    for s in result["steps"]:
+        text = (s.get("stdout_tail") or "") + "\n" + (s.get("stderr_tail") or "")
+        if s["cmd"] == "hcb layout":
+            out["layout"] = [l for l in text.splitlines() if l and not l.startswith("[")][:4]
+        if s.get("exit"):
+            lines = [l.strip() for l in text.splitlines() if "FAIL" in l or "ERROR" in l or l.strip().startswith("-")]
+            out["fix"].append({"step": s["cmd"].split("/")[-1][:60],
+                               "lines": (lines or [l for l in text.splitlines() if l.strip()][-3:])[:6]})
+    return out
 
 
 def publish(folder: Path, meta: dict) -> dict:

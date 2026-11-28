@@ -56,6 +56,18 @@ def _load(folder: Path, name: str, default):
     return json.loads(p.read_text()) if p.exists() else default
 
 
+def _layout(folder: Path) -> dict:
+    """fit.py's layout.json, compact: per document pages (% used, first / last block), fonts, issues, warnings."""
+    import json
+    p = folder / "layout.json"
+    if not p.exists():
+        return {}
+    d = json.loads(p.read_text(encoding="utf-8"))
+    return {doc: {"pages": [{k: x.get(k) for k in ("page", "used_pct", "first", "last")} for x in v.get("pages", [])],
+                  "fonts": v.get("fonts"), "issues": v.get("issues"), "warnings": v.get("warnings")}
+            for doc, v in d.get("documents", {}).items()}
+
+
 def _naturalness(folder: Path) -> dict:
     """Code-side AI-tell report (hcb.naturalness) for Q10; recomputed so it never depends on the Writer."""
     from . import naturalness
@@ -125,6 +137,7 @@ def build(folder: Path, ad_file: Path, round_no: int, previous: Path | None = No
         "documents": docs_text,
         "documents_plan": {"basis": plan.get("basis"), "documents": plan.get("documents")},
         "naturalness_check": _naturalness(folder),   # Recruiter Q10 (the user, 2026-11-26)
+        "layout": _layout(folder),                    # P-16: the render as data (Q5), no page images
         "writer_requirements_coverage": [{k: r.get(k) for k in ("req_ref", "kind", "status", "claim_ids", "transfer_bridge")}
                                          for r in coverage],
         "claims": compact,

@@ -37,7 +37,9 @@ def source_hashes() -> dict:
     return {s: sha256_file(root / s) for s in SOURCES}
 
 
-def build() -> str:
+def build(index: bool = False, only_ids: set | None = None) -> str:
+    """index (P-16): one line per evidence unit, for writing targets.yaml without loading the 55k-char bank.
+    only_ids: full cards for these units only (after `engine select`), for drafting."""
     root = facts_root()
     ident = load_yaml(root / "facts/identity.yaml")
     roles = load_yaml(root / "facts/roles.yaml")
@@ -99,8 +101,17 @@ def build() -> str:
     for e in evidence:
         by_role.setdefault(e["role"], []).append(e)
     for role, items in by_role.items():
+        if only_ids is not None:
+            items = [e for e in items if e["id"] in only_ids]
+            if not items:
+                continue
         L.append(f"### role: {role}")
         for e in items:
+            if index:
+                claim = e["claim"] if len(e["claim"]) <= 110 else e["claim"][:107] + "..."
+                L.append(f"- {e['id']} [{e['status']}] {claim} | tags: {_clean(e.get('capabilities'))}"
+                         + (" | always_include" if e.get("always_include") else ""))
+                continue
             L.append(f"- **{e['id']}** [{e['status']}, {e.get('match_depth_default')}] {e['claim']}"
                      f" | metrics: {_clean(e.get('metrics')) or '-'} | tags: {_clean(e.get('capabilities'))}")
             for k, v in e.items():
@@ -108,6 +119,35 @@ def build() -> str:
                     L.append(f"  - {k}: {_clean(v)}")
         L.append("")
     return "\n".join(L) + "\n"
+
+
+def write_index() -> dict:
+    """private/writer/facts-index.md: identity, roles, prohibitions, credentials + a one-line evidence index."""
+    text = build(index=True)
+    out = _out().with_name("facts-index.md")
+    out.write_text(text, encoding="utf-8")
+    return {"path": str(out), "chars": len(text)}
+
+
+def write_selected(folder) -> dict:
+    """<folder>/facts-selected.md: full cards of the units `engine select` put IN, the always_include units and the
+    project cards; a statement plan keeps the whole bank (a STAR case may use evidence the CV left out)."""
+    import json
+    from pathlib import Path
+    folder = Path(folder)
+    plan = json.loads((folder / "document-plan.json").read_text(encoding="utf-8")) if (folder / "document-plan.json").exists() else {}
+    if any(str(d.get("type", "")).lower() in ("selection_criteria", "statement", "short_form_application")
+           for d in plan.get("documents", [])):
+        text, ids = build(), None
+    else:
+        sel = json.loads((folder / "selection.json").read_text(encoding="utf-8"))
+        ids = {i for u in sel.get("units", []) for i in u.get("ids", [])}
+        ev = load_yaml(facts_root() / "facts/evidence.yaml")["evidence"]
+        ids |= {e["id"] for e in ev if e.get("always_include") or e["id"].startswith("project_")}
+        text = build(only_ids=ids)
+    out = folder / "facts-selected.md"
+    out.write_text(text, encoding="utf-8")
+    return {"path": str(out), "chars": len(text), "units": None if ids is None else len(ids)}
 
 
 def write() -> dict:

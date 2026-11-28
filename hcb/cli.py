@@ -191,10 +191,18 @@ def cmd_engine(a):
         sys.exit(0 if res["passed"] and res["engine_unchanged"] else 1)
     elif a.op == "run":
         res = engine.run_pipeline(Path(a.folder), statement=a.statement)
-        _out(res)
+        if a.brief:      # P-16: only what needs fixing, one line each; the full JSON stays in engine-run.json
+            _out(engine.brief(res))
+        else:
+            _out(res)
         sys.exit(0 if res["all_passed"] and res["engine_unchanged"] else 1)
     elif a.op == "publish":
         _out(engine.publish(Path(a.folder), json.loads(a.meta)))
+
+
+def cmd_timing(a):
+    from . import timing
+    _out(timing.recent())
 
 
 def cmd_task(a):
@@ -203,7 +211,12 @@ def cmd_task(a):
         task = envelopes.make_task(a.role, a.action, a.refs, a.cycle, a.scope, round_=a.round)
         _out({"task": task, "delegate_context": envelopes.delegation_context(task, json.loads(a.payload or "{}"))})
     elif a.op == "validate":
-        problems = envelopes.validate_result(json.loads(Path(a.task_file).read_text()), json.loads(Path(a.result_file).read_text()))
+        task = json.loads(Path(a.task_file).read_text())
+        result = json.loads(Path(a.result_file).read_text())
+        problems = envelopes.validate_result(task, result)
+        from . import timing          # P-16: minutes from task make to validate, per role and action
+        timing.record(task.get("task_id", ""), task.get("role", ""), task.get("action", ""),
+                      timing.since(task.get("created_at")), "accepted" if not problems else "rejected")
         _out({"accepted": not problems, "problems": problems})
 
 
@@ -414,6 +427,10 @@ def cmd_daily_delivered(a):
 
 def cmd_writer_pack(a):
     from . import writer_pack
+    if a.index:
+        _out(writer_pack.write_index()); return
+    if a.selection:
+        _out(writer_pack.write_selected(a.selection)); return
     res = writer_pack.check() if a.check else writer_pack.write()
     _out(res)
     if a.check and not res["fresh"]:
@@ -514,7 +531,10 @@ def main(argv=None):
     x.add_argument("--model", default="hermes-default"); x.set_defaults(f=cmd_ah)
     x = s.add_parser("engine"); x.add_argument("op", choices=["fingerprint", "new-version", "select", "run", "publish"])
     x.add_argument("--opportunity"); x.add_argument("--preparation"); x.add_argument("--folder")
-    x.add_argument("--meta", default="{}"); x.add_argument("--statement", action="store_true"); x.set_defaults(f=cmd_engine)
+    x.add_argument("--meta", default="{}"); x.add_argument("--statement", action="store_true")
+    x.add_argument("--brief", action="store_true", help="P-16: failing steps only, one line each")
+    x.set_defaults(f=cmd_engine)
+    x = s.add_parser("timing", help="P-16: median minutes per preparation phase"); x.set_defaults(f=cmd_timing)
     x = s.add_parser("task"); x.add_argument("op", choices=["make", "validate"])
     x.add_argument("--role"); x.add_argument("--action"); x.add_argument("--refs", nargs="*", default=[])
     x.add_argument("--cycle", default=""); x.add_argument("--scope", default="prepare_only; sending_blocked")
@@ -580,7 +600,10 @@ def main(argv=None):
     x.add_argument("--message-ref"); x.add_argument("--failed", metavar="ERROR")
     x.set_defaults(f=cmd_daily_delivered)
     x = s.add_parser("writer-pack", help="regenerate (or --check) the Writer facts digest from the Engine")
-    x.add_argument("--check", action="store_true"); x.set_defaults(f=cmd_writer_pack)
+    x.add_argument("--check", action="store_true")
+    x.add_argument("--index", action="store_true", help="P-16: one-line evidence index for targets.yaml")
+    x.add_argument("--selection", help="P-16: <version folder> -> facts-selected.md (IN units only)")
+    x.set_defaults(f=cmd_writer_pack)
     x = s.add_parser("targets", help="match a posting against config/job-targets.yaml, or list queries")
     x.add_argument("op", choices=["match", "queries", "entry-signal"]); x.add_argument("--title", default="")
     x.add_argument("--ad"); x.add_argument("--selective", action="store_true")

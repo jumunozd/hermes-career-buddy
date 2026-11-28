@@ -1,7 +1,7 @@
 ---
 name: hcb-writer
 description: Career Buddy Writer: tailored CV and cover letter
-version: 1.12.0
+version: 1.13.0
 metadata:
   hermes:
     tags: [career, cv, cover-letter, writing]
@@ -75,9 +75,13 @@ Never for a user conversation, never to send anything.
    with url and accessed_at. Never present model memory as a current fact.
 4. **Load the Writer pack, nothing else** (it replaces reading the fact and rule files one by one):
    run `bin/hcb writer-pack --check`; if not fresh, run `bin/hcb writer-pack` (regenerates from
-   `private/facts/`). Then, once each: `skill_view(name="hcb-writer", path="references/method.md")`,
-   `references/voice.md`, `references/voice-layers.md`, `references/schemas.md`, and read_file
-   `private/writer/facts-digest.md`. The voice layers are part of the pack, not extra reading: also load,
+   `private/facts/`). Then, once each: `skill_view(name="hcb-writer", path="references/method.md")` (P-16: only
+   §0-4a always, §5 only with a letter, §6 only with a statement, never §8, which is for the PM),
+   `references/voice.md`, `references/voice-layers.md`, `references/schemas.md`. Facts (P-16, smaller context):
+   for targets.yaml use `bin/hcb writer-pack --index` (`private/writer/facts-index.md`, one line per unit); after
+   `engine select`, run `bin/hcb writer-pack --selection <folder>` and draft from `<folder>/facts-selected.md`
+   (full cards of the IN units, always_include and project cards; the whole bank when the plan has a statement).
+   Read the full `private/writer/facts-digest.md` only if those two lack something, and say what in `issues`. The voice layers are part of the pack, not extra reading: also load,
    once each, `skill_view(name="candidate-writing-voice")` with its `references/voice-profile.md`,
    `references/decisions.md`, `references/examples.md`, and `skill_view(name="humanizer")`. Do NOT
    open `engine/rules/`, `private/voice/`, `private/facts/` or `private/AGENTS.md` with read_file: the
@@ -96,16 +100,20 @@ Never for a user conversation, never to send anything.
    The statement uses its two pages and tells every criterion in STAR order with a `star` map
    (method.md §6; `hcb statement` fails without it). Money kept is "saved", never "avoided/avoiding".
    Keywords with status `letter` need a letter: with no letter, use `cv` or `demonstrated`.
-7a. **Soul Voice pass (mandatory, `voice-layers.md` pass 2).** Rewrite the draft against the user's
-   approved voice (`candidate-writing-voice` profile, decisions, examples; `voice.md` sector rules). One final
-   version. Soul Voice prevails over Humanizer.
-7b. **Humanizer pass (mandatory, `voice-layers.md` pass 3).** Run the `humanizer` skill on the letter,
-   statement and Summary (all 34 patterns plus its final anti-AI pass) and on the bullets (listed patterns),
-   using the Soul Voice files as its calibration sample. It removes tells; it never adds facts or overrides
-   Soul Voice. Record both passes in `outputs.voice_review`.
-8. **Fact verification, run the Engine checks:** `bin/hcb engine run --folder <folder>` (fit.py renders md/html/docx/pdf,
-   then verify.py, ats_check.py, keyword_check.py). Nothing is delivered with a failure: fix the
-   content and rerun. `engine_unchanged` must be true.
+7a. **Voice pass: Soul Voice + Humanizer in ONE rewrite (mandatory, `voice-layers.md`; P-16).** Rewrite the draft
+   once against the combined checklist: the user's approved voice (`candidate-writing-voice`, `voice.md`) and the
+   `humanizer` patterns (all 34 plus its final anti-AI question on letter, statement and Summary; the listed
+   patterns on bullets), Soul Voice winning every conflict. Never adds facts. Record both parts in
+   `outputs.voice_review` (same schema).
+8. **Fact verification, run the Engine checks:** `bin/hcb engine run --folder <folder> --brief` (fit.py renders
+   md/html/docx/pdf and writes `layout.json`, then verify.py, ats_check.py, keyword_check.py and the hcb checks).
+   `--brief` returns only what to fix, one line each, and the layout summary; the full result is in
+   `engine-run.json`. Nothing is delivered with a failure: fix the content and rerun. `engine_unchanged` must be true.
+   **No page images (P-16, the user 2026-11-28: "son robots"):** the layout is in `layout.json` (per page: % used,
+   first and last block, fonts actually used, orphan headings; overlaps, overflow and empty pages fail
+   `hcb layout`). Do not render pages to PNG or use `vision_analyze` on the documents. Escape hatch only: if
+   `hcb layout` or `TRUNC` flags something you cannot classify, look at that ONE page at low detail and say why
+   in `issues`. The user sees the PDF before sending.
 9. **Claim map.** For every factual sentence: `claim_id`, document, location, text, `jae_ref`
    (Engine evidence/role/credential id), recorded_fact, dimensions_checked, transformation.
    A claim without a valid `jae_ref` is removed, never published. A sentence that merges several facts

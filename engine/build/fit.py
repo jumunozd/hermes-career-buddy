@@ -74,9 +74,47 @@ window.addEventListener('load', () => {
     const used = Math.max(0, ...els.map(e => e.getBoundingClientRect().bottom - top));
     return {page: i + 1, used: Math.round(used), limit: Math.round(limit)};
   });
+  // P-16 (2026-11-28): the layout as data, so no agent needs a page image.
+  const txt = e => (e.innerText || '').replace(/\\s+/g, ' ').trim().slice(0, 70);
+  const layout = boxes.map((p, i) => {
+    const top = p.getBoundingClientRect().top;
+    const els = [...p.querySelectorAll(sel)].filter(e => !e.closest('.footer') && txt(e));
+    const lim = res[i].limit;
+    const heads = [...p.querySelectorAll('h2,h3,.role')].filter(e => !e.closest('.footer'));
+    const lastBlock = els.length ? els.reduce((a, b) => b.getBoundingClientRect().bottom > a.getBoundingClientRect().bottom ? b : a) : null;
+    const orphan = heads.filter(h => lastBlock && (h === lastBlock || h.contains(lastBlock) ||
+                   (lim - (h.getBoundingClientRect().bottom - top) < 28 && !h.closest('li')))).map(txt);
+    const leaves = els.filter(e => !els.some(o => o !== e && e.contains(o)));
+    const overlaps = [];
+    for (let a = 0; a < leaves.length; a++) for (let b = a + 1; b < leaves.length; b++) {
+      const r1 = leaves[a].getBoundingClientRect(), r2 = leaves[b].getBoundingClientRect();
+      const ix = Math.min(r1.right, r2.right) - Math.max(r1.left, r2.left);
+      const iy = Math.min(r1.bottom, r2.bottom) - Math.max(r1.top, r2.top);
+      if (ix > 2 && iy > 2) overlaps.push([txt(leaves[a]), txt(leaves[b])]);
+    }
+    const pr = p.getBoundingClientRect();
+    const overflow = leaves.filter(e => e.scrollWidth > e.clientWidth + 1 ||
+                     e.getBoundingClientRect().right > pr.right + 1 || e.getBoundingClientRect().left < pr.left - 1).map(txt);
+    return {page: i + 1, used_pct: Math.round(100 * res[i].used / Math.max(res[i].limit, 1)),
+            first: els.length ? txt(els[0]) : '', last: lastBlock ? txt(lastBlock) : '',
+            empty: els.length === 0, orphan_headings: orphan.slice(0, 5),
+            overlaps: overlaps.slice(0, 5), overflow: overflow.slice(0, 5)};
+  });
+  const stacks = new Set([...document.querySelectorAll('body *')].map(e => getComputedStyle(e).fontFamily));
+  const generic = ['serif', 'sans-serif', 'monospace', 'system-ui', 'cursive', 'fantasy'];
+  const fonts = [...stacks].map(st => {
+    const fams = st.split(',').map(f => f.trim().replace(/^["']|["']$/g, ''));
+    // document.fonts.check() says true for any font it does not need to load: measure instead (a font that is
+    // really there renders the sample at a different width than both generic fallbacks)
+    const cv = document.createElement('canvas').getContext('2d');
+    const w = f => { cv.font = '40px ' + f; return cv.measureText('mmmmmmmmmlliWWQ@#0123').width; };
+    const has = f => ['monospace', 'serif'].every(g => Math.abs(w('"' + f + '",' + g) - w(g)) > 0.5);
+    const used = fams.find(f => !generic.includes(f) && has(f));
+    return {stack: st, rendered_with: used || null};
+  });
   const pre = document.createElement('pre');
   pre.id = 'fit-result';
-  pre.textContent = JSON.stringify(res);
+  pre.textContent = JSON.stringify({pages: res, layout: layout, fonts: fonts});
   document.body.appendChild(pre);
 });
 </script>
@@ -100,7 +138,40 @@ def measure(html_path):
     m = re.search(r'<pre id="fit-result">(.*?)</pre>', out, flags=re.S)
     if not m:
         sys.exit("ERROR: no se pudo medir la maqueta en Chrome headless.")
-    return json.loads(m.group(1))
+    import html as _html
+    data = json.loads(_html.unescape(m.group(1)))
+    if isinstance(data, dict):
+        LAYOUT[html_path.name] = {"pages": data.get("layout", []), "fonts": data.get("fonts", [])}
+        return data["pages"]
+    return data
+
+
+LAYOUT: dict = {}   # P-16: last measured layout per html file name
+
+
+def write_layout(folder):
+    """layout.json: what an agent would otherwise look at in a page image (P-16), plus the render checks."""
+    docs = {}
+    for name, d in LAYOUT.items():
+        stem = name.removesuffix(".html")
+        issues = []
+        for p in d["pages"]:
+            if p.get("empty"):
+                issues.append(f"pagina {p['page']} vacia")
+            for a, b in p.get("overlaps", []):
+                issues.append(f"pagina {p['page']}: texto encimado '{a[:40]}' / '{b[:40]}'")
+            for t in p.get("overflow", []):
+                issues.append(f"pagina {p['page']}: texto fuera de su caja o del margen '{t[:50]}'")
+        missing = [f["stack"] for f in d["fonts"] if not f.get("rendered_with")]
+        for st in missing:
+            issues.append(f"ninguna fuente de la pila esta disponible (se usaria la generica): {st[:80]}")
+        warns = [f"pagina {p['page']}: titulo solo al final '{h}'" for p in d["pages"] for h in p.get("orphan_headings", [])]
+        docs[stem] = {"pages": d["pages"], "fonts": sorted({f["rendered_with"] or "GENERIC" for f in d["fonts"]}),
+                      "issues": issues, "warnings": warns}
+    out = {"generated_by": "fit.py (Chrome headless render)", "documents": docs,
+           "ok": not any(v["issues"] for v in docs.values())}
+    (folder / "layout.json").write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return out
 
 
 def check_evidence(C, selected):
@@ -435,6 +506,9 @@ def main():
     cpath.write_text(json.dumps(C, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     build_all(cpath)
 
+    measure(folder / f"{CV_STEM}.html")                       # final CV layout (P-16 layout.json)
+    if (folder / "selection-criteria.html").exists():
+        measure(folder / "selection-criteria.html")
     letter = folder / "cover-letter.html"
     if letter.exists():
         lp = measure(letter)[0]
@@ -442,6 +516,8 @@ def main():
             print(f"[FAIL FIT] La carta se pasa de 1 pagina por {lp['used'] - A4_PX + SAFETY_PX}px. Acortar texto.")
             sys.exit(1)
 
+    lay = write_layout(folder)
+    print(f"[LAYOUT] layout.json: {'OK' if lay['ok'] else 'PROBLEMAS: ' + '; '.join(i for v in lay['documents'].values() for i in v['issues'])[:400]}")
     counts = print_pdf(folder)
     for p in pages:
         print(f"CV pagina {p['page']}: ocupa {p['used']} de {p['limit']} px, libre {p['limit'] - p['used']} px")

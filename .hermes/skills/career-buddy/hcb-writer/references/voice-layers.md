@@ -17,6 +17,11 @@ Humanizer defaults: adding opinions, humour, asides or "mess"; first person in C
 casual wording; letting tangents in; removing a number with its base; replacing the ad's required terms;
 changing "helped" to "led" or a shared result to an individual one.
 
+## One rewrite, two checklists (P-16, 2026-11-28)
+Passes 2 and 3 below are applied in the SAME rewrite of the draft (one round trip): go through the Soul Voice
+checklist and the Humanizer patterns together, Soul Voice winning every conflict, then record both in
+`voice_review`. The order record stays `generate, soul_voice, humanizer, fact_verification`.
+
 ## Pass 2: Soul Voice (load once per task)
 Load `skill_view(name="candidate-writing-voice")`, then its `references/voice-profile.md`,
 `references/decisions.md` and `references/examples.md`, plus this skill's `references/voice.md`

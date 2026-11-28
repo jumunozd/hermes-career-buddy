@@ -186,6 +186,11 @@ def build(now: datetime, rows=None, jobs=None, use_live: bool = True) -> dict:
                    ("En preparación o listas", sum(1 for r in rows or [] if r.get("Status") in ("Preparing", "Ready for Review"))),
                    ("Enviadas esta semana", sum(1 for r in rows or [] if _d(r.get("Date applied")) and _d(r["Date applied"]) >= week_start.date()))]
     m["sweeps_week"] = len(sweeps)
+    try:                                   # P-16: minutes per preparation phase (median of the last 10)
+        from . import timing
+        m["timing"] = timing.recent()["median_minutes"]
+    except Exception:  # noqa: BLE001
+        m["timing"] = {}
     return m
 
 
@@ -315,6 +320,12 @@ def render(m: dict, now: datetime) -> str:
     # funnel
     h.append("<section><h2>Embudo de los últimos 7 días</h2><table class='funnel'>"
              + "".join(f"<tr><td>{_e(k)}</td><td>{v}</td></tr>" for k, v in m["funnel"]) + "</table></section>")
+    if m.get("timing"):
+        names = {"writer:draft": "Writer, borrador", "writer:revise": "Writer, corrección", "recruiter:review": "Recruiter",
+                 "engine:run": "Motor (cada corrida)"}
+        h.append("<section><h2>Tiempo por fase (mediana, últimas 10)</h2><table class='funnel'>"
+                 + "".join(f"<tr><td>{_e(names.get(k, k))}</td><td>{v} min</td></tr>" for k, v in sorted(m["timing"].items()))
+                 + "</table></section>")
     h.append("</main></body></html>")
     return "".join(h)
 
