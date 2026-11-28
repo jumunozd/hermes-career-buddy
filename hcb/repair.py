@@ -564,8 +564,9 @@ def guard(payload: dict) -> dict | None:
             return _block(f"{path} is a protected file (zone {z})")
         return None
     if tool == "skill_manage":
-        act = str(args.get("action") or "")
-        if not re.match(r"(view|list|read|search|get)", act):
+        acts = [str(args.get("action") or "")] if args.get("action") else []
+        acts += [str(o.get("action") or "") for o in args.get("operations") or [] if isinstance(o, dict)]
+        if not acts or any(not re.match(r"(view|list|read|search|get)", a) for a in acts):
             return _block("skills are protected; a skill change goes through a repair")
         return None
     if tool in ("terminal", "execute_code"):
@@ -581,7 +582,10 @@ def guard(payload: dict) -> dict | None:
         if _GIT_WRITE.search(text):
             return _block("git changes on the live tree go only through `bin/hcb repair apply`")
         if tool == "execute_code":
-            if _WRITE_OPS.search(text) and not _in_worktree_only(text):
+            # running the project's CLI (`bin/hcb engine select ...`) is not writing bin/ (2026-11-28 false positive:
+            # a Writer script that wrote only private/applications/... and then ran bin/hcb was blocked)
+            code = re.sub(r"(?:\./)?bin/hcb(?=\s+[a-z])", " ", text)       # an invocation, not the file itself
+            if _WRITE_OPS.search(code) and not _in_worktree_only(code):
                 return _block("this code may write a protected file")
             if re.search(r"subprocess|os\.system", text) and _PROTECTED_TOKENS.search(text) and \
                     re.search(r"sed|perl|tee|cp|mv|rm|git", text):

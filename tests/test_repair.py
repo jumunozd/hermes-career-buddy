@@ -179,6 +179,18 @@ class Guard(unittest.TestCase):
         with mock.patch.object(R, "root", lambda: Path(wt)):
             self.assertTrue(self.blocked("terminal", command="sed -i s/a/b/ hcb/engine.py"))
 
+    def test_writer_script_that_writes_applications_and_runs_the_cli_is_allowed(self):
+        code = ("from hermes_tools import terminal\n"
+                "new=pathlib.Path('private/applications/x/prep-001/v2'); (new/'content.json').write_text(c)\n"
+                "print(terminal('bin/hcb engine select --folder private/applications/x/prep-001/v2'))")
+        self.assertFalse(self.blocked("execute_code", code=code))
+        self.assertTrue(self.blocked("execute_code", code="open('bin/hcb','w').write('x')"))
+        self.assertTrue(self.blocked("execute_code", code="pathlib.Path('hcb/engine.py').write_text('x')"))
+
+    def test_skill_manage_operations(self):
+        self.assertTrue(self.blocked("skill_manage", operations=[{"action": "patch", "name": "hcb-writer"}]))
+        self.assertFalse(self.blocked("skill_manage", operations=[{"action": "view", "name": "hcb-writer"}]))
+
     def test_relative_path_from_another_cwd_is_still_protected(self):
         self.assertIsNotNone(R.guard({"tool_name": "write_file", "cwd": "/tmp",
                                       "tool_input": {"path": "hcb/engine.py"}}))
