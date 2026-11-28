@@ -2,7 +2,7 @@
 # Kept by the Research Agent (Friday review proposes additions from tenders, major projects, awards); the user
 # approves every addition. The Job Hunter reads it as a copy (job-hunter.md §3, `employers`).
 # tier 1 = group A-C roles likely in an approved zone; 2 = some; 3 = occasional.
-# channel: page_read (sources.yaml reads the listing) | email_alert (docs/ALERTS_CHECKLIST.md) |
+# channel: page_read (sources.yaml reads the listing) | email_alert (private/docs/ALERTS_CHECKLIST.md) |
 #          search_discovery (safety net) | via_portal (no own listing: SEEK / Employment Hero alerts) | out_of_zone
 # source: the sources.yaml id when the employer is read or searched.
 version: "1.0.0"
